@@ -1,3 +1,5 @@
+// TODO: Depricate this class
+
 package com.springboot.MyTodoList.model;
 
 
