@@ -21,7 +21,7 @@ if [ "$DEV_MODE" = true ]; then
     docker build -f DockerfileDev --platform linux/amd64 -t agileimage:0.1 .
     
     echo "=== Starting container ==="
-    docker run --name agilecontainer --volume "${PWD}/target:/tmp/target:rw" -p 8080:8080 -d agileimage:0.1
+    docker run --name agilecontainer --volume "$PWD/target:/tmp/target:rw" -p 8080:8080 -d agileimage:0.1
     exit 0
 fi
 
