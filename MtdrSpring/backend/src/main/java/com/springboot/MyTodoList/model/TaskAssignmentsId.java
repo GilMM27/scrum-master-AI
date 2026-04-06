@@ -2,33 +2,34 @@ package com.springboot.MyTodoList.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 public class TaskAssignmentsId implements Serializable {
 
-    private int task_id;
-    private int user_id;
+    private UUID task_id;
+    private UUID user_id;
 
     public TaskAssignmentsId() {
     }
 
-    public TaskAssignmentsId(int task_id, int user_id) {
+    public TaskAssignmentsId(UUID task_id, UUID user_id) {
         this.task_id = task_id;
         this.user_id = user_id;
     }
 
-    public int getTaskId() {
+    public UUID getTaskId() {
         return task_id;
     }
 
-    public void setTaskId(int task_id) {
+    public void setTaskId(UUID task_id) {
         this.task_id = task_id;
     }
 
-    public int getUserId() {
+    public UUID getUserId() {
         return user_id;
     }
 
-    public void setUserId(int user_id) {
+    public void setUserId(UUID user_id) {
         this.user_id = user_id;
     }
 

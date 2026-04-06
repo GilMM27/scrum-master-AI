@@ -2,7 +2,8 @@ package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the DAILY_REPORTS table that exists already
@@ -12,11 +13,13 @@ import java.util.Arrays;
 @Table(name = "DAILY_REPORTS")
 public class DailyReports {
     @Id
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "REPORT_ID", nullable = false)
-    int report_id;
-    @Column(name = "PROJECT_ID")
-    int project_id;
-    @Column(name = "REPORT_DATE")
+    UUID report_id;
+    @Convert(converter = UUIDConverter.class)
+    @Column(name = "PROJECT_ID", nullable = false)
+    UUID project_id;
+    @Column(name = "REPORT_DATE", nullable = false)
     LocalDate report_date;
     @Lob
     @Column(name = "CONTENT_TLDR")
@@ -28,7 +31,7 @@ public class DailyReports {
     public DailyReports() {
     }
 
-    public DailyReports(int report_id, int project_id, LocalDate report_date, String content_tldr, String minutes_content) {
+    public DailyReports(UUID report_id, UUID project_id, LocalDate report_date, String content_tldr, String minutes_content) {
         this.report_id = report_id;
         this.project_id = project_id;
         this.report_date = report_date;
@@ -36,19 +39,19 @@ public class DailyReports {
         this.minutes_content = minutes_content;
     }
 
-    public int getReportId() {
+    public UUID getReportId() {
         return report_id;
     }
 
-    public void setReportId(int report_id) {
+    public void setReportId(UUID report_id) {
         this.report_id = report_id;
     }
 
-    public int getProjectId() {
+    public UUID getProjectId() {
         return project_id;
     }
 
-    public void setProjectId(int project_id) {
+    public void setProjectId(UUID project_id) {
         this.project_id = project_id;
     }
 
