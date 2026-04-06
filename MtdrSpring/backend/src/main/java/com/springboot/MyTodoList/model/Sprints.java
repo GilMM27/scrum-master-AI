@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the SPRINTS table that exists already
@@ -11,23 +13,26 @@ import java.time.LocalDate;
 @Table(name = "SPRINTS")
 public class Sprints {
     @Id
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID", nullable = false)
-    int sprint_id;
-    @Column(name = "PROJECT_ID",)
-    int project_id;
+    UUID sprint_id;
+    @Convert(converter = UUIDConverter.class)
+    @Column(name = "PROJECT_ID", nullable = false)
+    UUID project_id;
     @Column(name = "NAME", nullable = false)
     String name;
     @Column(name = "START_DATE")
     LocalDate start_date;
     @Column(name = "END_DATE")
     LocalDate end_date;
-    @Column(name = "STATUS")
-    String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false)
+    SprintStatus status;
 
     public Sprints() {
     }
 
-    public Sprints(int sprint_id, int project_id, String name, LocalDate start_date, LocalDate end_date, String status) {
+    public Sprints(UUID sprint_id, UUID project_id, String name, LocalDate start_date, LocalDate end_date, SprintStatus status) {
         this.sprint_id = sprint_id;
         this.project_id = project_id;
         this.name = name;
@@ -36,19 +41,19 @@ public class Sprints {
         this.status = status;
     }
 
-    public int getSprintId() {
+    public UUID getSprintId() {
         return sprint_id;
     }
 
-    public void setSprintId(int sprint_id) {
+    public void setSprintId(UUID sprint_id) {
         this.sprint_id = sprint_id;
     }
 
-    public int getProjectId() {
+    public UUID getProjectId() {
         return project_id;
     }
 
-    public void setProjectId(int project_id) {
+    public void setProjectId(UUID project_id) {
         this.project_id = project_id;
     }
 
@@ -76,11 +81,11 @@ public class Sprints {
         this.end_date = end_date;
     }
 
-    public String getStatus() {
+    public SprintStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(SprintStatus status) {
         this.status = status;
     }
 

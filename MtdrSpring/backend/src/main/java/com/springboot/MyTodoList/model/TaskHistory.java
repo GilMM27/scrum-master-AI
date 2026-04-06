@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the TASK_HISTORY table that exists already
@@ -11,21 +13,25 @@ import java.time.OffsetDateTime;
 @Table(name = "TASK_HISTORY")
 public class TaskHistory {
     @Id
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "HISTORY_ID", nullable = false)
-    int history_id;
+    UUID history_id;
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "TASK_ID")
-    int task_id;
+    UUID task_id;
+    @Enumerated(EnumType.STRING)
     @Column(name = "OLD_STATUS")
-    String old_status;
+    TaskStatus old_status;
+    @Enumerated(EnumType.STRING)
     @Column(name = "NEW_STATUS")
-    String new_status;
+    TaskStatus new_status;
     @Column(name = "CHANGED_AT")
     OffsetDateTime changed_at;
 
     public TaskHistory() {
     }
 
-    public TaskHistory(int history_id, int task_id, String old_status, String new_status, OffsetDateTime changed_at) {
+    public TaskHistory(UUID history_id, UUID task_id, TaskStatus old_status, TaskStatus new_status, OffsetDateTime changed_at) {
         this.history_id = history_id;
         this.task_id = task_id;
         this.old_status = old_status;
@@ -33,35 +39,35 @@ public class TaskHistory {
         this.changed_at = changed_at;
     }
 
-    public int getHistoryId() {
+    public UUID getHistoryId() {
         return history_id;
     }
 
-    public void setHistoryId(int history_id) {
+    public void setHistoryId(UUID history_id) {
         this.history_id = history_id;
     }
 
-    public int getTaskId() {
+    public UUID getTaskId() {
         return task_id;
     }
 
-    public void setTaskId(int task_id) {
+    public void setTaskId(UUID task_id) {
         this.task_id = task_id;
     }
 
-    public String getOldStatus() {
+    public TaskStatus getOldStatus() {
         return old_status;
     }
 
-    public void setOldStatus(String old_status) {
+    public void setOldStatus(TaskStatus old_status) {
         this.old_status = old_status;
     }
 
-    public String getNewStatus() {
+    public TaskStatus getNewStatus() {
         return new_status;
     }
 
-    public void setNewStatus(String new_status) {
+    public void setNewStatus(TaskStatus new_status) {
         this.new_status = new_status;
     }
 

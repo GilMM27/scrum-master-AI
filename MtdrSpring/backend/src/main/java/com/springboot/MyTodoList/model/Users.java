@@ -1,7 +1,9 @@
 package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the USERS table that exists already
@@ -11,8 +13,9 @@ import java.time.LocalDateTime;
 @Table(name = "USERS")
 public class Users {
     @Id
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "USER_ID", nullable = false)
-    int user_id;
+    UUID user_id;
     @Column(name = "USERNAME", nullable = false)
     String username;
     @Column(name = "EMAIL", nullable = false, unique = true)
@@ -23,15 +26,16 @@ public class Users {
     String telegram_id;
     @Column(name = "CELL_PHONE", nullable = false)
     String cell_phone;
-    @Column(name = "USER_ROLE")
-    String user_role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "USER_ROLE", nullable = false)
+    UserRole user_role;
     @Column(name = "CREATED_AT")
-    LocalDateTime created_at;
+    OffsetDateTime created_at;
 
     public Users() {
     }
 
-    public Users(int user_id, String username, String email, String password_hash, String telegram_id, String cell_phone, String user_role, LocalDateTime created_at) {
+    public Users(UUID user_id, String username, String email, String password_hash, String telegram_id, String cell_phone, UserRole user_role, OffsetDateTime created_at) {
         this.user_id = user_id;
         this.username = username;
         this.email = email;
@@ -42,11 +46,11 @@ public class Users {
         this.created_at = created_at;
     }
 
-    public int getUserId() {
+    public UUID getUserId() {
         return user_id;
     }
 
-    public void setUserId(int user_id) {
+    public void setUserId(UUID user_id) {
         this.user_id = user_id;
     }
 
@@ -90,19 +94,19 @@ public class Users {
         this.cell_phone = cell_phone;
     }
 
-    public String getUserRole() {
+    public UserRole getUserRole() {
         return user_role;
     }
 
-    public void setUserRole(String user_role) {
+    public void setUserRole(UserRole user_role) {
         this.user_role = user_role;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public OffsetDateTime getCreatedAt() {
         return created_at;
     }
 
-    public void setCreatedAt(LocalDateTime created_at) {
+    public void setCreatedAt(OffsetDateTime created_at) {
         this.created_at = created_at;
     }
 

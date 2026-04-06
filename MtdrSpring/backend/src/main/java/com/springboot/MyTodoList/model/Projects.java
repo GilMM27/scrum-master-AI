@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the PROJECTS table that exists already
@@ -11,8 +13,9 @@ import java.time.OffsetDateTime;
 @Table(name = "PROJECTS")
 public class Projects {
     @Id
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)
-    int project_id;
+    UUID project_id;
     @Column(name = "NAME", nullable = false)
     String name;
     @Lob
@@ -24,18 +27,18 @@ public class Projects {
     public Projects() {
     }
 
-    public Projects(int project_id, String name, String description, OffsetDateTime created_at) {
+    public Projects(UUID project_id, String name, String description, OffsetDateTime created_at) {
         this.project_id = project_id;
         this.name = name;
         this.description = description;
         this.created_at = created_at;
     }
 
-    public int getProjectId() {
+    public UUID getProjectId() {
         return project_id;
     }
 
-    public void setProjectId(int project_id) {
+    public void setProjectId(UUID project_id) {
         this.project_id = project_id;
     }
 

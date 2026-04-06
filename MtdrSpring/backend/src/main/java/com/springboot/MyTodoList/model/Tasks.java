@@ -3,6 +3,8 @@ package com.springboot.MyTodoList.model;
 
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
+import java.util.UUID;
+import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     representation of the TASKS table that exists already
@@ -12,23 +14,26 @@ import java.time.OffsetDateTime;
 @Table(name = "TASKS")
 public class Tasks {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY, nullable = false)
-    int ID;
+    @Convert(converter = UUIDConverter.class)
+    @Column(name = "TASK_ID", nullable = false)
+    UUID task_id;
     @Column(name = "TITLE", nullable = false)
     String title;
     @Lob
     @Column(name = "DESCRIPTION")
     String description;
-    @Column(name = "STATUS")
-    String status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false)
+    TaskStatus status;
     @Column(name = "STORY_POINTS")
     int story_points;
+    @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID", nullable = false)
-    int sprint_id;
+    UUID sprint_id;
     @Column(name = "BLOCKED_AT")
     OffsetDateTime blocked_at;
     @Column(name = "IS_AI_FLAGGED")
-    boolean is_ai_flagged;
+    Boolean is_ai_flagged;
     @Column(name = "CREATED_AT")
     OffsetDateTime created_at;
     @Column(name = "DELIVERED_AT")
@@ -37,11 +42,11 @@ public class Tasks {
     public Tasks() {
     }
 
-    public Tasks(int ID, String title, String description, String status, int story_points,
-                 int sprint_id,
-                 OffsetDateTime blocked_at, boolean is_ai_flagged,
+    public Tasks(UUID task_id, String title, String description, TaskStatus status, int story_points,
+                 UUID sprint_id,
+                 OffsetDateTime blocked_at, Boolean is_ai_flagged,
                  OffsetDateTime created_at, OffsetDateTime delivered_at) {
-        this.ID = ID;
+        this.task_id = task_id;
         this.title = title;
         this.description = description;
         this.status = status;
@@ -53,12 +58,12 @@ public class Tasks {
         this.delivered_at = delivered_at;
     }
 
-    public int getID() {
-        return ID;
+    public UUID getTaskId() {
+        return task_id;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public void setTaskId(UUID task_id) {
+        this.task_id = task_id;
     }
 
     public String getTitle() {
@@ -77,11 +82,11 @@ public class Tasks {
         this.description = description;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
@@ -93,11 +98,11 @@ public class Tasks {
         this.story_points = story_points;
     }
 
-    public int getSprintId() {
+    public UUID getSprintId() {
         return sprint_id;
     }
 
-    public void setSprintId(int sprint_id) {
+    public void setSprintId(UUID sprint_id) {
         this.sprint_id = sprint_id;
     }
 
@@ -109,11 +114,11 @@ public class Tasks {
         this.blocked_at = blocked_at;
     }
 
-    public boolean isAiFlagged() {
+    public Boolean getAiFlagged() {
         return is_ai_flagged;
     }
 
-    public void setAiFlagged(boolean is_ai_flagged) {
+    public void setAiFlagged(Boolean is_ai_flagged) {
         this.is_ai_flagged = is_ai_flagged;
     }
 
@@ -136,7 +141,7 @@ public class Tasks {
     @Override
     public String toString() {
         return "Tasks{" +
-                "ID=" + ID +
+                "task_id=" + task_id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
