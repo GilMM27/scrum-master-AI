@@ -5,3 +5,8 @@
 wallet.zip
 **/wrapper/**
 DockerfileDev
+**/.settings/**
+.factorypath
+.classpath
+.project
+MdtrSpring/backend/.settings/**
