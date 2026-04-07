@@ -8,13 +8,12 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.springboot.MyTodoList.model.DailyReports;
-import com.springboot.MyTodoList.model.Projects;
 
 public interface DailyReportsRepository extends JpaRepository<DailyReports, UUID> {
     
-    List<DailyReports> findByProject(Projects project);
+    List<DailyReports> findByProjectId(UUID projectId);
 
-    List<DailyReports> findByProjectOrderByReportDateDesc(Projects project);
+    List<DailyReports> findByProjectIdOrderByReportDateDesc(UUID projectId);
 
-    Optional<DailyReports> findByProjectAndReportDate(Projects project, LocalDate report_date);
+    Optional<DailyReports> findByProjectIdAndReportDate(UUID projectId, LocalDate reportDate);
 }

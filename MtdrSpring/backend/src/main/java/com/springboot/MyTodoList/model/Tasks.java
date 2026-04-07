@@ -9,14 +9,14 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 /*
     representation of the TASKS table that exists already
     in the autonomous database
- */
+*/
 @Entity
 @Table(name = "TASKS")
 public class Tasks {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "TASK_ID", nullable = false)
-    UUID task_id;
+    UUID taskId;
     @Column(name = "TITLE", nullable = false)
     String title;
     @Lob
@@ -26,44 +26,44 @@ public class Tasks {
     @Column(name = "STATUS", nullable = false)
     TaskStatus status;
     @Column(name = "STORY_POINTS")
-    int story_points;
+    int storyPoints;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID", nullable = false)
-    UUID sprint_id;
+    UUID sprintId;
     @Column(name = "BLOCKED_AT")
-    OffsetDateTime blocked_at;
+    OffsetDateTime blockedAt;
     @Column(name = "IS_AI_FLAGGED")
-    Boolean is_ai_flagged;
+    Boolean isAiFlagged;
     @Column(name = "CREATED_AT")
-    OffsetDateTime created_at;
+    OffsetDateTime createdAt;
     @Column(name = "DELIVERED_AT")
-    OffsetDateTime delivered_at;
+    OffsetDateTime deliveredAt;
 
     public Tasks() {
     }
 
-    public Tasks(UUID task_id, String title, String description, TaskStatus status, int story_points,
-                 UUID sprint_id,
-                 OffsetDateTime blocked_at, Boolean is_ai_flagged,
-                 OffsetDateTime created_at, OffsetDateTime delivered_at) {
-        this.task_id = task_id;
+    public Tasks(UUID taskId, String title, String description, TaskStatus status, int storyPoints,
+                 UUID sprintId,
+                 OffsetDateTime blockedAt, Boolean isAiFlagged,
+                 OffsetDateTime createdAt, OffsetDateTime deliveredAt) {
+        this.taskId = taskId;
         this.title = title;
         this.description = description;
         this.status = status;
-        this.story_points = story_points;
-        this.sprint_id = sprint_id;
-        this.blocked_at = blocked_at;
-        this.is_ai_flagged = is_ai_flagged;
-        this.created_at = created_at;
-        this.delivered_at = delivered_at;
+        this.storyPoints = storyPoints;
+        this.sprintId = sprintId;
+        this.blockedAt = blockedAt;
+        this.isAiFlagged = isAiFlagged;
+        this.createdAt = createdAt;
+        this.deliveredAt = deliveredAt;
     }
 
     public UUID getTaskId() {
-        return task_id;
+        return taskId;
     }
 
-    public void setTaskId(UUID task_id) {
-        this.task_id = task_id;
+    public void setTaskId(UUID taskId) {
+        this.taskId = taskId;
     }
 
     public String getTitle() {
@@ -91,66 +91,66 @@ public class Tasks {
     }
 
     public int getStoryPoints() {
-        return story_points;
+        return storyPoints;
     }
 
-    public void setStoryPoints(int story_points) {
-        this.story_points = story_points;
+    public void setStoryPoints(int storyPoints) {
+        this.storyPoints = storyPoints;
     }
 
     public UUID getSprintId() {
-        return sprint_id;
+        return sprintId;
     }
 
-    public void setSprintId(UUID sprint_id) {
-        this.sprint_id = sprint_id;
+    public void setSprintId(UUID sprintId) {
+        this.sprintId = sprintId;
     }
 
     public OffsetDateTime getBlockedAt() {
-        return blocked_at;
+        return blockedAt;
     }
 
-    public void setBlockedAt(OffsetDateTime blocked_at) {
-        this.blocked_at = blocked_at;
+    public void setBlockedAt(OffsetDateTime blockedAt) {
+        this.blockedAt = blockedAt;
     }
 
     public Boolean getAiFlagged() {
-        return is_ai_flagged;
+        return isAiFlagged;
     }
 
-    public void setAiFlagged(Boolean is_ai_flagged) {
-        this.is_ai_flagged = is_ai_flagged;
+    public void setAiFlagged(Boolean isAiFlagged) {
+        this.isAiFlagged = isAiFlagged;
     }
 
     public OffsetDateTime getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public OffsetDateTime getDeliveredAt() {
-        return delivered_at;
+        return deliveredAt;
     }
 
-    public void setDeliveredAt(OffsetDateTime delivered_at) {
-        this.delivered_at = delivered_at;
+    public void setDeliveredAt(OffsetDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
     }
 
     @Override
     public String toString() {
         return "Tasks{" +
-                "task_id=" + task_id +
+                "taskId=" + taskId +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
-                ", story_points=" + story_points +
-                ", sprint_id=" + sprint_id +
-                ", blocked_at=" + blocked_at +
-                ", is_ai_flagged=" + is_ai_flagged +
-                ", created_at=" + created_at +
-                ", delivered_at=" + delivered_at +
+                ", storyPoints=" + storyPoints +
+                ", sprintId=" + sprintId +
+                ", blockedAt=" + blockedAt +
+                ", isAiFlagged=" + isAiFlagged +
+                ", createdAt=" + createdAt +
+                ", deliveredAt=" + deliveredAt +
                 '}';
     }
 }

@@ -15,78 +15,78 @@ public class DailyReports {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "REPORT_ID", nullable = false)
-    UUID report_id;
+    UUID reportId;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)
-    UUID project_id;
+    UUID projectId;
     @Column(name = "REPORT_DATE", nullable = false)
-    LocalDate report_date;
+    LocalDate reportDate;
     @Lob
     @Column(name = "CONTENT_TLDR")
-    String content_tldr;
+    String contentTldr;
     @Lob
     @Column(name = "MINUTES_CONTENT")
-    String minutes_content;
+    String minutesContent;
 
     public DailyReports() {
     }
 
-    public DailyReports(UUID report_id, UUID project_id, LocalDate report_date, String content_tldr, String minutes_content) {
-        this.report_id = report_id;
-        this.project_id = project_id;
-        this.report_date = report_date;
-        this.content_tldr = content_tldr;
-        this.minutes_content = minutes_content;
+    public DailyReports(UUID reportId, UUID projectId, LocalDate reportDate, String contentTldr, String minutesContent) {
+        this.reportId = reportId;
+        this.projectId = projectId;
+        this.reportDate = reportDate;
+        this.contentTldr = contentTldr;
+        this.minutesContent = minutesContent;
     }
 
     public UUID getReportId() {
-        return report_id;
+        return reportId;
     }
 
-    public void setReportId(UUID report_id) {
-        this.report_id = report_id;
+    public void setReportId(UUID reportId) {
+        this.reportId = reportId;
     }
 
     public UUID getProjectId() {
-        return project_id;
+        return projectId;
     }
 
-    public void setProjectId(UUID project_id) {
-        this.project_id = project_id;
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
     }
 
     public LocalDate getReportDate() {
-        return report_date;
+        return reportDate;
     }
 
-    public void setReportDate(LocalDate report_date) {
-        this.report_date = report_date;
+    public void setReportDate(LocalDate reportDate) {
+        this.reportDate = reportDate;
     }
 
     public String getContentTldr() {
-        return content_tldr;
+        return contentTldr;
     }
 
-    public void setContentTldr(String content_tldr) {
-        this.content_tldr = content_tldr;
+    public void setContentTldr(String contentTldr) {
+        this.contentTldr = contentTldr;
     }
 
     public String getMinutesContent() {
-        return minutes_content;
+        return minutesContent;
     }
 
-    public void setMinutesContent(String minutes_content) {
-        this.minutes_content = minutes_content;
+    public void setMinutesContent(String minutesContent) {
+        this.minutesContent = minutesContent;
     }
 
     @Override
     public String toString() {
         return "DailyReports{" +
-                "report_id=" + report_id +
-                ", project_id=" + project_id +
-                ", report_date=" + report_date +
-                ", content_tldr='" + content_tldr + '\'' +
-                ", minutes_content='" + minutes_content + '\'' +
+                "reportId=" + reportId +
+                ", projectId=" + projectId +
+                ", reportDate=" + reportDate +
+                ", contentTldr='" + contentTldr + '\'' +
+                ", minutesContent='" + minutesContent + '\'' +
                 '}';
     }
 }

@@ -5,27 +5,26 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.springboot.MyTodoList.model.Sprints;
-import com.springboot.MyTodoList.model.TaskStatus;
 import com.springboot.MyTodoList.model.Tasks;
+import com.springboot.MyTodoList.model.TaskStatus;
 import java.time.OffsetDateTime;
 
 
 public interface TasksRepository extends JpaRepository<Tasks, UUID> {
     
-    List<Tasks> findBySprint(Sprints sprint);
+    List<Tasks> findBySprintId(UUID sprintId);
 
-    List<Tasks> findBySprintOrderByCreatedAtDesc(Sprints sprint);
+    List<Tasks> findBySprintIdOrderByCreatedAtDesc(UUID sprintId);
 
-    List<Tasks> findBySprintAndStatus(Sprints sprint, TaskStatus status);
+    List<Tasks> findBySprintIdAndStatus(UUID sprintId, TaskStatus status);
 
     List<Tasks> findByStatus(TaskStatus status);
 
-    List<Tasks> findByAiFlaggedTrue();
+    List<Tasks> findByIsAiFlaggedTrue();
 
-    List<Tasks> findByBlockedAtBefore(OffsetDateTime blocked_at);
+    List<Tasks> findByBlockedAtBefore(OffsetDateTime blockedAt);
 
     List<Tasks> findByDeliveredAtIsNull();
 
-    Long countBySprintAndStatus(Sprints sprint, TaskStatus status);
+    Long countBySprintIdAndStatus(UUID sprintId, TaskStatus status);
 }

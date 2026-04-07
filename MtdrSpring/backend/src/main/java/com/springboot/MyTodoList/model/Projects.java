@@ -8,38 +8,38 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 /*
     Representation of the PROJECTS table that exists already
     in the autonomous database
- */
+*/
 @Entity
 @Table(name = "PROJECTS")
 public class Projects {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)
-    UUID project_id;
+    UUID projectId;
     @Column(name = "NAME", nullable = false)
     String name;
     @Lob
     @Column(name = "DESCRIPTION")
     String description;
     @Column(name = "CREATED_AT")
-    OffsetDateTime created_at;
+    OffsetDateTime createdAt;
 
     public Projects() {
     }
 
-    public Projects(UUID project_id, String name, String description, OffsetDateTime created_at) {
-        this.project_id = project_id;
+    public Projects(UUID projectId, String name, String description, OffsetDateTime createdAt) {
+        this.projectId = projectId;
         this.name = name;
         this.description = description;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 
     public UUID getProjectId() {
-        return project_id;
+        return projectId;
     }
 
-    public void setProjectId(UUID project_id) {
-        this.project_id = project_id;
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -59,20 +59,20 @@ public class Projects {
     }
 
     public OffsetDateTime getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Projects{" +
-                "project_id=" + project_id +
+                "projectId=" + projectId +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", created_at=" + created_at +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }
