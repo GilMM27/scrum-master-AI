@@ -1,23 +1,22 @@
 package com.springboot.MyTodoList.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.springboot.MyTodoList.model.TaskAssignments;
 import com.springboot.MyTodoList.model.TaskAssignmentsId;
-import com.springboot.MyTodoList.model.Tasks;
-import com.springboot.MyTodoList.model.Users;
 
 public interface TaskAssignmentsRepository extends JpaRepository<TaskAssignments, TaskAssignmentsId> {
     
-    List<TaskAssignments> findByUser(Users user);
+    List<TaskAssignments> findByUserId(UUID userId);
 
-    List<TaskAssignments> findByTask(Tasks task);
+    List<TaskAssignments> findByTaskId(UUID taskId);
 
-    Boolean existsByTaskAndUser(Tasks task, Users user);
+    Boolean existsByTaskIdAndUserId(UUID taskId, UUID userId);
 
-    void deleteByTask(Tasks task);
+    void deleteByTaskId(UUID taskId);
 
-    void deleteByUser(Users user);
+    void deleteByUserId(UUID userId);
 }

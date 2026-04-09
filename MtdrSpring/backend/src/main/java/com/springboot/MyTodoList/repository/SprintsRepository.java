@@ -7,19 +7,18 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.springboot.MyTodoList.model.Projects;
-import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.Sprints;
+import com.springboot.MyTodoList.model.SprintStatus;
 
 public interface SprintsRepository extends JpaRepository<Sprints, UUID> {
     
-    List<Sprints> findByProject(Projects project);
+    List<Sprints> findByProjectId(UUID projectId);
 
-    List<Sprints> findByProjectOrderByStartDateDesc(Projects project);
+    List<Sprints> findByProjectIdOrderByStartDateDesc(UUID projectId);
 
-    Optional<Sprints> findByProjectAndStatus(Projects project, SprintStatus status);
+    Optional<Sprints> findByProjectIdAndStatus(UUID projectId, SprintStatus status);
 
     List<Sprints> findByStatus(SprintStatus status);
 
-    List<Sprints> findByStartDateValidRange(LocalDate start_date, LocalDate end_date);
+    List<Sprints> findByStartDateBetween(LocalDate startDate, LocalDate endDate);
 }

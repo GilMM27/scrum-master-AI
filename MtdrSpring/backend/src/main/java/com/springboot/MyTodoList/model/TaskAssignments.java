@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 /*
     Representation of the TASK_ASSIGNMENTS table that exists already
     in the autonomous database
- */
+*/
 @Entity
 @Table(name = "TASK_ASSIGNMENTS")
 @IdClass(TaskAssignmentsId.class)
@@ -16,41 +16,41 @@ public class TaskAssignments {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "TASK_ID", nullable = false)
-    UUID task_id;
+    UUID taskId;
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "USER_ID", nullable = false)
-    UUID user_id;
+    UUID userId;
 
     public TaskAssignments() {
     }
 
-    public TaskAssignments(UUID task_id, UUID user_id) {
-        this.task_id = task_id;
-        this.user_id = user_id;
+    public TaskAssignments(UUID taskId, UUID userId) {
+        this.taskId = taskId;
+        this.userId = userId;
     }
 
     public UUID getTaskId() {
-        return task_id;
+        return taskId;
     }
 
-    public void setTaskId(UUID task_id) {
-        this.task_id = task_id;
+    public void setTaskId(UUID taskId) {
+        this.taskId = taskId;
     }
 
     public UUID getUserId() {
-        return user_id;
+        return userId;
     }
 
-    public void setUserId(UUID user_id) {
-        this.user_id = user_id;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     @Override
     public String toString() {
         return "TaskAssignments{" +
-                "task_id=" + task_id +
-                ", user_id=" + user_id +
+                "taskId=" + taskId +
+                ", userId=" + userId +
                 '}';
     }
 }

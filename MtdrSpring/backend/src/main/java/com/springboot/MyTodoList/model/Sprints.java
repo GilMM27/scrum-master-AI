@@ -8,23 +8,23 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 /*
     Representation of the SPRINTS table that exists already
     in the autonomous database
- */
+*/
 @Entity
 @Table(name = "SPRINTS")
 public class Sprints {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID", nullable = false)
-    UUID sprint_id;
+    UUID sprintId;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)
-    UUID project_id;
+    UUID projectId;
     @Column(name = "NAME", nullable = false)
     String name;
     @Column(name = "START_DATE")
-    LocalDate start_date;
+    LocalDate startDate;
     @Column(name = "END_DATE")
-    LocalDate end_date;
+    LocalDate endDate;
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
     SprintStatus status;
@@ -32,29 +32,29 @@ public class Sprints {
     public Sprints() {
     }
 
-    public Sprints(UUID sprint_id, UUID project_id, String name, LocalDate start_date, LocalDate end_date, SprintStatus status) {
-        this.sprint_id = sprint_id;
-        this.project_id = project_id;
+    public Sprints(UUID sprintId, UUID projectId, String name, LocalDate startDate, LocalDate endDate, SprintStatus status) {
+        this.sprintId = sprintId;
+        this.projectId = projectId;
         this.name = name;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.status = status;
     }
 
     public UUID getSprintId() {
-        return sprint_id;
+        return sprintId;
     }
 
-    public void setSprintId(UUID sprint_id) {
-        this.sprint_id = sprint_id;
+    public void setSprintId(UUID sprintId) {
+        this.sprintId = sprintId;
     }
 
     public UUID getProjectId() {
-        return project_id;
+        return projectId;
     }
 
-    public void setProjectId(UUID project_id) {
-        this.project_id = project_id;
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
     }
 
     public String getName() {
@@ -66,19 +66,19 @@ public class Sprints {
     }
 
     public LocalDate getStartDate() {
-        return start_date;
+        return startDate;
     }
 
-    public void setStartDate(LocalDate start_date) {
-        this.start_date = start_date;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {
-        return end_date;
+        return endDate;
     }
 
-    public void setEndDate(LocalDate end_date) {
-        this.end_date = end_date;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public SprintStatus getStatus() {
@@ -92,11 +92,11 @@ public class Sprints {
     @Override
     public String toString() {
         return "Sprints{" +
-                "sprint_id=" + sprint_id +
-                ", project_id=" + project_id +
+                "sprintId=" + sprintId +
+                ", projectId=" + projectId +
                 ", name='" + name + '\'' +
-                ", start_date=" + start_date +
-                ", end_date=" + end_date +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 ", status='" + status + '\'' +
                 '}';
     }

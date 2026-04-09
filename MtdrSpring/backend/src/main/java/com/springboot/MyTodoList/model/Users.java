@@ -8,50 +8,50 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 /*
     Representation of the USERS table that exists already
     in the autonomous database
- */
+*/
 @Entity
 @Table(name = "USERS")
 public class Users {
     @Id
     @Convert(converter = UUIDConverter.class)
     @Column(name = "USER_ID", nullable = false)
-    UUID user_id;
+    UUID userId;
     @Column(name = "USERNAME", nullable = false)
     String username;
     @Column(name = "EMAIL", nullable = false, unique = true)
     String email;
     @Column(name = "PASSWORD_HASH", nullable = false)
-    String password_hash;
+    String passwordHash;
     @Column(name = "TELEGRAM_ID", unique = true)
-    String telegram_id;
+    String telegramId;
     @Column(name = "CELL_PHONE", nullable = false)
-    String cell_phone;
+    String cellPhone;
     @Enumerated(EnumType.STRING)
     @Column(name = "USER_ROLE", nullable = false)
-    UserRole user_role;
+    UserRole userRole;
     @Column(name = "CREATED_AT")
-    OffsetDateTime created_at;
+    OffsetDateTime createdAt;
 
     public Users() {
     }
 
-    public Users(UUID user_id, String username, String email, String password_hash, String telegram_id, String cell_phone, UserRole user_role, OffsetDateTime created_at) {
-        this.user_id = user_id;
+    public Users(UUID userId, String username, String email, String passwordHash, String telegramId, String cellPhone, UserRole userRole, OffsetDateTime createdAt) {
+        this.userId = userId;
         this.username = username;
         this.email = email;
-        this.password_hash = password_hash;
-        this.telegram_id = telegram_id;
-        this.cell_phone = cell_phone;
-        this.user_role = user_role;
-        this.created_at = created_at;
+        this.passwordHash = passwordHash;
+        this.telegramId = telegramId;
+        this.cellPhone = cellPhone;
+        this.userRole = userRole;
+        this.createdAt = createdAt;
     }
 
     public UUID getUserId() {
-        return user_id;
+        return userId;
     }
 
-    public void setUserId(UUID user_id) {
-        this.user_id = user_id;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public String getUsername() {
@@ -71,56 +71,56 @@ public class Users {
     }
 
     public String getPasswordHash() {
-        return password_hash;
+        return passwordHash;
     }
 
-    public void setPasswordHash(String password_hash) {
-        this.password_hash = password_hash;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public String getTelegramId() {
-        return telegram_id;
+        return telegramId;
     }
 
-    public void setTelegramId(String telegram_id) {
-        this.telegram_id = telegram_id;
+    public void setTelegramId(String telegramId) {
+        this.telegramId = telegramId;
     }
 
     public String getCellPhone() {
-        return cell_phone;
+        return cellPhone;
     }
 
-    public void setCellPhone(String cell_phone) {
-        this.cell_phone = cell_phone;
+    public void setCellPhone(String cellPhone) {
+        this.cellPhone = cellPhone;
     }
 
     public UserRole getUserRole() {
-        return user_role;
+        return userRole;
     }
 
-    public void setUserRole(UserRole user_role) {
-        this.user_role = user_role;
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 
     public OffsetDateTime getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     @Override
     public String toString() {
         return "Users{" +
-                "user_id=" + user_id +
+                "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", password_hash='" + password_hash + '\'' +
-                ", telegram_id='" + telegram_id + '\'' +
-                ", cell_phone='" + cell_phone + '\'' +
-                ", user_role='" + user_role + '\'' +
-                ", created_at=" + created_at +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", telegramId='" + telegramId + '\'' +
+                ", cellPhone='" + cellPhone + '\'' +
+                ", userRole='" + userRole + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
 }
