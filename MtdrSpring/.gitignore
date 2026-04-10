@@ -4,7 +4,6 @@
 **/wallet/**
 wallet.zip
 **/wrapper/**
-DockerfileDev
 **/.settings/**
 .factorypath
 .classpath
