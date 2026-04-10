@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,4 +28,11 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID> {
     List<Tasks> findByDeliveredAtIsNull();
 
     Long countBySprintIdAndStatus(UUID sprintId, TaskStatus status);
+    
+    Optional<Tasks> findByTaskId(UUID taskId);
+    
+    boolean existsByTaskId(UUID taskId);
+    
+    List<Tasks> findBySprintIdOrderByStoryPoints(UUID sprintId);
+    
 }

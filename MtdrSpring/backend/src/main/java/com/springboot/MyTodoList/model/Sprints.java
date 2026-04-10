@@ -1,9 +1,9 @@
 package com.springboot.MyTodoList.model;
 
+import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
-import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the SPRINTS table that exists already
@@ -13,8 +13,8 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 @Table(name = "SPRINTS")
 public class Sprints {
     @Id
-    @Convert(converter = UUIDConverter.class)
-    @Column(name = "SPRINT_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "SPRINT_ID")
     UUID sprintId;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)

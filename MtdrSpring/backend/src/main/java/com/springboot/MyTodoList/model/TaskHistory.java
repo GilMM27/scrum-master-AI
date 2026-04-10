@@ -1,9 +1,9 @@
 package com.springboot.MyTodoList.model;
 
+import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the TASK_HISTORY table that exists already
@@ -13,8 +13,8 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 @Table(name = "TASK_HISTORY")
 public class TaskHistory {
     @Id
-    @Convert(converter = UUIDConverter.class)
-    @Column(name = "HISTORY_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "HISTORY_ID")
     UUID historyId;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "TASK_ID")
