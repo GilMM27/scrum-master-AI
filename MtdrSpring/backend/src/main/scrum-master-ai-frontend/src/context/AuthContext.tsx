@@ -1,9 +1,10 @@
 import { createContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AuthState, LoginRequest } from '../types/Auth.types';
 import type { User } from '../types/User.types';
+import loginRequest from '../features/auth/services/auth.service';
 
 interface AuthContextValue extends AuthState {
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<User>;
   logout: () => void;
 }
 
@@ -23,22 +24,35 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userJson = localStorage.getItem('user');
+    const token = localStorage.getItem('accessToken');
+    const userJson = localStorage.getItem('authUser');
 
     if (token && userJson) {
       const user: User = JSON.parse(userJson);
-      setAuthState({ isAuthenticated: true, user, token });
+      setAuthState({ isAuthenticated: true, token, user });
     }
   }, []);
   
   const login = async (credentials: LoginRequest) => {
-    // Implement login logic here
+    const response = await loginRequest(credentials);
+
+    const user: User = {
+      username: response.username,
+      email: response.email,
+      role: response.role,
+    };
+
+    localStorage.setItem('accessToken', response.accessToken);
+    localStorage.setItem('authUser', JSON.stringify(user));
+
+    setAuthState({ isAuthenticated: true, token: response.accessToken, user });
+
+    return user;
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('authUser');
     setAuthState(initialState);
   };
 

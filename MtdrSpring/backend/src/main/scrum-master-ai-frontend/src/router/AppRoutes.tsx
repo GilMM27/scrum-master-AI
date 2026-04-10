@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Login from '../pages/auth/Login';
+import ForgotPassword from '../pages/auth/ForgotPassword';
 import Unauthorized from '../pages/common/Unauthorized';
 import NotFound from '../pages/common/NotFound';
 import DeveloperHome from '../pages/developer/DeveloperHome';
@@ -13,6 +14,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/unauthorized" element={<Unauthorized />} />
 
       <Route element={<ProtectedRoute />}>
