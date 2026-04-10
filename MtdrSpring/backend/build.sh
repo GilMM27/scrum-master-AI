@@ -9,6 +9,15 @@ if [ "$1" = "--dev" ]; then
     DEV_MODE=true
 fi
 if [ "$DEV_MODE" = true ]; then
+    if [ -f ".env" ]; then
+        echo "=== Loading .env for dev build args ==="
+        set -a
+        . ./.env
+        set +a
+    else
+        echo "Warning: .env not found; dev image will build with empty build args."
+    fi
+
     echo "=== Dev Mode: Cleaning up containers and images ==="
     docker stop agilecontainer 2>/dev/null
     docker rm -f agilecontainer 2>/dev/null
@@ -18,7 +27,13 @@ if [ "$DEV_MODE" = true ]; then
     mvn clean verify
     
     echo "=== Building Dev Docker image ==="
-    docker build -f DockerfileDev --platform linux/amd64 -t agileimage:0.1 .
+    docker build -f DockerfileDev --platform linux/amd64 -t agileimage:0.1 \
+        --build-arg ui_username="$ui_username" \
+        --build-arg ui_password="$ui_password" \
+        --build-arg db_user="$db_user" \
+        --build-arg dbpassword="$dbpassword" \
+        --build-arg db_url="$db_url" \
+        .
     
     echo "=== Starting container ==="
     docker run --name agilecontainer --volume "$PWD/target:/tmp/target:rw" -p 8080:8080 -d agileimage:0.1
