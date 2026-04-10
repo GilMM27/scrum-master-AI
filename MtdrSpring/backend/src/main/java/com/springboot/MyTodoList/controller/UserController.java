@@ -34,8 +34,6 @@ public class UserController {
     @PostMapping(value = "/adduser")
     public ResponseEntity<User> addUser(@RequestBody User newUser) throws Exception{
 
-        System.out.println("phone: "+newUser.getPhoneNumber());
-        System.out.println( "passw: "+ newUser.getUserPassword());
         User dbUser = userService.addUser(newUser);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("location",""+dbUser.getID());
