@@ -33,6 +33,7 @@ public class UserController {
     //@CrossOrigin
     @PostMapping(value = "/adduser")
     public ResponseEntity<User> addUser(@RequestBody User newUser) throws Exception{
+
         User dbUser = userService.addUser(newUser);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("location",""+dbUser.getID());

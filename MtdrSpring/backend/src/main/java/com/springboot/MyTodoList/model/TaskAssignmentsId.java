@@ -38,7 +38,9 @@ public class TaskAssignmentsId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TaskAssignmentsId that = (TaskAssignmentsId) o;
-        return Objects.hash(taskId, userId) == Objects.hash(that.taskId, that.userId);
+        return 
+            Objects.equals(this.taskId, that.taskId) && 
+            Objects.equals(this.userId, that.userId);
     }
 
     @Override

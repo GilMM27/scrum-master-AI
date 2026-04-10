@@ -1,9 +1,9 @@
 package com.springboot.MyTodoList.model;
 
+import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.UUID;
-import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     Representation of the DAILY_REPORTS table that exists already
@@ -13,8 +13,8 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 @Table(name = "DAILY_REPORTS")
 public class DailyReports {
     @Id
-    @Convert(converter = UUIDConverter.class)
-    @Column(name = "REPORT_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "REPORT_ID")
     UUID reportId;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "PROJECT_ID", nullable = false)

@@ -1,10 +1,11 @@
 package com.springboot.MyTodoList.model;
 
 
+import com.springboot.MyTodoList.dto.CreateTaskRequest;
+import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
 import java.util.UUID;
-import com.springboot.MyTodoList.util.UUIDConverter;
 
 /*
     representation of the TASKS table that exists already
@@ -14,8 +15,8 @@ import com.springboot.MyTodoList.util.UUIDConverter;
 @Table(name = "TASKS")
 public class Tasks {
     @Id
-    @Convert(converter = UUIDConverter.class)
-    @Column(name = "TASK_ID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "TASK_ID")
     UUID taskId;
     @Column(name = "TITLE", nullable = false)
     String title;
@@ -28,7 +29,7 @@ public class Tasks {
     @Column(name = "STORY_POINTS")
     int storyPoints;
     @Convert(converter = UUIDConverter.class)
-    @Column(name = "SPRINT_ID", nullable = false)
+    @Column(name = "SPRINT_ID")
     UUID sprintId;
     @Column(name = "BLOCKED_AT")
     OffsetDateTime blockedAt;
@@ -152,5 +153,20 @@ public class Tasks {
                 ", createdAt=" + createdAt +
                 ", deliveredAt=" + deliveredAt +
                 '}';
+    }
+
+    public void updateFromDto(CreateTaskRequest dto) {
+        if (dto.getTitle() != null) {
+            this.title = dto.getTitle();
+        }
+        if (dto.getDescription() != null) {
+            this.description = dto.getDescription();
+        }
+        if (dto.getSprintId() != null) {
+            this.sprintId = dto.getSprintId();
+        }
+        if (dto.getStoryPoints() != null) {
+            this.storyPoints = dto.getStoryPoints();
+        }
     }
 }
