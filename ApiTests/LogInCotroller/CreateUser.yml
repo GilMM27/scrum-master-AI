@@ -1,0 +1,25 @@
+info:
+  name: CreateUser
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/auth/register"
+  body:
+    type: json
+    data: |-
+      {
+        "username" : "admin_",
+        "email" : "email@jhh.com_",
+        "password" : "pass123",
+        "cellPhone" : "123456789",
+        "userRole" : "ADMIN"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

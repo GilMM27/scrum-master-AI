@@ -1,0 +1,15 @@
+info:
+  name: IndividualTask_Fail
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/tasks/b6571da-d574-4b77-948a-2fff48f639ef"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

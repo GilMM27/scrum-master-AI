@@ -1,0 +1,15 @@
+info:
+  name: RemoveTask
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

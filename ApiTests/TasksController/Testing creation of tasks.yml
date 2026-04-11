@@ -1,0 +1,31 @@
+info:
+  name: Testing creation of tasks
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:8080/api/tasks
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Implement user authentication",
+        "description": "Add login functionality with JWT tokens",
+      //   "sprintId":"b6571da-d574-4b77-948a-2fff48f639ef",
+        "storyPoints": 5
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar('TestTaskId',res.getBody().taskId)
+        console.log("id-: "+bru.getVar('TestTaskId'))
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
