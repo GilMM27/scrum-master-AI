@@ -1,7 +1,8 @@
-import { createContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { AuthState, LoginRequest } from '../types/Auth.types';
-import type { User } from '../types/User.types';
-import loginRequest from '../features/auth/services/auth.service';
+import { createContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import type { AuthState, LoginRequest } from "../types/Auth.types";
+import type { User } from "../types/User.types";
+import loginRequest from "../features/auth/services/auth.service";
+import { clearAuthStorage, getAccessToken, getAuthUser, setAccessToken, setAuthUser } from "../utils/Storage";
 
 interface AuthContextValue extends AuthState {
   login: (credentials: LoginRequest) => Promise<User>;
@@ -24,15 +25,20 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const [authState, setAuthState] = useState<AuthState>(initialState);
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const userJson = localStorage.getItem('authUser');
+    const token = getAccessToken();
+    const user = getAuthUser<User>();
 
-    if (token && userJson) {
-      const user: User = JSON.parse(userJson);
+    if (token && user) {
+      console.log(
+        "[Auth] Session persisted — valid token and user found in storage.",
+      );
+      console.log("[Auth] Restored user:", user);
       setAuthState({ isAuthenticated: true, token, user });
+    } else {
+      console.log("[Auth] No persisted session found.");
     }
   }, []);
-  
+
   const login = async (credentials: LoginRequest) => {
     const response = await loginRequest(credentials);
 
@@ -42,23 +48,23 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       role: response.role,
     };
 
-    localStorage.setItem('accessToken', response.accessToken);
-    localStorage.setItem('authUser', JSON.stringify(user));
+    setAccessToken(response.token);
+    setAuthUser(user);
+    console.log("[Auth] Session stored in browser storage. User:", user);
 
-    setAuthState({ isAuthenticated: true, token: response.accessToken, user });
+    setAuthState({ isAuthenticated: true, token: response.token, user });
 
     return user;
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('authUser');
+    clearAuthStorage();
     setAuthState(initialState);
   };
 
   const value = useMemo(() => ({ ...authState, login, logout }), [authState]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};
 
 export default AuthProvider;
