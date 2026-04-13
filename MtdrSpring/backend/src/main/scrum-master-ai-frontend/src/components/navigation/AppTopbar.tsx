@@ -10,7 +10,6 @@ import {
   Chip,
   IconButton,
   Link,
-  Menu,
   MenuItem,
   Stack,
   Toolbar,
@@ -24,7 +23,7 @@ import {
   MenuRounded,
   NotificationsNoneRounded,
   PersonOutlineRounded,
-  SettingsRounded,
+ SettingsRounded,
 } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";

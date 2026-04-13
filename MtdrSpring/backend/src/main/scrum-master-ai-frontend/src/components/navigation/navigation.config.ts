@@ -1,5 +1,5 @@
 import SpaceDashboardRoundedIcon from '@mui/icons-material/SpaceDashboardRounded';
-import { AreaChartRounded, AssignmentIndRounded, GroupRounded, SmartToyRounded, TableChartRounded, ViewKanbanRounded, type SvgIconComponent } from '@mui/icons-material';
+import { GroupRounded, TableChartRounded, ViewKanbanRounded, type SvgIconComponent } from '@mui/icons-material';
 import type { UserRole } from '../../types/Role.types';
 
 export interface NavigationItem {
