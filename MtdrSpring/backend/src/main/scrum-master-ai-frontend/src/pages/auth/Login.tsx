@@ -43,13 +43,13 @@ export default function LoginPage() {
   const redirectByRole = (role: string) => {
     switch (role) {
       case 'ADMIN':
-        navigate('/admin', { replace: true });
+        navigate('/admin/home', { replace: true });
         break;
       case 'MANAGER':
-        navigate('/manager', { replace: true });
+        navigate('/manager/home', { replace: true });
         break;
       case 'DEVELOPER':
-        navigate('/developer', { replace: true });
+        navigate('/developer/home', { replace: true });
         break;
       default:
         navigate('/unauthorized', { replace: true });
