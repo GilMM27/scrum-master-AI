@@ -2,7 +2,6 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import type { User } from "../../types/User.types";
 import {
-  alpha,
   AppBar,
   Avatar,
   Box,
@@ -18,6 +17,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import { alpha } from "@mui/material/styles";
 import {
   ChevronRightRounded,
   LogoutRounded,
@@ -28,6 +28,8 @@ import {
 } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
+import StyledSettingsMenu from "../common/StyledSettingMenu";
+import StyledUserMenu from "../common/StyledUserMenu";
 
 interface AppTopbarProps {
   drawerWidth: number;
@@ -213,20 +215,10 @@ const AppTopbar = ({
             </IconButton>
           </Tooltip>
         </Stack>
-        <Menu
+        <StyledSettingsMenu
           anchorEl={settingAnchorEl}
           open={Boolean(settingAnchorEl)}
           onClose={closeSettingsMenu}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-          PaperProps={{
-            sx: {
-              mt: 1,
-              minWidth: 220,
-              borderRadius: 3,
-              bgcolor: "background.paper",
-            },
-          }}
         >
           <MenuItem
             onClick={handleLogout}
@@ -242,23 +234,12 @@ const AppTopbar = ({
             <LogoutRounded fontSize="small" />
             Cerrar Sesión
           </MenuItem>
-        </Menu>
+        </StyledSettingsMenu>
 
-        <Menu
+        <StyledUserMenu
           anchorEl={userAnchorEl}
           open={Boolean(userAnchorEl)}
           onClose={closeUserMenu}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-          PaperProps={{
-            sx: {
-              mt: 1,
-              minWidth: 260,
-              borderRadius: 3,
-              p: 1,
-              bgcolor: "background.paper",
-            },
-          }}
         >
           <Box sx={{ px: 1.5, py: 1 }}>
             <Typography sx={{ fontSize: 12 }}>{user.username}</Typography>
@@ -276,14 +257,27 @@ const AppTopbar = ({
               fullWidth
               variant="outlined"
               size="small"
+              color="info"
               onClick={closeUserMenu}
               startIcon={<PersonOutlineRounded />}
-              sx={{ borderRadius: 2.5 }}
+              sx={{
+                borderRadius: 2.5,
+                borderColor: "info.main",
+                color: "info.main",
+                bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
+                "&:hover": {
+                  bgcolor: (theme) => alpha(theme.palette.info.main, 0.16),
+                  borderColor: "info.main",
+                },
+                "& .MuiButton-startIcon": {
+                  color: "info.main",
+                },
+              }}
             >
               Perfil
             </Button>
           </Box>
-        </Menu>
+        </StyledUserMenu>
       </Toolbar>
     </AppBar>
   );
