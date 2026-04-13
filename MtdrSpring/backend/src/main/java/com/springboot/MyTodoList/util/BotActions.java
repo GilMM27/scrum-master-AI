@@ -1,7 +1,7 @@
 package com.springboot.MyTodoList.util;
 
 import com.springboot.MyTodoList.model.ToDoItem;
-import com.springboot.MyTodoList.service.DeepSeekService;
+import com.springboot.MyTodoList.service.GeminiService;
 import com.springboot.MyTodoList.service.ToDoItemService;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -23,12 +23,12 @@ public class BotActions{
     boolean exit;
 
     ToDoItemService todoService;
-    DeepSeekService deepSeekService;
+    GeminiService geminiService;
 
-    public BotActions(TelegramClient tc,ToDoItemService ts, DeepSeekService ds){
+    public BotActions(TelegramClient tc,ToDoItemService ts, GeminiService ds){
         telegramClient = tc;
         todoService = ts;
-        deepSeekService = ds;
+        geminiService = ds;
         exit  = false;
     }
 
@@ -52,12 +52,12 @@ public class BotActions{
         return todoService;
     }
 
-    public void setDeepSeekService(DeepSeekService dssvc){
-        deepSeekService = dssvc;
+    public void setGeminiService(GeminiService gsvc){
+        geminiService = gsvc;
     }
 
-    public DeepSeekService getDeepSeekService(){
-        return deepSeekService;
+    public GeminiService getGeminiService(){
+        return geminiService;
     }
 
 
@@ -235,7 +235,7 @@ public class BotActions{
         String prompt = "Dame los datos del clima en mty";
         String out = "<empty>";
         try{
-            out = deepSeekService.generateText(prompt);
+            out = geminiService.generateText(prompt);
         }catch(Exception exc){
 
         }
