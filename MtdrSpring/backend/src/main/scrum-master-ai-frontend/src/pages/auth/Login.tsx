@@ -18,7 +18,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getDestinationLabel = (role: string): string => {
+    switch (role) {
+      case 'ADMIN': return 'Portal de Administradores';
+      case 'MANAGER': return 'Portal de Managers';
+      case 'DEVELOPER': return 'Portal de Desarrolladores';
+      default: return 'tu página de inicio';
+    }
+  };
 
   const validateForm = () => {
     if (!username.trim() || !password.trim()) {
@@ -30,6 +40,22 @@ export default function LoginPage() {
     return true;
   };
 
+  const redirectByRole = (role: string) => {
+    switch (role) {
+      case 'ADMIN':
+        navigate('/admin', { replace: true });
+        break;
+      case 'MANAGER':
+        navigate('/manager', { replace: true });
+        break;
+      case 'DEVELOPER':
+        navigate('/developer', { replace: true });
+        break;
+      default:
+        navigate('/unauthorized', { replace: true });
+    }
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -37,19 +63,12 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
-      const user = await login({ username, password });
+      
+      const user = await login({ username: username.trim(), password });
 
-      if (user.role === 'ADMIN') {
-        navigate('/admin');
-        return;
-      }
-
-      if (user.role === 'MANAGER') {
-        navigate('/manager');
-        return;
-      }
-
-      navigate('/developer');
+      setSuccessMessage(`Inicio de sesión exitoso. Redirigiendo al ${getDestinationLabel(user.role)}...`);
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+      redirectByRole(user.role);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Error al iniciar sesión');
     } finally {
@@ -130,6 +149,7 @@ export default function LoginPage() {
           {isSubmitting ? <CircularProgress size={22} color="inherit" /> : 'Iniciar sesión'}
         </Button>
         {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+        {successMessage && <Alert severity="success">{successMessage}</Alert>}
         <Box sx={{ textAlign: 'center', pt: 0.5 }}>
           <Link
             component="button"
