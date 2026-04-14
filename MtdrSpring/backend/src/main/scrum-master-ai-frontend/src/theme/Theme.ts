@@ -10,9 +10,9 @@ export const AppTheme = createTheme({
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#0016a6',
-      light: '#4d6dcd',
-      dark: '#0a0077',
+      main: '#03116e',
+      light: '#3d559e',
+      dark: '#070143',
       contrastText: '#FFFFFF',
     },
     info: {
@@ -156,7 +156,7 @@ export const AppTheme = createTheme({
           props: { variant: 'contained', color: 'primary' },
           style: {
             background: 'linear-gradient(135deg, #0300a6 0%, #7794ff 100%)',
-            color: '#FFFFFF',
+            color: '#F5F7FF',
             boxShadow: `0 8px 24px ${alpha('#0300a6', 0.35)}`,
           },
         },
