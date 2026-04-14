@@ -31,6 +31,9 @@ public class Users {
     UserRole userRole;
     @Column(name = "CREATED_AT")
     OffsetDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ACCOUNT_STATUS", nullable = false)
+    AccountStatus accountStatus;
 
     public Users() {
     }
@@ -110,6 +113,14 @@ public class Users {
         this.createdAt = createdAt;
     }
 
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
+    }
+
     @Override
     public String toString() {
         return "Users{" +
@@ -120,6 +131,7 @@ public class Users {
                 ", telegramId='" + telegramId + '\'' +
                 ", cellPhone='" + cellPhone + '\'' +
                 ", userRole='" + userRole + '\'' +
+                ", accountStatus='" + accountStatus + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }
