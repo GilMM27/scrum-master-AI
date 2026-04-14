@@ -1,0 +1,22 @@
+info:
+  name: Testing Basic  ID Generation
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://localhost:8080/adduser
+  body:
+    type: json
+    data: |-
+      {
+        "phoneNumber": "1420232145",
+        "userPassword":"German"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
