@@ -3,9 +3,9 @@ import useAuth from "../hooks/useAuth";
 import type { UserRole } from "../types/Role.types";
 
 const ROLE_ROUTES: Record<UserRole, string> = {
-  ADMIN: "/admin",
-  MANAGER: "/manager",
-  DEVELOPER: "/developer",
+  ADMIN: "/admin/home",
+  MANAGER: "/manager/home",
+  DEVELOPER: "/developer/home",
 };
 
 const GuestRoute = () => {

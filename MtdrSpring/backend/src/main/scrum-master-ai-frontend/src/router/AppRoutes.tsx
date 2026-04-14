@@ -1,11 +1,21 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+
 import Login from "../pages/auth/Login";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import Unauthorized from "../pages/common/Unauthorized";
 import NotFound from "../pages/common/NotFound";
+
 import DeveloperHome from "../pages/developer/DeveloperHome";
+import DeveloperBacklog from "../pages/developer/DeveloperBacklog";
+import DeveloperTasks from "../pages/developer/DeveloperTasks";
+
 import ManagerHome from "../pages/manager/ManagerHome";
+import ManagerBacklog from "../pages/manager/ManagerBacklog";
+import ManagerSprint from "../pages/manager/ManagerSprint";
+
 import AdminHome from "../pages/admin/AdminHome";
+import AdminUsers from "../pages/admin/AdminUsers";
+
 import ProtectedRoute from "./ProtectedRoute";
 import RoleGuard from "./RoleGuard";
 import RedirectByRole from "./RedirectByRole";
@@ -24,15 +34,32 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<RoleGuard allowedRoles={["DEVELOPER"]} />}>
-          <Route path="/developer" element={<DeveloperHome />} />
+          <Route
+            path="/developer"
+            element={<Navigate to="/developer/home" replace />}
+          />
+          <Route path="/developer/home" element={<DeveloperHome />} />
+          <Route path="/developer/backlog" element={<DeveloperBacklog />} />
+          <Route path="/developer/tasks" element={<DeveloperTasks />} />
         </Route>
 
         <Route element={<RoleGuard allowedRoles={["MANAGER"]} />}>
-          <Route path="/manager" element={<ManagerHome />} />
+          <Route
+            path="/manager"
+            element={<Navigate to="/manager/home" replace />}
+          />
+          <Route path="/manager/home" element={<ManagerHome />} />
+          <Route path="/manager/backlog" element={<ManagerBacklog />} />
+          <Route path="/manager/sprint" element={<ManagerSprint />} />
         </Route>
 
         <Route element={<RoleGuard allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin" element={<AdminHome />} />
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/home" replace />}
+          />
+          <Route path="/admin/home" element={<AdminHome />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
         </Route>
       </Route>
 
