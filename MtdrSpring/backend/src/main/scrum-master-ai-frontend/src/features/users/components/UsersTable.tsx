@@ -80,7 +80,9 @@ const UsersTable = ({
                         onClick={() => onViewDetails(user)}
                         disabled={isBusy}
                       >
-                        <VisibilityRounded sx={{ '&:hover': { color: alpha('#b4bdc7', 0.8) } }} />
+                        <VisibilityRounded
+                          sx={{ "&:hover": { color: alpha("#b4bdc7", 0.8) } }}
+                        />
                       </IconButton>
                     </Tooltip>
                   </TableCell>
@@ -89,66 +91,163 @@ const UsersTable = ({
                   <TableCell align="center">{user.email}</TableCell>
 
                   <TableCell align="center" sx={{ minWidth: 180 }}>
-                    <Stack spacing={0.75} sx={{ alignItems: 'flex-start'}}>
-                        <FormControl
-                            fullWidth
-                            size="small"
-                            disabled={isBusy || isAdmin}
-                        >
+                    <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
+                      <FormControl
+                        fullWidth
+                        size="small"
+                        disabled={isBusy || isAdmin}
+                      >
                         <Select
-                            value={user.userRole}
-                            onChange={(e) =>
-                            onChangeRole(user, e.target.value as ManagedUserRole)
-                            }
+                          value={user.userRole}
+                          onChange={(e) =>
+                            onChangeRole(
+                              user,
+                              e.target.value as ManagedUserRole,
+                            )
+                          }
                         >
-                            <MenuItem value="ADMIN">
+                          <MenuItem value="ADMIN">
                             {getRoleLabel("ADMIN")}
-                            </MenuItem>
-                            <MenuItem value="MANAGER">
+                          </MenuItem>
+                          <MenuItem value="MANAGER">
                             {getRoleLabel("MANAGER")}
-                            </MenuItem>
-                            <MenuItem value="DEVELOPER">
+                          </MenuItem>
+                          <MenuItem value="DEVELOPER">
                             {getRoleLabel("DEVELOPER")}
-                            </MenuItem>
+                          </MenuItem>
                         </Select>
-                        </FormControl>
-                        {isAdmin && (
+                      </FormControl>
+                      {isAdmin && (
                         <Typography variant="caption" color="textSecondary">
-                            Rol Protegido
+                          Rol Protegido
                         </Typography>
-                        )}
+                      )}
                     </Stack>
                   </TableCell>
 
                   <TableCell align="center" sx={{ minWidth: 160 }}>
-                    <Stack spacing={0.75} sx={{ alignItems: 'flex-start'}}>
-                        <FormControl
-                            fullWidth
-                            size="small"
-                            disabled={isBusy || isAdmin}
-                        >
+                    <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
+                      <FormControl
+                        fullWidth
+                        size="small"
+                        disabled={isBusy || isAdmin}
+                      >
                         <Select
-                            value={user.accountStatus}
-                            onChange={(e) =>
+                          value={user.accountStatus}
+                          onChange={(e) =>
                             onChangeStatus(
-                                user,
-                                e.target.value as ManagedUserStatus,
+                              user,
+                              e.target.value as ManagedUserStatus,
                             )
-                            }
+                          }
+                          renderValue={(value) => (
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              sx={{ alignItems: "center" }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 10,
+                                  height: 10,
+                                  borderRadius: "50%",
+                                  backgroundColor:
+                                    value === "ACTIVE" ? "#4caf50" : "#f44336",
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span>
+                                {getStatusLabel(value as ManagedUserStatus)}
+                              </span>
+                            </Stack>
+                          )}
+                          sx={{
+                              bgcolor:
+                              user.accountStatus === "ACTIVE"
+                                ? alpha("#4caf50", 0.15)
+                                : alpha("#f44336", 0.15),
+                            color:
+                              user.accountStatus === "ACTIVE"
+                                ? "#4caf50"
+                                : "#f44336",
+                            "& .MuiOutlinedInput-notchedOutline": {
+                              borderColor:
+                                user.accountStatus === "ACTIVE"
+                                  ? "#4caf50"
+                                  : "#f44336",
+                            },
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor:
+                                user.accountStatus === "ACTIVE"
+                                  ? "#4caf50"
+                                  : "#f44336",
+                            },
+                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                              borderColor:
+                                user.accountStatus === "ACTIVE"
+                                  ? "#4caf50"
+                                  : "#f44336",
+                            },
+                            "& .MuiSelect-icon": {
+                              color:
+                                user.accountStatus === "ACTIVE"
+                                  ? "#4caf50"
+                                  : "#f44336",
+                            },
+                          }}
                         >
-                            <MenuItem value="ACTIVE">
-                            {getStatusLabel("ACTIVE")}
-                            </MenuItem>
-                            <MenuItem value="INACTIVE">
-                            {getStatusLabel("INACTIVE")}
-                            </MenuItem>
+                          <MenuItem
+                            value="ACTIVE"
+                            sx={{ color: "#4caf50", fontWeight: 600 }}
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              sx={{ alignItems: "center" }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 10,
+                                  height: 10,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#4caf50",
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span>{getStatusLabel("ACTIVE")}</span>
+                            </Stack>
+                          </MenuItem>
+                          <MenuItem
+                            value="INACTIVE"
+                            sx={{ color: "#f44336", fontWeight: 600 }}
+                          >
+                            <Stack
+                              direction="row"
+                              spacing={1}
+                              sx={{ alignItems: "center" }}
+                            >
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  width: 10,
+                                  height: 10,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#f44336",
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span>{getStatusLabel("INACTIVE")}</span>
+                            </Stack>
+                          </MenuItem>
                         </Select>
-                        </FormControl>
-                        {isAdmin && (
+                      </FormControl>
+                      {isAdmin && (
                         <Typography variant="caption" color="textSecondary">
-                            Estado Protegido
+                          Estado Protegido
                         </Typography>
-                        )}
+                      )}
                     </Stack>
                   </TableCell>
                 </TableRow>

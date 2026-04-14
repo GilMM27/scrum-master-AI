@@ -25,9 +25,9 @@ const UsersFilters = ({ filters, onChange }: UserFilterProps) => {
                 })}
             >
                 <MenuItem value="">Todos</MenuItem>
-                <MenuItem value="ADMIN">Admin</MenuItem>
+                <MenuItem value="ADMIN">Administrador</MenuItem>
                 <MenuItem value="MANAGER">Manager</MenuItem>
-                <MenuItem value="DEVELOPER">Developer</MenuItem>
+                <MenuItem value="DEVELOPER">Desarrollador</MenuItem>
             </TextField>
         </Grid>
 
