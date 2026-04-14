@@ -1,0 +1,8 @@
+name: BasicTesting
+variables:
+  - name: baseUrl
+    value: http://localhost:8080
+  - secret: true
+    name: username
+  - secret: true
+    name: password

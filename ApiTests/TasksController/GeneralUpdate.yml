@@ -1,0 +1,28 @@
+info:
+  name: GeneralUpdate
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Implement user ",
+        "description": "We are balling",
+        "status": "IN_PROGRESS",
+        "storyPoints": 6,
+        "sprintId": null,
+        "blockedAt": null,
+        "deliveredAt": null,
+        "aiFlagged": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

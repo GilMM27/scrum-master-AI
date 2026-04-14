@@ -1,0 +1,42 @@
+info:
+  name: BasicEndpoint
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/todolist
+  body:
+    type: json
+    data: |-
+      {
+        "description": "1420232145",
+        "done": false
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: example
+    description: Remember to use CamelCase for the input
+    request:
+      url: http://localhost:8080/todolist
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "description": "1420232145",
+            "done": false
+          }
+    response:
+      status: 200
+      statusText: OK
+      body:
+        type: text
+        data: ""
