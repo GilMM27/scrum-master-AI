@@ -1,0 +1,30 @@
+info:
+  name: Create Sprint of Projet
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/sprints"
+  body:
+    type: json
+    data: |-
+      {
+        "projectId": "{{ProjectVar}}",
+        "name": "Sprint 1", 
+        "startDate": "2026-04-15",
+        "endDate": "2026-09-05",
+        "status": "PLANNED"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setEnvVar("sprint", res.getBody().sprintId)
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
