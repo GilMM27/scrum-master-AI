@@ -3,6 +3,7 @@ package com.springboot.MyTodoList.controller;
 import com.springboot.MyTodoList.dto.CreateUserRequest;
 import com.springboot.MyTodoList.dto.LoginRequest;
 import com.springboot.MyTodoList.dto.LoginResponse;
+import com.springboot.MyTodoList.model.AccountStatus;
 import com.springboot.MyTodoList.model.UserRole;
 import com.springboot.MyTodoList.model.Users;
 import com.springboot.MyTodoList.repository.UsersRepository;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -30,7 +32,7 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Users user = usersRepository.findByUsername(loginRequest.getUsername()).orElse(null);
 
         if (user == null) {
@@ -39,6 +41,14 @@ public class AuthController {
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (user.getAccountStatus() == AccountStatus.INACTIVE) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                    "message", "Tu cuenta se encuentra inactiva. Contacta a un administrador para reactivar el acceso.",
+                    "errorCode", "ACCOUNT_INACTIVE"
+                ));
         }
 
         String token = jwtTokenProvider.generateToken(user.getUserId(), user.getUsername());

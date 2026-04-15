@@ -31,8 +31,14 @@ public class Users {
     UserRole userRole;
     @Column(name = "CREATED_AT")
     OffsetDateTime createdAt;
+<<<<<<< HEAD
     @Column(name = "ACCOUNT_STATUS", columnDefinition = "varchar2(255) DEFAULT \"ACTIVE\"")
     String accountStatus;
+=======
+    @Enumerated(EnumType.STRING)
+    @Column(name = "ACCOUNT_STATUS", nullable = false)
+    AccountStatus accountStatus;
+>>>>>>> main
 
     public Users() {
     }
@@ -112,12 +118,21 @@ public class Users {
         this.createdAt = createdAt;
     }
 
+<<<<<<< HEAD
     public void setActive(String accountStatus){
         this.accountStatus = accountStatus;
     }
     
     public String getActive(){
         return this.accountStatus;
+=======
+    public void setAccountStatus(AccountStatus accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
+    public AccountStatus getAccountStatus() {
+        return accountStatus;
+>>>>>>> main
     }
 
     @Override
@@ -130,6 +145,7 @@ public class Users {
                 ", telegramId='" + telegramId + '\'' +
                 ", cellPhone='" + cellPhone + '\'' +
                 ", userRole='" + userRole + '\'' +
+                ", accountStatus='" + accountStatus + '\'' +
                 ", createdAt=" + createdAt +
                 ", accountStatus=" + accountStatus +
                 '}';
