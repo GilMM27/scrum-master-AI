@@ -22,11 +22,7 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
 
     boolean existsByUsername(String username);
 
-<<<<<<< HEAD
     Boolean existsByTelegramId(Long telegramId);
-=======
-    boolean existsByTelegramId(String telegramId);
->>>>>>> main
 
     List<Users> findByUserRole(UserRole userRole);
 
