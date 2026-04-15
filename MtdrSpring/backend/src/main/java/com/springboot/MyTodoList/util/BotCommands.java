@@ -7,7 +7,8 @@ public enum BotCommands {
 	TODO_LIST("/todolist"),
 	ADD_ITEM("/additem"),
 	LLM_REQ("/llm"),
-	LOGIN("/login");
+	LOGIN("/login"),
+	TASKS_COMMAND("/tasks");
 
 	private String command;
 
