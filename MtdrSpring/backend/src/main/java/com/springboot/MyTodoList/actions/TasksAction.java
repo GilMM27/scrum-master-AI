@@ -79,18 +79,7 @@ public class TasksAction extends BotActionBase {
                 .map(TaskAssignments::getTaskId)
                 .collect(Collectors.toList());
 
-        List<Sprints> activeSprints = sprintsRepository.findByStatus(SprintStatus.ACTIVE);
-        if (activeSprints.isEmpty()) {
-            System.out.println("Sprints inactivos");
-            return new ArrayList<>();
-        }
-
-        List<UUID> activeSprintIds = activeSprints.stream()
-                .map(Sprints::getSprintId)
-                .collect(Collectors.toList());
-
         return tasksRepository.findAllById(taskIds).stream()
-                .filter(task -> task.getSprintId() != null && activeSprintIds.contains(task.getSprintId()))
                 .collect(Collectors.toList());
     }
 
@@ -162,10 +151,6 @@ public class TasksAction extends BotActionBase {
         InlineKeyboardMarkup markup = InlineKeyboardMarkup.builder()
                 .keyboardRow(new InlineKeyboardRow(
                         InlineKeyboardButton.builder()
-                                .text("🏃 Set Sprint")
-                                .callbackData("action_set_sprint_" + taskIdStr)
-                                .build(),
-                        InlineKeyboardButton.builder()
                                 .text("🔄 Change State")
                                 .callbackData("action_change_state_" + taskIdStr)
                                 .build()
@@ -185,13 +170,10 @@ public class TasksAction extends BotActionBase {
             return;
         }
 
-        if (callbackData.startsWith("action_set_sprint_")) {
-            userStates.put(chatId, TaskFlowState.SELECTING_SPRINT);
-            showSprintSelection(chatId, taskId, messageId, client);
-        } else if (callbackData.startsWith("action_change_state_")) {
-            userStates.put(chatId, TaskFlowState.SELECTING_STATE);
-            showStateSelection(chatId, taskId, messageId, client);
-        }
+
+        userStates.put(chatId, TaskFlowState.SELECTING_STATE);
+        showStateSelection(chatId, taskId, messageId, client);
+        
     }
 
     private void showSprintSelection(long chatId, UUID taskId, int messageId, TelegramClient client) {
@@ -204,7 +186,7 @@ public class TasksAction extends BotActionBase {
             InlineKeyboardRow row = new InlineKeyboardRow();
             row.add(InlineKeyboardButton.builder()
                     .text(sprint.getName() + " - " + sprint.getStatus())
-                    .callbackData("sprint_" + sprint.getSprintId().toString() + "_" + taskId.toString())
+                    .callbackData("sprint_" + sprint.getSprintId().toString() + "$" + taskId.toString())
                     .build());
             keyboard.add(row);
         }
@@ -234,7 +216,7 @@ public class TasksAction extends BotActionBase {
             InlineKeyboardRow row = new InlineKeyboardRow();
             row.add(InlineKeyboardButton.builder()
                     .text(currentStatus + " → " + nextStatus)
-                    .callbackData("state_" + nextStatus.name() + "_" + taskId.toString())
+                    .callbackData("state_" + nextStatus.name() + "$" + taskId.toString())
                     .build());
             keyboard.add(row);
         }
@@ -264,7 +246,7 @@ public class TasksAction extends BotActionBase {
     private void handleSprintSelection(String callbackData, long chatId, int messageId, TelegramClient client) {
         if (!callbackData.startsWith("sprint_")) return;
 
-        String[] parts = callbackData.substring(7).split("_");
+        String[] parts = callbackData.substring(7).split("\\$");
         if (parts.length != 2) return;
 
         UUID sprintId = UUID.fromString(parts[0]);
@@ -295,8 +277,11 @@ public class TasksAction extends BotActionBase {
     private void handleStateSelection(String callbackData, long chatId, int messageId, TelegramClient client) {
         if (!callbackData.startsWith("state_")) return;
 
-        String[] parts = callbackData.substring(6).split("_");
-        if (parts.length != 2) return;
+        String[] parts = callbackData.substring(6).split("\\$");
+        if (parts.length != 2) {
+            BotHelper.sendMessageToTelegram(chatId, "Error on managing task_id and state: " + parts[0]  , client);
+            return;
+        }
 
         TaskStatus newStatus = TaskStatus.valueOf(parts[0]);
         UUID taskId = UUID.fromString(parts[1]);
