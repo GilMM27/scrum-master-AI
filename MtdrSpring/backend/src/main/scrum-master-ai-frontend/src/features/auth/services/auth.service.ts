@@ -3,7 +3,16 @@ import { apiClient } from "../../../services/Api";
 import { API_ENDPOINTS } from "../../../services/Endpoints";
 import type { LoginRequest, LoginResponse } from "../../../types/Auth.types";
 
-const loginRequest = async (credentials: LoginRequest): Promise<LoginResponse> => {
+export class InactiveAccountError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InactiveAccountError";
+  }
+}
+
+const loginRequest = async (
+  credentials: LoginRequest,
+): Promise<LoginResponse> => {
   try {
     console.log("[Auth] Connecting to backend...", API_ENDPOINTS.auth.login);
     const response = await apiClient.post<LoginResponse>(
@@ -15,6 +24,12 @@ const loginRequest = async (credentials: LoginRequest): Promise<LoginResponse> =
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
+      if (error.response?.data?.errorCode === "ACCOUNT_INACTIVE") {
+        throw new InactiveAccountError(
+          error.response.data.message ||
+            "Tu cuenta se encuentra inactiva. Contacta a un administrador para reactivar el acceso.",
+        );
+      }
       const msg =
         error.response?.data?.message ||
         error.response?.data?.error ||

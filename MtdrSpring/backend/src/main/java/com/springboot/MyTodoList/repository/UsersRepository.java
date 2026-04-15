@@ -18,11 +18,11 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
 
     Optional<Users> findByTelegramId(String telegramId);
 
-    Boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
 
-    Boolean existsByUsername(String username);
+    boolean existsByUsername(String username);
 
-    Boolean existsByTelegramId(String telegramId);
+    boolean existsByTelegramId(String telegramId);
 
     List<Users> findByUserRole(UserRole userRole);
 }

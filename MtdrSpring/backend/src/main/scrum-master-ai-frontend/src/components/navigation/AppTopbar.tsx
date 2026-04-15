@@ -1,33 +1,11 @@
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import type { User } from "../../types/User.types";
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Breadcrumbs,
-  Button,
-  Chip,
-  IconButton,
-  Link,
-  MenuItem,
-  Stack,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { AppBar, Avatar, Box, Breadcrumbs, Button, Chip, IconButton, Link, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import {
-  ChevronRightRounded,
-  LogoutRounded,
-  MenuRounded,
-  NotificationsNoneRounded,
-  PersonOutlineRounded,
- SettingsRounded,
-} from "@mui/icons-material";
+import { ChevronRightRounded, LogoutRounded, MenuRounded, NotificationsNoneRounded, PersonOutlineRounded, SettingsRounded } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
-import StyledSettingsMenu from "../common/StyledSettingMenu";
 import StyledUserMenu from "../common/StyledUserMenu";
 
 interface AppTopbarProps {
@@ -41,7 +19,7 @@ const getRoleLabel = (role: User["role"]) => {
     case "DEVELOPER":
       return "Desarrollador";
     case "MANAGER":
-      return "Scrum Master";
+      return "Manager";
     case "ADMIN":
       return "Administrador";
     default:
@@ -58,20 +36,12 @@ const AppTopbar = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [settingAnchorEl, setSettingAnchorEl] = useState<null | HTMLElement>(
-    null,
-  );
   const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null);
 
   const breadcrumbs = useMemo(
     () => getBreadcrumbsFromPath(location.pathname, user.role),
     [location.pathname, user.role],
   );
-
-  const openSettingsMenu = (event: React.MouseEvent<HTMLElement>) =>
-    setSettingAnchorEl(event.currentTarget);
-
-  const closeSettingsMenu = () => setSettingAnchorEl(null);
 
   const openUserMenu = (event: React.MouseEvent<HTMLElement>) =>
     setUserAnchorEl(event.currentTarget);
@@ -179,7 +149,6 @@ const AppTopbar = ({
 
           <Tooltip title="Configuración">
             <IconButton
-              onClick={openSettingsMenu}
               sx={{
                 border: "1px solid",
                 borderColor: "divider",
@@ -214,26 +183,6 @@ const AppTopbar = ({
             </IconButton>
           </Tooltip>
         </Stack>
-        <StyledSettingsMenu
-          anchorEl={settingAnchorEl}
-          open={Boolean(settingAnchorEl)}
-          onClose={closeSettingsMenu}
-        >
-          <MenuItem
-            onClick={handleLogout}
-            sx={{
-              color: "error.main",
-              fontSize: 12,
-              gap: 1,
-              "&:hover": {
-                bgcolor: alpha("#ff5c8a", 0.08),
-              },
-            }}
-          >
-            <LogoutRounded fontSize="small" />
-            Cerrar Sesión
-          </MenuItem>
-        </StyledSettingsMenu>
 
         <StyledUserMenu
           anchorEl={userAnchorEl}
@@ -251,7 +200,7 @@ const AppTopbar = ({
             </Typography>
           </Box>
 
-          <Box sx={{ p: 1 }}>
+          <Stack spacing={1.5} sx={{ p: 1 }}>
             <Button
               fullWidth
               variant="outlined"
@@ -260,7 +209,7 @@ const AppTopbar = ({
               onClick={closeUserMenu}
               startIcon={<PersonOutlineRounded />}
               sx={{
-                borderRadius: 2.5,
+                borderRadius: 1.5,
                 borderColor: "info.main",
                 color: "info.main",
                 bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
@@ -275,7 +224,30 @@ const AppTopbar = ({
             >
               Perfil
             </Button>
-          </Box>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="small"
+              color="error"
+              onClick={handleLogout}
+              startIcon={<LogoutRounded />}
+              sx={{
+                borderRadius: 1.5,
+                borderColor: "error.main",
+                color: "error.main",
+                bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
+                "&:hover": {
+                  bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
+                  borderColor: "error.main",
+                },
+                "& .MuiButton-startIcon": {
+                  color: "error.main",
+                },
+              }}
+            >
+              Cerrar Sesión
+            </Button> 
+          </Stack>
         </StyledUserMenu>
       </Toolbar>
     </AppBar>
