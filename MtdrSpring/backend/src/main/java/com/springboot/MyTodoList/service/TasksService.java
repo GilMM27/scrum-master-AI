@@ -4,7 +4,10 @@ import com.springboot.MyTodoList.dto.CreateTaskRequest;
 import com.springboot.MyTodoList.model.Sprints;
 import com.springboot.MyTodoList.model.TaskStatus;
 import com.springboot.MyTodoList.model.Tasks;
+import com.springboot.MyTodoList.model.TaskAssignments;
+import com.springboot.MyTodoList.model.TaskAssignmentsId;
 import com.springboot.MyTodoList.repository.SprintsRepository;
+import com.springboot.MyTodoList.repository.TaskAssignmentsRepository;
 import com.springboot.MyTodoList.repository.TasksRepository;
 import com.springboot.MyTodoList.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,9 @@ public class TasksService {
 
     @Autowired
     private UsersRepository usersRepository;
+
+    @Autowired
+    private TaskAssignmentsRepository taskAssignmentsRepository;
 
     private static final Map<TaskStatus, Set<TaskStatus>> VALID_TRANSITIONS = Map.of(
         TaskStatus.TO_DO, Set.of(TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED),
@@ -188,6 +194,40 @@ public class TasksService {
         }
         tasksRepository.deleteById(taskId);
         return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
+    public ResponseEntity<?> assignUserToTask(UUID taskId, UUID userId) {
+        if (!tasksRepository.existsById(taskId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!usersRepository.existsById(userId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User not found"));
+        }
+
+        if (taskAssignmentsRepository.existsByTaskIdAndUserId(taskId, userId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User is already assigned to this task"));
+        }
+
+        TaskAssignments assignment = new TaskAssignments(taskId, userId);
+        taskAssignmentsRepository.save(assignment);
+
+        return ResponseEntity.ok(Map.of("assigned", true, "taskId", taskId, "userId", userId));
+    }
+
+    public ResponseEntity<?> unassignUserFromTask(UUID taskId, UUID userId) {
+        if (!tasksRepository.existsById(taskId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!taskAssignmentsRepository.existsByTaskIdAndUserId(taskId, userId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "User is not assigned to this task"));
+        }
+
+        TaskAssignmentsId assignmentId = new TaskAssignmentsId(taskId, userId);
+        taskAssignmentsRepository.deleteById(assignmentId);
+
+        return ResponseEntity.ok(Map.of("unassigned", true, "taskId", taskId, "userId", userId));
     }
 
 }

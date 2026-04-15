@@ -81,6 +81,7 @@ public class TasksAction extends BotActionBase {
 
         List<Sprints> activeSprints = sprintsRepository.findByStatus(SprintStatus.ACTIVE);
         if (activeSprints.isEmpty()) {
+            System.out.println("Sprints inactivos");
             return new ArrayList<>();
         }
 
