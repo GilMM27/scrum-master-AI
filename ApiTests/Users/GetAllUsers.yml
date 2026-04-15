@@ -5,8 +5,16 @@ info:
 
 http:
   method: GET
-  url: ""
+  url: "{{baseUrl}}/api/users"
+  body:
+    type: json
+    data: ""
   auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: bru.setVar("userId",res.getBody()[0].userId)
 
 settings:
   encodeUrl: true

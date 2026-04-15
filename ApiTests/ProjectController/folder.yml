@@ -1,7 +1,7 @@
 info:
-  name: LogInCotroller
+  name: ProjectController
   type: folder
-  seq: 3
+  seq: 7
 
 request:
   auth: inherit
