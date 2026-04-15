@@ -1,9 +1,8 @@
 package com.springboot.MyTodoList.controller;
 
+import com.springboot.MyTodoList.actions.BotAction;
+import com.springboot.MyTodoList.actions.BotActionRegistry;
 import com.springboot.MyTodoList.config.BotProps;
-import com.springboot.MyTodoList.service.GeminiService;
-import com.springboot.MyTodoList.service.ToDoItemService;
-import com.springboot.MyTodoList.util.BotActions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,77 +17,52 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
-public class ToDoItemBotController  implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
+public class ToDoItemBotController implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-	private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
-	private ToDoItemService toDoItemService;
-	private GeminiService geminiService;
-	private final TelegramClient telegramClient;
-	
-	private final BotProps botProps;
+    private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
 
-	@Value("${telegram.bot.token}")
-	private String telegramBotToken;
+    private final TelegramClient telegramClient;
+    private final BotProps botProps;
+    private final BotActionRegistry actionRegistry;
 
+    @Value("${telegram.bot.token}")
+    private String telegramBotToken;
 
-	@Override
+    @Override
     public String getBotToken() {
-		if(telegramBotToken != null && !telegramBotToken.trim().isEmpty()){
-        	return telegramBotToken;
-		}else{
-			return botProps.getToken();
-		}
+        if (telegramBotToken != null && !telegramBotToken.trim().isEmpty()) {
+            return telegramBotToken;
+        } else {
+            return botProps.getToken();
+        }
     }
 
+    public ToDoItemBotController(BotProps bp, BotActionRegistry actionRegistry) {
+        this.botProps = bp;
+        this.actionRegistry = actionRegistry;
+        telegramClient = new OkHttpTelegramClient(getBotToken());
+    }
 
-	public ToDoItemBotController( BotProps bp, ToDoItemService tsvc, GeminiService gs) {
-		this.botProps = bp;
-		telegramClient = new OkHttpTelegramClient(getBotToken());
-		toDoItemService = tsvc;
-		geminiService = gs;
-	}
-
-	@Override
+    @Override
     public LongPollingUpdateConsumer getUpdatesConsumer() {
         return this;
     }
 
-	@Override
-	public void consume(Update update) {
+    @Override
+    public void consume(Update update) {
+        if (!update.hasMessage() || !update.getMessage().hasText()) {
+            return;
+        }
 
-		if (!update.hasMessage() || !update.getMessage().hasText()) return;
+        String messageText = update.getMessage().getText();
+        long chatId = update.getMessage().getChatId();
 
-		
+        BotAction action = actionRegistry.resolve(messageText);
+        action.handle(messageText, chatId, telegramClient);
+    }
 
-		String messageTextFromTelegram = update.getMessage().getText();
-		long chatId = update.getMessage().getChatId();
-
-		BotActions actions =  new BotActions(telegramClient,toDoItemService,geminiService);
-		actions.setRequestText(messageTextFromTelegram);
-		actions.setChatId(chatId);
-		if(actions.getTodoService()==null){
-			logger.info("todosvc error");
-			actions.setTodoService(toDoItemService);
-		}
-
-
-		actions.fnStart();
-		actions.fnDone();
-		actions.fnUndo();
-		actions.fnDelete();
-		actions.fnHide();
-		actions.fnListAll();
-		actions.fnAddItem();
-		actions.fnLLM();
-		actions.fnElse();
-
-	}
-
-	@AfterBotRegistration
+    @AfterBotRegistration
     public void afterRegistration(BotSession botSession) {
         System.out.println("Registered bot running state is: " + botSession.isRunning());
     }
-
 }
-
-
