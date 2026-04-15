@@ -3,6 +3,11 @@ package com.springboot.MyTodoList.controller;
 import com.springboot.MyTodoList.actions.BotAction;
 import com.springboot.MyTodoList.actions.BotActionRegistry;
 import com.springboot.MyTodoList.config.BotProps;
+import com.springboot.MyTodoList.repository.UsersRepository;
+import com.springboot.MyTodoList.util.BotHelper;
+import com.springboot.MyTodoList.util.BotMessages;
+import com.springboot.MyTodoList.util.BotCommands;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +29,7 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
     private final TelegramClient telegramClient;
     private final BotProps botProps;
     private final BotActionRegistry actionRegistry;
+    private final UsersRepository usersRepository;
 
     @Value("${telegram.bot.token}")
     private String telegramBotToken;
@@ -37,9 +43,10 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
         }
     }
 
-    public ToDoItemBotController(BotProps bp, BotActionRegistry actionRegistry) {
+    public ToDoItemBotController(BotProps bp, BotActionRegistry actionRegistry, UsersRepository usersRepository) {
         this.botProps = bp;
         this.actionRegistry = actionRegistry;
+        this.usersRepository = usersRepository;
         telegramClient = new OkHttpTelegramClient(getBotToken());
     }
 
@@ -50,6 +57,11 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
 
     @Override
     public void consume(Update update) {
+        if (update.hasCallbackQuery()) {
+            handleCallbackQuery(update);
+            return;
+        }
+
         if (!update.hasMessage() || !update.getMessage().hasText()) {
             return;
         }
@@ -57,8 +69,36 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
         String messageText = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
 
-        BotAction action = actionRegistry.resolve(messageText);
-        action.handle(messageText, chatId, telegramClient);
+        if (messageText.startsWith(BotCommands.LOGIN.getCommand())) {
+            BotAction action = actionRegistry.resolve(update);
+            action.handle(update, chatId, telegramClient);
+            return;
+        }
+
+        long telegramId = update.getMessage().getFrom().getId();
+        if (usersRepository.findByTelegramId(telegramId).isEmpty()) {
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.UNAUTHORIZED.getMessage(), telegramClient);
+            return;
+        }
+
+        BotAction action = actionRegistry.resolve(update);
+        if (action != null) {
+            action.handle(update, chatId, telegramClient);
+        }
+		BotHelper.sendMessageToTelegram(chatId, BotMessages.COMMAND_NOT_FOUND.getMessage(), telegramClient);
+    }
+
+    private void handleCallbackQuery(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
+        long chatId = update.getCallbackQuery().getFrom().getId();
+        int messageId = update.getCallbackQuery().getMessage().getMessageId();
+
+        for (BotAction action : actionRegistry.getActions()) {
+            if (action.canHandleCallback(callbackData)) {
+                action.handleCallback(callbackData, chatId, messageId, telegramClient);
+                return;
+            }
+        }
     }
 
     @AfterBotRegistration

@@ -22,8 +22,8 @@ public class Users {
     String email;
     @Column(name = "PASSWORD_HASH", nullable = false)
     String passwordHash;
-    @Column(name = "TELEGRAM_ID", unique = true)
-    String telegramId;
+    @Column(name = "TELEGRAM_ID")
+    Long telegramId;
     @Column(name = "CELL_PHONE", nullable = false)
     String cellPhone;
     @Enumerated(EnumType.STRING)
@@ -31,11 +31,13 @@ public class Users {
     UserRole userRole;
     @Column(name = "CREATED_AT")
     OffsetDateTime createdAt;
+    @Column(name = "ACCOUNT_STATUS", columnDefinition = "varchar2(255) DEFAULT \"ACTIVE\"")
+    String accountStatus;
 
     public Users() {
     }
 
-    public Users(UUID userId, String username, String email, String passwordHash, String telegramId, String cellPhone, UserRole userRole, OffsetDateTime createdAt) {
+    public Users(UUID userId, String username, String email, String passwordHash, Long telegramId, String cellPhone, UserRole userRole, OffsetDateTime createdAt) {
         this.userId = userId;
         this.username = username;
         this.email = email;
@@ -78,11 +80,11 @@ public class Users {
         this.passwordHash = passwordHash;
     }
 
-    public String getTelegramId() {
+    public Long getTelegramId() {
         return telegramId;
     }
 
-    public void setTelegramId(String telegramId) {
+    public void setTelegramId(Long telegramId) {
         this.telegramId = telegramId;
     }
 
@@ -110,6 +112,14 @@ public class Users {
         this.createdAt = createdAt;
     }
 
+    public void setActive(String accountStatus){
+        this.accountStatus = accountStatus;
+    }
+    
+    public String getActive(){
+        return this.accountStatus;
+    }
+
     @Override
     public String toString() {
         return "Users{" +
@@ -121,6 +131,7 @@ public class Users {
                 ", cellPhone='" + cellPhone + '\'' +
                 ", userRole='" + userRole + '\'' +
                 ", createdAt=" + createdAt +
+                ", accountStatus=" + accountStatus +
                 '}';
     }
 }

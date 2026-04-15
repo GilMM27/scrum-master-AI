@@ -2,23 +2,32 @@ package com.springboot.MyTodoList.actions;
 
 import java.util.List;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 public class BotActionRegistry {
 
     private final List<BotAction> actions;
-    private final ElseAction elseAction;
 
-    public BotActionRegistry(List<BotAction> actions, ElseAction elseAction) {
+    public BotActionRegistry(List<BotAction> actions) {
         this.actions = actions;
-        this.elseAction = elseAction;
     }
 
-    public BotAction resolve(String messageText) {
+    public List<BotAction> getActions() {
+        return actions;
+    }
+
+    public BotAction resolve(Update update) {
         return actions.stream()
-            .filter(a -> a.canHandle(messageText))
-            .filter(a -> !(a instanceof ElseAction)) 
+            .filter(a -> a.canHandle(update))
             .findFirst()
-            .orElse(elseAction);
+            .orElse(null);
+    }
+
+    public BotAction resolveCallback(String callbackData) {
+        return actions.stream()
+            .filter(a -> a.canHandleCallback(callbackData))
+            .findFirst()
+            .orElse(null);
     }
 }
