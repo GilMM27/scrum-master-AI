@@ -82,6 +82,7 @@ public class AuthController {
         newUser.setCellPhone(request.getCellPhone());
         newUser.setUserRole(request.getUserRole() != null ? request.getUserRole() : UserRole.DEVELOPER);
         newUser.setCreatedAt(OffsetDateTime.now());
+        newUser.setAccountStatus(AccountStatus.ACTIVE);
 
         usersRepository.save(newUser);
 
