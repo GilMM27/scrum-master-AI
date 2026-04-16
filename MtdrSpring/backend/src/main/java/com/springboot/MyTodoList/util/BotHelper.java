@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
@@ -90,6 +91,22 @@ public class BotHelper {
 					.build();
 			bot.execute(editMessage);
 		} catch (Exception e) {
+			System.out.println("Cannot Send new Keyboard: "+ text);
+			logger.error(e.getLocalizedMessage(), e);
+		}
+	}
+
+	public static void editMessageReplyMarkup(Long chatId, Integer messageId, InlineKeyboardMarkup keyboard, TelegramClient bot) {
+		try {
+			EditMessageReplyMarkup editMarkup = EditMessageReplyMarkup.builder()
+					.chatId(chatId)
+					.messageId(messageId)
+					.replyMarkup(keyboard)
+					.build();
+			bot.execute(editMarkup);
+			System.out.println("Cannot| Updated Send new Keyboard options ");
+		} catch (Exception e) {
+			System.out.println("Cannot Send new Keyboard options ");
 			logger.error(e.getLocalizedMessage(), e);
 		}
 	}

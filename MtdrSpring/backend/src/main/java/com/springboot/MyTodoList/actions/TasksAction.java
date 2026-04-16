@@ -1,6 +1,8 @@
 package com.springboot.MyTodoList.actions;
 
 import com.springboot.MyTodoList.model.Sprints;
+import com.springboot.MyTodoList.model.ProjectMembers;
+import com.springboot.MyTodoList.model.Projects;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.TaskAssignments;
 import com.springboot.MyTodoList.model.Tasks;
@@ -17,12 +19,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 public class TasksAction extends BotActionBase {
@@ -107,7 +111,8 @@ public class TasksAction extends BotActionBase {
     public boolean canHandleCallback(String callbackData) {
         return callbackData.startsWith("task_") ||
                callbackData.startsWith("action_") ||
-               callbackData.startsWith("sprint_") ||
+               callbackData.startsWith("spr_") ||
+               callbackData.startsWith("sprintstate_") ||
                callbackData.startsWith("state_");
     }
 
@@ -177,16 +182,28 @@ public class TasksAction extends BotActionBase {
     }
 
     private void showSprintSelection(long chatId, UUID taskId, int messageId, TelegramClient client) {
-        List<Sprints> activeSprints = sprintsRepository.findByStatus(SprintStatus.ACTIVE);
 
-        String text = "🏃 Select a Sprint:";
+
+        Optional<Users> usr = usersRepository.findByTelegramId(chatId);
+        List<ProjectMembers>prjs = projectMembersRepository.findByUserId(usr.get().getUserId());
+        List<UUID> userProjectIds = prjs.stream()
+            .map(ProjectMembers::getProjectId)
+            .collect(Collectors.toList());
+        List<Sprints> activeSprints = sprintsRepository.findByStatus(SprintStatus.ACTIVE).stream()
+            .filter(sprint -> userProjectIds.contains(sprint.getProjectId()))
+            .collect(Collectors.toList());
+        
+        String text = "This task has no sprint. Select a Sprint to move it to IN_PROGRESS";
 
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (Sprints sprint : activeSprints) {
             InlineKeyboardRow row = new InlineKeyboardRow();
+            if(("spr_" + sprint.getSprintId().toString() + "$" + taskId.toString()).getBytes(StandardCharsets.UTF_8).length > 64){
+                System.out.println("Cannot be larger than x");
+            }
             row.add(InlineKeyboardButton.builder()
-                    .text(sprint.getName() + " - " + sprint.getStatus())
-                    .callbackData("sprint_" + sprint.getSprintId().toString() + "$" + taskId.toString())
+                    .text(sprint.getName())
+                    .callbackData("spr_" + sprint.getSprintId().toString())
                     .build());
             keyboard.add(row);
         }
@@ -194,8 +211,10 @@ public class TasksAction extends BotActionBase {
         InlineKeyboardMarkup markup = InlineKeyboardMarkup.builder()
                 .keyboard(keyboard)
                 .build();
-
-        BotHelper.editMessageTextWithKeyboard(chatId, messageId, text, markup, client);
+        BotHelper.editMessageText(chatId,messageId, text, client);
+        BotHelper.editMessageReplyMarkup(chatId, messageId, markup, client);
+        
+        
     }
 
     private void showStateSelection(long chatId, UUID taskId, int messageId, TelegramClient client) {
@@ -214,9 +233,11 @@ public class TasksAction extends BotActionBase {
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (TaskStatus nextStatus : nextStates) {
             InlineKeyboardRow row = new InlineKeyboardRow();
+            String callbackData = "state_" + nextStatus.name() + "$" + taskId.toString();
+            
             row.add(InlineKeyboardButton.builder()
                     .text(currentStatus + " → " + nextStatus)
-                    .callbackData("state_" + nextStatus.name() + "$" + taskId.toString())
+                    .callbackData(callbackData)
                     .build());
             keyboard.add(row);
         }
@@ -244,13 +265,10 @@ public class TasksAction extends BotActionBase {
     }
 
     private void handleSprintSelection(String callbackData, long chatId, int messageId, TelegramClient client) {
-        if (!callbackData.startsWith("sprint_")) return;
-
-        String[] parts = callbackData.substring(7).split("\\$");
-        if (parts.length != 2) return;
+        String[] parts = callbackData.substring(4).split("\\$");
 
         UUID sprintId = UUID.fromString(parts[0]);
-        UUID taskId = UUID.fromString(parts[1]);
+        UUID taskId = selectedTaskId.get(chatId);
 
         Tasks task = tasksRepository.findByTaskId(taskId).orElse(null);
         if (task == null) {
@@ -259,8 +277,9 @@ public class TasksAction extends BotActionBase {
             BotHelper.sendMessageToTelegram(chatId, "❌ Task not found.", client);
             return;
         }
-
         task.setSprintId(sprintId);
+        task.setStatus(TaskStatus.IN_PROGRESS);
+        
         tasksRepository.save(task);
 
         Sprints sprint = sprintsRepository.findById(sprintId).orElse(null);
@@ -269,12 +288,14 @@ public class TasksAction extends BotActionBase {
         userStates.remove(chatId);
         selectedTaskId.remove(chatId);
 
-        BotHelper.editMessageTextWithKeyboard(chatId, messageId, 
-                "✅ Sprint updated!\n\nTask: " + task.getTitle() + "\nNew Sprint: " + sprintName, 
-                null, client);
+
+        String message = "✅ Sprint assigned and state changed!\n\nTask: " + task.getTitle() + "\nSprint: " + sprintName + "\nNew State: IN_PROGRESS";
+
+        BotHelper.editMessageTextWithKeyboard(chatId, messageId, message, null, client);
     }
 
     private void handleStateSelection(String callbackData, long chatId, int messageId, TelegramClient client) {
+
         if (!callbackData.startsWith("state_")) return;
 
         String[] parts = callbackData.substring(6).split("\\$");
@@ -291,6 +312,10 @@ public class TasksAction extends BotActionBase {
             userStates.remove(chatId);
             selectedTaskId.remove(chatId);
             BotHelper.sendMessageToTelegram(chatId, "❌ Task not found.", client);
+            return;
+        }if(task.getSprintId() == null && newStatus == TaskStatus.IN_PROGRESS){
+            userStates.put(chatId, TaskFlowState.SELECTING_SPRINT);
+            showSprintSelection(chatId, taskId, messageId, client);
             return;
         }
 

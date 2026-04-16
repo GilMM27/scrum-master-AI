@@ -91,8 +91,9 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
 
     private void handleCallbackQuery(Update update) {
         String callbackData = update.getCallbackQuery().getData();
-        long chatId = update.getCallbackQuery().getFrom().getId();
+        // long TelegramID = update.getCallbackQuery().getFrom().getId();
         int messageId = update.getCallbackQuery().getMessage().getMessageId();
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
 
         for (BotAction action : actionRegistry.getActions()) {
             if (action.canHandleCallback(callbackData)) {

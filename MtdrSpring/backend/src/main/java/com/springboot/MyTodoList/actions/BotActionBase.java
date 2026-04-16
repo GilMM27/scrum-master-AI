@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.actions;
 
 import com.springboot.MyTodoList.repository.UsersRepository;
 import com.springboot.MyTodoList.repository.TaskAssignmentsRepository;
+import com.springboot.MyTodoList.repository.ProjectMembersRepository;
+import com.springboot.MyTodoList.repository.ProjectsRepository;
 import com.springboot.MyTodoList.repository.SprintsRepository;
 import com.springboot.MyTodoList.repository.TasksRepository;
 import com.springboot.MyTodoList.service.TasksService;
@@ -16,6 +18,8 @@ public abstract class BotActionBase implements BotAction {
     protected TaskAssignmentsRepository taskAssignmentsRepository;
     protected SprintsRepository sprintsRepository;
     protected TasksRepository tasksRepository;
+    protected ProjectsRepository projectsRepository;
+    protected ProjectMembersRepository projectMembersRepository;
 
     @Autowired
     public void setServices(
@@ -23,11 +27,16 @@ public abstract class BotActionBase implements BotAction {
             TasksService tasksService,
             TaskAssignmentsRepository taskAssignmentsRepository,
             SprintsRepository sprintsRepository,
-            TasksRepository tasksRepository) {
+            TasksRepository tasksRepository,
+            ProjectsRepository projectsRepository,
+            ProjectMembersRepository projectMembersRepository
+        ) {
         this.usersRepository = usersRepository;
         this.tasksService = tasksService;
         this.taskAssignmentsRepository = taskAssignmentsRepository;
         this.sprintsRepository = sprintsRepository;
         this.tasksRepository = tasksRepository;
+        this.projectsRepository = projectsRepository;
+        this.projectMembersRepository = projectMembersRepository;
     }
 }
