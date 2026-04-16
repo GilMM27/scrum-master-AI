@@ -45,9 +45,7 @@ public class TasksAction extends BotActionBase {
 
     @Override
     public boolean canHandle(Update update) {
-        if (!update.hasMessage() || !update.getMessage().hasText()) {
-            return false;
-        }
+
         String messageText = update.getMessage().getText();
         return messageText.equals(BotCommands.TASKS_COMMAND.getCommand());
     }
@@ -62,7 +60,7 @@ public class TasksAction extends BotActionBase {
             return;
         }
 
-        List<Tasks> userTasks = getUserTasksWithActiveSprint(user.getUserId());
+        List<Tasks> userTasks = getUserTasksThatArentDone(user.getUserId());
         
         if (userTasks.isEmpty()) {
             BotHelper.sendMessageToTelegram(chatId, "📋 You have no tasks in active sprints.", client);
@@ -73,7 +71,7 @@ public class TasksAction extends BotActionBase {
         showTaskSelection(chatId, userTasks, client);
     }
 
-    private List<Tasks> getUserTasksWithActiveSprint(UUID userId) {
+    private List<Tasks> getUserTasksThatArentDone(UUID userId) {
         List<TaskAssignments> assignments = taskAssignmentsRepository.findByUserId(userId);
         if (assignments.isEmpty()) {
             return new ArrayList<>();
@@ -83,7 +81,7 @@ public class TasksAction extends BotActionBase {
                 .map(TaskAssignments::getTaskId)
                 .collect(Collectors.toList());
 
-        return tasksRepository.findAllById(taskIds).stream()
+        return tasksRepository.findAllById(taskIds).stream().filter(task -> task.getStatus() != TaskStatus.DONE)
                 .collect(Collectors.toList());
     }
 

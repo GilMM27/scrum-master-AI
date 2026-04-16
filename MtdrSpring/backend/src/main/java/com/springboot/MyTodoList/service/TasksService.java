@@ -177,11 +177,6 @@ public class TasksService {
             task.setBlockedAt(null);
         }
 
-        if (newStatus == TaskStatus.DONE) {
-            task.setDeliveredAt(OffsetDateTime.now());
-        } else {
-            task.setDeliveredAt(null);
-        }
         
 
         Tasks savedTask = tasksRepository.save(task);

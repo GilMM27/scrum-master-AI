@@ -15,9 +15,7 @@ public class LoginAction extends BotActionBase {
 
     @Override
     public boolean canHandle(Update update) {
-        if (!update.hasMessage() || !update.getMessage().hasText()) {
-            return false;
-        }
+ 
         String messageText = update.getMessage().getText();
         return messageText.startsWith(BotCommands.LOGIN.getCommand());
     }

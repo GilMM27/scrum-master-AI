@@ -8,7 +8,8 @@ public enum BotCommands {
 	ADD_ITEM("/additem"),
 	LLM_REQ("/llm"),
 	LOGIN("/login"),
-	TASKS_COMMAND("/tasks");
+	TASKS_COMMAND("/tasks"),
+	GENERATE_TASK("/gtask");
 
 	private String command;
 

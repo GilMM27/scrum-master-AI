@@ -2,6 +2,7 @@ package com.springboot.MyTodoList.model;
 
 
 import com.springboot.MyTodoList.dto.CreateTaskRequest;
+import com.springboot.MyTodoList.listener.TasksEntityListener;
 import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
@@ -13,6 +14,7 @@ import java.util.UUID;
 */
 @Entity
 @Table(name = "TASKS")
+// @EntityListeners(TasksEntityListener.class)
 public class Tasks {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,6 +41,8 @@ public class Tasks {
     OffsetDateTime createdAt;
     @Column(name = "DELIVERED_AT")
     OffsetDateTime deliveredAt;
+    @Column(name = "STARTED_AT")
+    OffsetDateTime startedAt;
 
     public Tasks() {
     }
@@ -46,7 +50,7 @@ public class Tasks {
     public Tasks(UUID taskId, String title, String description, TaskStatus status, int storyPoints,
                  UUID sprintId,
                  OffsetDateTime blockedAt, Boolean isAiFlagged,
-                 OffsetDateTime createdAt, OffsetDateTime deliveredAt) {
+                 OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
         this.taskId = taskId;
         this.title = title;
         this.description = description;
@@ -57,6 +61,7 @@ public class Tasks {
         this.isAiFlagged = isAiFlagged;
         this.createdAt = createdAt;
         this.deliveredAt = deliveredAt;
+        this.startedAt = startedAt;
     }
 
     public UUID getTaskId() {
@@ -139,6 +144,14 @@ public class Tasks {
         this.deliveredAt = deliveredAt;
     }
 
+    public void setStartedAt(OffsetDateTime startedAt){
+        this.startedAt = startedAt;
+    }
+    public OffsetDateTime getStartedAt(){
+        return this.startedAt;
+    }
+
+    
     @Override
     public String toString() {
         return "Tasks{" +
@@ -169,4 +182,24 @@ public class Tasks {
             this.storyPoints = dto.getStoryPoints();
         }
     }
+
+    @PrePersist
+    @PreUpdate
+    public void onTaskUpdate() {
+
+        if (this.createdAt == null) {
+            this.createdAt = OffsetDateTime.now();
+        }
+
+        if (status == TaskStatus.IN_PROGRESS && startedAt == null) {
+            this.startedAt = OffsetDateTime.now();
+        }
+
+        if (status == TaskStatus.DONE && deliveredAt == null) {
+            this.deliveredAt = OffsetDateTime.now();
+        }
+
+    }
+
+
 }
