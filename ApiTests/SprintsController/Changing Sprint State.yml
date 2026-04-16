@@ -5,7 +5,13 @@ info:
 
 http:
   method: PATCH
-  url: "{{baseUrl"
+  url: "{{baseUrl}}/api/sprints/{{sprint}}/status"
+  body:
+    type: json
+    data: |-
+      {
+        "status": "ACTIVE"
+      }
   auth: inherit
 
 settings:

@@ -36,7 +36,7 @@ public class GenerateTask extends BotActionBase {
         if (parts.length < 3) {
             BotHelper.sendMessageToTelegram(chatId, 
                 "❌ Please provide the name of your Task in a single argument and the time just in integert hr\n "+
-                     "/gtask [nombre_sin_espacios] [tiempo en hr]", client);
+                     "/gtask <nombre_sin_espacios> <tiempo en hr>", client);
             return;
         }
 

@@ -73,6 +73,10 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
             BotAction action = actionRegistry.resolve(update);
             action.handle(update, chatId, telegramClient);
             return;
+        }else if(messageText.startsWith(BotCommands.START_COMMAND.getCommand())){
+            BotAction action = actionRegistry.resolve(update);
+            action.handle(update, chatId, telegramClient);
+            return;
         }
 
         long telegramId = update.getMessage().getFrom().getId();

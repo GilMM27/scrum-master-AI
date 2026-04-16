@@ -2,7 +2,6 @@ package com.springboot.MyTodoList.model;
 
 
 import com.springboot.MyTodoList.dto.CreateTaskRequest;
-import com.springboot.MyTodoList.listener.TasksEntityListener;
 import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
 import java.time.OffsetDateTime;
