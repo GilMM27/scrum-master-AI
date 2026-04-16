@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "title": "Implement user authentication",
+        "title": "newTest Some",
         "description": "Add login functionality with JWT tokens",
       //   "sprintId":"b6571da-d574-4b77-948a-2fff48f639ef",
         "storyPoints": 5

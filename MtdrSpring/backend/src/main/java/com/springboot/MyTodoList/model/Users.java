@@ -23,7 +23,7 @@ public class Users {
     @Column(name = "PASSWORD_HASH", nullable = false)
     String passwordHash;
     @Column(name = "TELEGRAM_ID", unique = true)
-    String telegramId;
+    Long telegramId;
     @Column(name = "CELL_PHONE", nullable = false)
     String cellPhone;
     @Enumerated(EnumType.STRING)
@@ -38,7 +38,7 @@ public class Users {
     public Users() {
     }
 
-    public Users(UUID userId, String username, String email, String passwordHash, String telegramId, String cellPhone, UserRole userRole, OffsetDateTime createdAt) {
+    public Users(UUID userId, String username, String email, String passwordHash, Long telegramId, String cellPhone, UserRole userRole, OffsetDateTime createdAt) {
         this.userId = userId;
         this.username = username;
         this.email = email;
@@ -81,11 +81,11 @@ public class Users {
         this.passwordHash = passwordHash;
     }
 
-    public String getTelegramId() {
+    public Long getTelegramId() {
         return telegramId;
     }
 
-    public void setTelegramId(String telegramId) {
+    public void setTelegramId(Long telegramId) {
         this.telegramId = telegramId;
     }
 

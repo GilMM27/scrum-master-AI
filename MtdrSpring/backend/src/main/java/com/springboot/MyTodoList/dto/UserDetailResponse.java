@@ -12,14 +12,14 @@ public class UserDetailResponse {
     private String email;
     private UserRole userRole;
     private AccountStatus accountStatus;
-    private String telegramId;
+    private Long telegramId;
     private String cellPhone;
     private OffsetDateTime createdAt;
 
     public UserDetailResponse() {
     }
 
-    public UserDetailResponse(UUID userId, String username, String email, UserRole userRole, AccountStatus accountStatus, String telegramId, String cellPhone, OffsetDateTime createdAt) {
+    public UserDetailResponse(UUID userId, String username, String email, UserRole userRole, AccountStatus accountStatus, Long telegramId, String cellPhone, OffsetDateTime createdAt) {
         this.userId = userId;
         this.username = username;
         this.email = email;
@@ -70,11 +70,11 @@ public class UserDetailResponse {
         this.accountStatus = accountStatus;
     }
 
-    public String getTelegramId() {
+    public Long getTelegramId() {
         return telegramId;
     }
 
-    public void setTelegramId(String telegramId) {
+    public void setTelegramId(Long telegramId) {
         this.telegramId = telegramId;
     }
 

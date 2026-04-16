@@ -71,4 +71,14 @@ public class TasksController {
     public ResponseEntity<?> deleteTask(@PathVariable UUID id) {
         return tasksService.deleteTask(id);
     }
+
+    @PostMapping("/{taskId}/assignees/{userId}")
+    public ResponseEntity<?> assignUserToTask(@PathVariable UUID taskId, @PathVariable UUID userId) {
+        return tasksService.assignUserToTask(taskId, userId);
+    }
+
+    @DeleteMapping("/{taskId}/assignees/{userId}")
+    public ResponseEntity<?> unassignUserFromTask(@PathVariable UUID taskId, @PathVariable UUID userId) {
+        return tasksService.unassignUserFromTask(taskId, userId);
+    }
 }

@@ -14,7 +14,7 @@ http:
         "description": "We are balling",
         "status": "IN_PROGRESS",
         "storyPoints": 6,
-        "sprintId": null,
+        "sprintId": "{{sprint}}",
         "blockedAt": null,
         "deliveredAt": null,
         "aiFlagged": false
