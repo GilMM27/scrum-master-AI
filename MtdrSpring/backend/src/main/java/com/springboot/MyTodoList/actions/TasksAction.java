@@ -8,6 +8,7 @@ import com.springboot.MyTodoList.model.TaskAssignments;
 import com.springboot.MyTodoList.model.Tasks;
 import com.springboot.MyTodoList.model.TaskStatus;
 import com.springboot.MyTodoList.model.Users;
+import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import org.slf4j.Logger;
@@ -44,31 +45,39 @@ public class TasksAction extends BotActionBase {
     }
 
     @Override
-    public boolean canHandle(Update update) {
+    public BotState getState() {
+        return BotState.TASKS;
+    }
 
+    @Override
+    public boolean canHandle(Update update) {
+        
         String messageText = update.getMessage().getText();
         return messageText.equals(BotCommands.TASKS_COMMAND.getCommand());
     }
 
     @Override
-    public void handle(Update update, long chatId, TelegramClient client) {
+    public BotState handle(Update update) {
+        long chatId = update.getMessage().getChatId();
         long telegramId = update.getMessage().getFrom().getId();
+        TelegramClient client = BotHelper.getTelegramClient();
 
         Users user = usersRepository.findByTelegramId(telegramId).orElse(null);
         if (user == null) {
             BotHelper.sendMessageToTelegram(chatId, "❌ You must be logged in to use this command. Use /login first.", client);
-            return;
+            return BotState.IDLE;
         }
 
         List<Tasks> userTasks = getUserTasksThatArentDone(user.getUserId());
         
         if (userTasks.isEmpty()) {
             BotHelper.sendMessageToTelegram(chatId, "📋 You have no tasks in active sprints.", client);
-            return;
+            return BotState.IDLE;
         }
 
         userStates.put(chatId, TaskFlowState.SELECTING_TASK);
         showTaskSelection(chatId, userTasks, client);
+        return BotState.TASKS;
     }
 
     private List<Tasks> getUserTasksThatArentDone(UUID userId) {
@@ -106,7 +115,8 @@ public class TasksAction extends BotActionBase {
     }
 
     @Override
-    public boolean canHandleCallback(String callbackData) {
+    public boolean canHandleCallback(Update update) {
+        String callbackData = update.getCallbackQuery().getData();
         return callbackData.startsWith("task_") ||
                callbackData.startsWith("action_") ||
                callbackData.startsWith("spr_") ||
@@ -115,7 +125,12 @@ public class TasksAction extends BotActionBase {
     }
 
     @Override
-    public void handleCallback(String callbackData, long chatId, int messageId, TelegramClient client) {
+    public BotState handleCallback(Update update) {
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        int messageId = update.getCallbackQuery().getMessage().getMessageId();
+        String callbackData = update.getCallbackQuery().getData();
+        TelegramClient client = BotHelper.getTelegramClient();
+        
         TaskFlowState state = userStates.getOrDefault(chatId, TaskFlowState.SELECTING_TASK);
 
         try {
@@ -138,7 +153,10 @@ public class TasksAction extends BotActionBase {
             userStates.remove(chatId);
             selectedTaskId.remove(chatId);
             BotHelper.sendMessageToTelegram(chatId, "❌ An error occurred. Please try again.", client);
+            return BotState.IDLE;
         }
+        
+        return userStates.containsKey(chatId) ? BotState.TASKS : BotState.IDLE;
     }
 
     private void handleTaskSelection(String callbackData, long chatId, int messageId, TelegramClient client) {

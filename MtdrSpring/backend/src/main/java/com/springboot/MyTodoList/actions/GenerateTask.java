@@ -4,6 +4,7 @@ import com.springboot.MyTodoList.model.TaskStatus;
 import com.springboot.MyTodoList.model.Tasks;
 import com.springboot.MyTodoList.model.Users;
 import com.springboot.MyTodoList.repository.TaskAssignmentsRepository;
+import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.util.BotHelper;
 
 import okhttp3.internal.concurrent.Task;
@@ -23,13 +24,17 @@ public class GenerateTask extends BotActionBase {
 
     @Override
     public boolean canHandle(Update update) {
-
+        if(!update.getMessage().hasText()){
+            return false;
+        }
         String messageText = update.getMessage().getText();
         return messageText.startsWith(BotCommands.GENERATE_TASK.getCommand());
     }
 
     @Override
-    public void handle(Update update, long chatId, TelegramClient client) {
+    public BotState handle(Update update) {
+        long chatId = update.getMessage().getChatId();
+        TelegramClient client = BotHelper.getTelegramClient();
         String messageText = update.getMessage().getText();
         String[] parts = messageText.split(" ", 3);
         
@@ -37,7 +42,7 @@ public class GenerateTask extends BotActionBase {
             BotHelper.sendMessageToTelegram(chatId, 
                 "❌ Please provide the name of your Task in a single argument and the time just in integert hr\n "+
                      "/gtask <nombre_sin_espacios> <tiempo en hr>", client);
-            return;
+            return BotState.IDLE;
         }
 
         int time = Integer.parseInt(parts[2]);
@@ -45,7 +50,7 @@ public class GenerateTask extends BotActionBase {
         if (time> 4) {
             BotHelper.sendMessageToTelegram(chatId, 
                 "❌ Due to oracle restrictions (advices), the tasks should not be larger than 4hr", client);
-            return;
+            return BotState.IDLE;
         }
 
         Users user = usersRepository.findByTelegramId(update.getMessage().getFrom().getId()).orElse(null);
@@ -73,5 +78,7 @@ public class GenerateTask extends BotActionBase {
             BotHelper.sendMessageToTelegram(chatId, 
                 "❌ An error occurred during the creating of the new task. verify you have login with /login", client);
         }
+        
+        return BotState.IDLE;
     }
 }
