@@ -178,7 +178,7 @@ const AppTopbar = ({
                 }}
               >
                 {user.username.charAt(0).toUpperCase()}
-                {user.username.charAt(1).toUpperCase()}
+                {user.username.charAt(1).toLowerCase()}
               </Avatar>
             </IconButton>
           </Tooltip>
