@@ -7,13 +7,10 @@ import com.springboot.MyTodoList.repository.UsersRepository;
 import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotMessages;
-import com.springboot.MyTodoList.util.BotCommands;
-
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -33,7 +30,7 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
     private final BotProps botProps;
     private final BotActionRegistry actionRegistry;
     private final UsersRepository usersRepository;
-    private final Map<Long, BotState> userStates = new HashMap<>();
+    private final ConcurrentHashMap<Long, BotState> userStates = new ConcurrentHashMap<>();
 
     @Value("${telegram.bot.token}")
     private String telegramBotToken;
@@ -68,7 +65,6 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
         }
 
         if (!update.hasMessage() ) {
-            System.out.println("Niggers");
             return;
         }
 
@@ -77,7 +73,7 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
 
 
         long telegramId = update.getMessage().getFrom().getId();
-        boolean authentificated = usersRepository.findByTelegramId(telegramId).isEmpty();
+        boolean authentificated = !usersRepository.findByTelegramId(telegramId).isEmpty();
         
 
         BotAction action = actionRegistry.resolve(update);

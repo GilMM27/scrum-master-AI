@@ -2,7 +2,6 @@ package com.springboot.MyTodoList.actions;
 
 import com.springboot.MyTodoList.model.Sprints;
 import com.springboot.MyTodoList.model.ProjectMembers;
-import com.springboot.MyTodoList.model.Projects;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.TaskAssignments;
 import com.springboot.MyTodoList.model.Tasks;
@@ -51,7 +50,9 @@ public class TasksAction extends BotActionBase {
 
     @Override
     public boolean canHandle(Update update) {
-        
+        if(!update.getMessage().hasText()){
+            return false;
+        }
         String messageText = update.getMessage().getText();
         return messageText.equals(BotCommands.TASKS_COMMAND.getCommand());
     }
