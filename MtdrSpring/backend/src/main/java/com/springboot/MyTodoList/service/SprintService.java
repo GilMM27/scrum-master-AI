@@ -2,6 +2,7 @@ package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.dto.UpdateSprintStatusRequest;
 import com.springboot.MyTodoList.dto.CreateSprintRequest;
+import com.springboot.MyTodoList.dto.SprintOptionResponse;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.Sprints;
 import com.springboot.MyTodoList.repository.ProjectsRepository;
@@ -12,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -93,6 +94,35 @@ public class SprintService {
 
         Sprints updatedSprint = sprintsRepository.save(sprint);
         return ResponseEntity.ok(updatedSprint);
+    }
+
+    public List<SprintOptionResponse> getProjectSprints(UUID projectId) {
+        return sprintsRepository.findByProjectIdOrderByStartDateDesc(projectId).stream()
+                .map(this::mapSprintOption)
+                .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<?> getActiveSprint(UUID projectId) {
+        return sprintsRepository.findByProjectIdAndStatus(projectId, SprintStatus.ACTIVE)
+                .<ResponseEntity<?>>map(sprint -> ResponseEntity.ok(mapSprintOption(sprint)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    public List<SprintOptionResponse> getAvailableSprints(UUID projectId) {
+        return sprintsRepository.findByProjectIdOrderByStartDateDesc(projectId).stream()
+                .filter(sprint -> sprint.getStatus() == SprintStatus.ACTIVE || sprint.getStatus() == SprintStatus.PLANNED)
+                .map(this::mapSprintOption)
+                .collect(Collectors.toList());
+    }
+
+    private SprintOptionResponse mapSprintOption(Sprints sprint) {
+        return new SprintOptionResponse(
+                sprint.getSprintId(),
+                sprint.getName(),
+                sprint.getStartDate(),
+                sprint.getEndDate(),
+                sprint.getStatus()
+        );
     }
 
     private boolean isValidTransition(SprintStatus from, SprintStatus to) {

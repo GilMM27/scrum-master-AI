@@ -2,12 +2,15 @@ package com.springboot.MyTodoList.controller;
 
 import com.springboot.MyTodoList.dto.UpdateSprintStatusRequest;
 import com.springboot.MyTodoList.dto.CreateSprintRequest;
+import com.springboot.MyTodoList.dto.SprintOptionResponse;
 import com.springboot.MyTodoList.service.SprintService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/sprints")
@@ -22,8 +25,22 @@ public class SprintController {
     }
 
     @PatchMapping("/{sprintId}/status")
-    public ResponseEntity<?> updateSprintStatus(@PathVariable UUID sprintId,
-                                                @RequestBody UpdateSprintStatusRequest request) {
+    public ResponseEntity<?> updateSprintStatus(@PathVariable UUID sprintId, @RequestBody UpdateSprintStatusRequest request) {
         return sprintService.updateSprintStatus(sprintId, request);
+    }
+
+    @GetMapping("/project/{projectId}")
+    public ResponseEntity<List<SprintOptionResponse>> getProjectSprints(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(sprintService.getProjectSprints(projectId));
+    }
+    
+    @GetMapping("/project/{projectId}/active")
+    public ResponseEntity<?> getActiveSprint(@PathVariable UUID projectId) {
+        return sprintService.getActiveSprint(projectId);
+    }
+
+    @GetMapping("/project/{projectId}/available")
+    public ResponseEntity<List<SprintOptionResponse>> getAvailableSprints(@PathVariable UUID projectId) {
+        return ResponseEntity.ok(sprintService.getAvailableSprints(projectId));
     }
 }

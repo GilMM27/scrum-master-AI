@@ -1,15 +1,12 @@
 package com.springboot.MyTodoList.dto;
 
-import com.springboot.MyTodoList.model.TaskPriority;
-import com.springboot.MyTodoList.model.TaskStatus;
-import com.springboot.MyTodoList.model.Tasks;
-
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class CreateTaskRequest {
-    private UUID projectId;
+import com.springboot.MyTodoList.model.TaskPriority;
+import com.springboot.MyTodoList.model.TaskStatus;
+
+public class UpdateTaskRequest {
     private String title;
     private String description;
     private TaskStatus status;
@@ -18,31 +15,7 @@ public class CreateTaskRequest {
     private Integer storyPoints;
     private List<UUID> assigneeIds;
 
-    public CreateTaskRequest() {
-    }
-
-    public Tasks toEntity() {
-        Tasks task = new Tasks();
-        task.setProjectId(this.projectId);
-        task.setTitle(this.title);
-        task.setDescription(this.description);
-        task.setSprintId(this.sprintId);
-        task.setStoryPoints(this.storyPoints != null ? this.storyPoints : 0);
-        task.setStatus(this.status != null ? this.status : TaskStatus.TO_DO);
-        task.setPriority(this.priority != null ? this.priority : TaskPriority.MEDIUM);
-        task.setCreatedAt(OffsetDateTime.now());
-        task.setAiFlagged(false);
-        task.setBlockedAt(null);
-        task.setDeliveredAt(null);
-        return task;
-    }
-
-    public UUID getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
+    public UpdateTaskRequest() {
     }
 
     public String getTitle() {
