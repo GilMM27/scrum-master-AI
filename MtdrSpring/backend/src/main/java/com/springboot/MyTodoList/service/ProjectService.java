@@ -4,6 +4,7 @@ import com.springboot.MyTodoList.dto.CreateProjectRequest;
 import com.springboot.MyTodoList.dto.ProjectSummaryResponse;
 import com.springboot.MyTodoList.model.ProjectMembers;
 import com.springboot.MyTodoList.model.Projects;
+import java.time.OffsetDateTime;
 import com.springboot.MyTodoList.repository.ProjectMembersRepository;
 import com.springboot.MyTodoList.repository.ProjectsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class ProjectService {
     @Autowired
     private ProjectMembersRepository projectMembersRepository;
 
-    public ResponseEntity<?> createProject(CreateProjectRequest request) {
+    public ResponseEntity<?> createProject(CreateProjectRequest request, UUID creatorId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
         }
@@ -40,6 +41,10 @@ public class ProjectService {
 
         Projects project = request.toEntity();
         Projects savedProject = projectsRepository.save(project);
+
+        ProjectMembers creatorMembership = new ProjectMembers(savedProject.getProjectId(), creatorId, OffsetDateTime.now());
+        projectMembersRepository.save(creatorMembership);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
     }
 
@@ -55,7 +60,7 @@ public class ProjectService {
         List<UUID> projectIds = memberships.stream()
                 .map(ProjectMembers::getProjectId)
                 .distinct()
-                .toList();
+                .collect(Collectors.toList());
 
         return projectsRepository.findAllById(projectIds).stream()
                 .map(project -> new ProjectSummaryResponse(project.getProjectId(), project.getName()))

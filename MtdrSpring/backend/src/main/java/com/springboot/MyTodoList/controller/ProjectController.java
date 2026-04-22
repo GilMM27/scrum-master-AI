@@ -4,10 +4,12 @@ import com.springboot.MyTodoList.dto.CreateProjectRequest;
 import com.springboot.MyTodoList.dto.ProjectDeveloperResponse;
 import com.springboot.MyTodoList.dto.ProjectSummaryResponse;
 import com.springboot.MyTodoList.model.ProjectMembers;
+import com.springboot.MyTodoList.model.Users;
 import com.springboot.MyTodoList.service.ProjectMemberService;
 import com.springboot.MyTodoList.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,8 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<?> createProject(@RequestBody CreateProjectRequest request) {
-        return projectService.createProject(request);
+        Users currentUser = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return projectService.createProject(request, currentUser.getUserId());
     }
 
     @GetMapping("/{projectId}")
@@ -34,9 +37,10 @@ public class ProjectController {
         return projectService.getProjectById(projectId);
     }
 
-    @GetMapping("/user/{userId}/selector")
-    public ResponseEntity<List<ProjectSummaryResponse>> getProjectsForUserSelector(@PathVariable UUID userId) {
-        return ResponseEntity.ok(projectService.getProjectsForUserSelector(userId));
+    @GetMapping("/my/selector")
+    public ResponseEntity<List<ProjectSummaryResponse>> getProjectsForUserSelector() {
+        Users currUser = (Users) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(projectService.getProjectsForUserSelector(currUser.getUserId()));
     }
     
     @PostMapping("/{projectId}/members/{userId}")

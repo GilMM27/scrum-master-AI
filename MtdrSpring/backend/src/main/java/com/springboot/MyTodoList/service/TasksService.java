@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.dto.CreateTaskRequest;
+import com.springboot.MyTodoList.dto.SprintTasksByStatusResponse;
 import com.springboot.MyTodoList.dto.TaskAssigneeResponse;
 import com.springboot.MyTodoList.dto.TaskAssigneeUpdateRequest;
 import com.springboot.MyTodoList.dto.TaskDetailResponse;
@@ -105,9 +106,29 @@ public class TasksService {
                 .collect(Collectors.toList());
     }
 
-    public List<TaskSummaryResponse> getTasksByStatus(TaskStatus status) {
-        return tasksRepository.findByStatus(status).stream()
+    public ResponseEntity<?> getSprintTasksByStatus(UUID sprintId) {
+        if (!sprintsRepository.existsById(sprintId)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<TaskSummaryResponse> all = tasksRepository.findBySprintIdOrderByCreatedAtDesc(sprintId).stream()
                 .map(this::mapTaskSummaryResponse)
+                .collect(Collectors.toList());
+
+        SprintTasksByStatusResponse response = new SprintTasksByStatusResponse(
+                filterByStatus(all, TaskStatus.TO_DO),
+                filterByStatus(all, TaskStatus.IN_PROGRESS),
+                filterByStatus(all, TaskStatus.REVIEW),
+                filterByStatus(all, TaskStatus.BLOCKED),
+                filterByStatus(all, TaskStatus.DONE)
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    private List<TaskSummaryResponse> filterByStatus(List<TaskSummaryResponse> tasks, TaskStatus status) {
+        return tasks.stream()
+                .filter(t -> t.getStatus() == status)
                 .collect(Collectors.toList());
     }
 
@@ -281,11 +302,11 @@ public class TasksService {
         List<TaskAssignments> assignments = taskAssignmentsRepository.findByTaskId(taskId);
         List<UUID> userIds = assignments.stream()
                 .map(TaskAssignments::getUserId)
-                .toList();
+                .collect(Collectors.toList());
 
         return usersRepository.findAllById(userIds).stream()
                 .map(user -> new TaskAssigneeResponse(user.getUserId(), user.getUsername()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private String getSprintName(UUID sprintId) {

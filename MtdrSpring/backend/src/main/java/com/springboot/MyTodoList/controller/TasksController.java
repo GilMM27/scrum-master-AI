@@ -5,7 +5,6 @@ import com.springboot.MyTodoList.dto.StatusUpdateRequest;
 import com.springboot.MyTodoList.dto.TaskAssigneeUpdateRequest;
 import com.springboot.MyTodoList.dto.TaskSummaryResponse;
 import com.springboot.MyTodoList.dto.UpdateTaskRequest;
-import com.springboot.MyTodoList.model.TaskStatus;
 import com.springboot.MyTodoList.service.TasksService;
 
 
@@ -60,9 +59,9 @@ public class TasksController {
         return ResponseEntity.ok(tasksService.getTasksBySprint(sprintId));
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<TaskSummaryResponse>> getTasksByStatus(@PathVariable TaskStatus status) {
-        return ResponseEntity.ok(tasksService.getTasksByStatus(status));
+    @GetMapping("/sprint/{sprintId}/by-status")
+    public ResponseEntity<?> getSprintTasksByStatus(@PathVariable UUID sprintId) {
+        return tasksService.getSprintTasksByStatus(sprintId);
     }
 
     @PutMapping("/{id}")

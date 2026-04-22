@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectMemberService {
@@ -71,12 +72,12 @@ public class ProjectMemberService {
 
         List<UUID> userIds = members.stream()
                 .map(ProjectMembers::getUserId)
-                .toList();
+                .collect(Collectors.toList());
         
         return usersRepository.findAllById(userIds).stream()
                 .filter(user -> user.getUserRole() == UserRole.DEVELOPER)
                 .filter(user -> user.getAccountStatus() == AccountStatus.ACTIVE)
                 .map(user -> new ProjectDeveloperResponse(user.getUserId(), user.getUsername()))
-                .toList();
+                .collect(Collectors.toList());
     }
 }
