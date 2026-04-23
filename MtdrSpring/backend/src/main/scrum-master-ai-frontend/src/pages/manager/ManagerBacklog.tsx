@@ -10,7 +10,7 @@ import { applyTaskFilters } from "../../features/tasks/utils/taskFilters";
 import { getTaskStats } from "../../features/tasks/utils/taskStats";
 import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDetailItem, TaskDialogMode, TaskFiltersState, TaskItem, UpdateTaskPayload } from "../../features/tasks/types/tasks.types";
 import TaskFormDialog from "../../features/tasks/components/TaskFormDialog";
-import { getProjectTasks, getTaskDetails, getProjectDevelopers, getAvailableSprints } from "../../features/tasks/services/tasks.service";
+import { getProjectTasks, getTaskDetails, getProjectDevelopers, getAvailableSprints, createTask, updateTask, deleteTask } from "../../features/tasks/services/tasks.service";
 import useProject from "../../hooks/useProject";
 
 const initialFilters: TaskFiltersState = {
@@ -87,7 +87,12 @@ const ManagerBacklogContent = () => {
     [tasks, filters],
   );
 
-  const stats = useMemo(() => getTaskStats(tasks, null), [tasks]);
+  const activeSprintId = useMemo(
+    () => sprints.find((s) => s.status === "ACTIVE")?.sprintId ?? null,
+    [sprints],
+  );
+
+  const stats = useMemo(() => getTaskStats(tasks, activeSprintId), [tasks, activeSprintId]);
 
   const openCreateDialog = () => {
     setDialogMode("create");
@@ -111,22 +116,31 @@ const ManagerBacklogContent = () => {
     }
   };
 
-  const handleCreateTask = async (_payload: CreateTaskPayload) => {
-    // TODO: connect to create task API
-    setSuccessMsg("Tarea creada exitosamente.");
-    setDialogOpen(false);
-    await fetchTasks();
+  const handleCreateTask = async (payload: CreateTaskPayload) => {
+    if (!selectedProjectId) return;
+    try {
+      await createTask({ ...payload, projectId: selectedProjectId });
+      setSuccessMsg("Tarea creada exitosamente.");
+      setDialogOpen(false);
+      await fetchTasks();
+    } catch {
+      setErrorMsg("No fue posible crear la tarea.");
+    }
   };
 
   const handleUpdateTask = async (
-    _taskId: string,
-    _payload: UpdateTaskPayload,
+    taskId: string,
+    payload: UpdateTaskPayload,
   ) => {
-    // TODO: connect to update task API
-    setSelectedTask(null);
-    setSuccessMsg("Tarea actualizada exitosamente.");
-    setDialogOpen(false);
-    await fetchTasks();
+    try {
+      await updateTask(taskId, payload);
+      setSelectedTask(null);
+      setSuccessMsg("Tarea actualizada exitosamente.");
+      setDialogOpen(false);
+      await fetchTasks();
+    } catch {
+      setErrorMsg("No fue posible actualizar la tarea.");
+    }
   };
 
   const handleDeleteRequest = (task: TaskItem) => {
@@ -137,7 +151,7 @@ const ManagerBacklogContent = () => {
   const handleDeleteTask = async () => {
     if (!taskPendingDelete) return;
     try {
-      // TODO: connect to delete task API
+      await deleteTask(taskPendingDelete.taskId);
       setTasks((prev) =>
         prev.filter((t) => t.taskId !== taskPendingDelete.taskId),
       );

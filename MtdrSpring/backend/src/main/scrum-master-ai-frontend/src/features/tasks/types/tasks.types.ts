@@ -1,4 +1,4 @@
-export type TaskStatus = | 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
+export type TaskStatus = | 'TO_DO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE' | 'BLOCKED';
 export type TaskPriority = | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type SprintStatus = 'PLANNED' | 'ACTIVE' | 'CLOSED';
 
@@ -59,13 +59,14 @@ export interface TaskStats {
 }
 
 export interface CreateTaskPayload {
+  projectId?: string;
   title: string;
-  description?: string;
+  description?: string | null;
   status: TaskStatus;
   priority: TaskPriority;
-  assigneeIds?: string[];
-  sprintId?: string;
-  storyPoints?: number;
+  assigneeIds?: string[] | null;
+  sprintId?: string | null;
+  storyPoints?: number | null;
 }
 
 export interface UpdateTaskPayload extends CreateTaskPayload {}

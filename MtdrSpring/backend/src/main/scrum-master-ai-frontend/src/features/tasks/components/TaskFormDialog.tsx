@@ -1,42 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  CloseRounded,
-  EditRounded,
-  RestoreRounded,
-  DeleteRounded,
-} from "@mui/icons-material";
+import { CloseRounded, EditRounded, RestoreRounded, DeleteRounded } from "@mui/icons-material";
 import CircularProgress from "@mui/material/CircularProgress";
-import type {
-  CreateTaskPayload,
-  SprintOption,
-  TaskAssignee,
-  TaskDialogMode,
-  TaskItem,
-  TaskPriority,
-  TaskStatus,
-  UpdateTaskPayload,
-} from "../types/tasks.types";
+import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDialogMode, TaskItem, TaskPriority, TaskStatus, UpdateTaskPayload } from "../types/tasks.types";
 import TaskPriorityChip from "./TaskPriorityChip";
 import TaskStatusChip from "./TaskStatusChip";
 import Dialog from "@mui/material/Dialog";
-import {
-  Alert,
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -64,7 +33,7 @@ interface TaskFormState {
 const createInitialState = (task?: TaskItem | null): TaskFormState => ({
   title: task?.title ?? "",
   description: task?.description ?? "",
-  status: task?.status ?? "TODO",
+  status: task?.status ?? "TO_DO",
   priority: task?.priority ?? "LOW",
   assigneeIds: task?.assignees.map((a) => a.userId) ?? [],
   sprintId: task?.sprintId ?? null,
@@ -77,12 +46,20 @@ const createInitialState = (task?: TaskItem | null): TaskFormState => ({
 const formatSprintDate = (iso: string | null): string => {
   if (!iso) return "";
   const [year, month, day] = iso.split("-");
-  const months = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
   return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
 };
 
 const getSprintLabel = (sprint: SprintOption): string =>
   sprint.name ?? `Sprint (${sprint.sprintId.slice(0, 6)}…)`;
+
+const VALID_STATUS_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  TO_DO: ["IN_PROGRESS"],
+  IN_PROGRESS: ["REVIEW", "BLOCKED"],
+  REVIEW: ["IN_PROGRESS", "BLOCKED", "DONE"],
+  BLOCKED: ["IN_PROGRESS", "REVIEW"],
+  DONE: [],
+};
 
 const TaskFormDialog = ({
   open,
@@ -103,6 +80,7 @@ const TaskFormDialog = ({
   );
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const initial = createInitialState(task);
@@ -124,6 +102,22 @@ const TaskFormDialog = ({
   const viewAssignees = task?.assignees ?? [];
   const viewSprintLabel = task?.sprintName ?? "Backlog";
 
+  // In edit mode, only allow valid transitions from the original status.
+  // In create mode, all statuses are available.
+  const allowedStatuses: Set<TaskStatus> = useMemo(() => {
+    if (internalMode === "edit" && originalForm.status) {
+      const transitions = VALID_STATUS_TRANSITIONS[originalForm.status];
+      return new Set([originalForm.status, ...transitions]);
+    }
+    return new Set<TaskStatus>([
+      "TO_DO",
+      "IN_PROGRESS",
+      "REVIEW",
+      "DONE",
+      "BLOCKED",
+    ]);
+  }, [internalMode, originalForm.status]);
+
   const handleFieldChange = <K extends keyof TaskFormState>(
     key: K,
     value: TaskFormState[K],
@@ -134,11 +128,6 @@ const TaskFormDialog = ({
   const validateForm = () => {
     if (!form.title.trim()) {
       setErrorMsg("El título es obligatorio.");
-      return false;
-    }
-
-    if (!form.description.trim()) {
-      setErrorMsg("La descripción es obligatoria.");
       return false;
     }
 
@@ -158,6 +147,7 @@ const TaskFormDialog = ({
   };
 
   const handleRequestClose = () => {
+    if (submitting) return;
     if (
       (internalMode === "create" || internalMode === "edit") &&
       hasUnsavedChanges
@@ -179,18 +169,23 @@ const TaskFormDialog = ({
       status: form.status,
       priority: form.priority,
       assigneeIds: form.assigneeIds,
-      sprintId: form.sprintId ?? undefined,
-      storyPoints: form.storyPoints ?? undefined,
+      sprintId: form.sprintId,
+      storyPoints: form.storyPoints,
     };
 
-    if (internalMode === "create") {
-      await onSubmitCreate(payload as CreateTaskPayload);
-      return;
-    }
+    setSubmitting(true);
+    try {
+      if (internalMode === "create") {
+        await onSubmitCreate(payload as CreateTaskPayload);
+        return;
+      }
 
-    if (internalMode === "edit" && task) {
-      await onSubmitUpdate(task.taskId, payload as UpdateTaskPayload);
-      return;
+      if (internalMode === "edit" && task) {
+        await onSubmitUpdate(task.taskId, payload as UpdateTaskPayload);
+        return;
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -214,16 +209,12 @@ const TaskFormDialog = ({
             spacing={2}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <Typography variant="h6">
-                {internalMode === "create" ? (
-                  "Crear Tarea"
-                ) : internalMode === "edit" ? (
-                  "Editar Tarea"
-                ) : (
-                  <Typography variant="h5">
-                    {form.title || "Sin título"}
-                  </Typography>
-                )}
+              <Typography variant="h5">
+                {internalMode === "create"
+                  ? "Crear Tarea"
+                  : internalMode === "edit"
+                    ? "Editar Tarea"
+                    : form.title || "Sin título"}
               </Typography>
             </Stack>
 
@@ -395,7 +386,7 @@ const TaskFormDialog = ({
                           <Typography>
                             {task?.storyPoints != null && task.storyPoints > 0
                               ? task.storyPoints
-                              : "No definidos"}
+                              : "No definidas"}
                           </Typography>
                         </Stack>
                       </>
@@ -413,10 +404,36 @@ const TaskFormDialog = ({
                             )
                           }
                         >
-                          <MenuItem value="TODO">To Do</MenuItem>
-                          <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                          <MenuItem value="REVIEW">In Review</MenuItem>
-                          <MenuItem value="DONE">Done</MenuItem>
+                          <MenuItem
+                            value="TO_DO"
+                            disabled={!allowedStatuses.has("TO_DO")}
+                          >
+                            To Do
+                          </MenuItem>
+                          <MenuItem
+                            value="IN_PROGRESS"
+                            disabled={!allowedStatuses.has("IN_PROGRESS")}
+                          >
+                            In Progress
+                          </MenuItem>
+                          <MenuItem
+                            value="REVIEW"
+                            disabled={!allowedStatuses.has("REVIEW")}
+                          >
+                            In Review
+                          </MenuItem>
+                          <MenuItem
+                            value="BLOCKED"
+                            disabled={!allowedStatuses.has("BLOCKED")}
+                          >
+                            Blocked
+                          </MenuItem>
+                          <MenuItem
+                            value="DONE"
+                            disabled={!allowedStatuses.has("DONE")}
+                          >
+                            Done
+                          </MenuItem>
                         </TextField>
 
                         <TextField
@@ -504,16 +521,35 @@ const TaskFormDialog = ({
                               key={sprint.sprintId}
                               label={
                                 <Stack spacing={0}>
-                                  <Typography variant="body2">
-                                    {getSprintLabel(sprint)}
-                                  </Typography>
+                                  <Stack
+                                    direction="row"
+                                    spacing={0.75}
+                                    sx={{ alignItems: "center" }}
+                                  >
+                                    <Typography variant="body2">
+                                      {getSprintLabel(sprint)}
+                                    </Typography>
+                                    {sprint.status === "ACTIVE" && (
+                                      <Chip
+                                        label="Activo"
+                                        size="small"
+                                        color="success"
+                                        variant="outlined"
+                                        sx={{
+                                          height: 18,
+                                          fontSize: "0.65rem",
+                                          "& .MuiChip-label": { px: 0.75 },
+                                        }}
+                                      />
+                                    )}
+                                  </Stack>
                                   {sprint.startDate && sprint.endDate && (
                                     <Typography
                                       variant="caption"
                                       color="text.secondary"
                                     >
                                       {formatSprintDate(sprint.startDate)}
-                                      {" – "}
+                                      {" - "}
                                       {formatSprintDate(sprint.endDate)}
                                     </Typography>
                                   )}
@@ -530,8 +566,16 @@ const TaskFormDialog = ({
                                     )
                                   }
                                   sx={{
-                                    color: "info.main",
-                                    "&.Mui-checked": { color: "info.main" },
+                                    color:
+                                      sprint.status === "ACTIVE"
+                                        ? "success.main"
+                                        : "info.main",
+                                    "&.Mui-checked": {
+                                      color:
+                                        sprint.status === "ACTIVE"
+                                          ? "success.main"
+                                          : "info.main",
+                                    },
                                   }}
                                 />
                               }
@@ -547,9 +591,11 @@ const TaskFormDialog = ({
 
                         <TextField
                           fullWidth
-                          label="Story Points"
+                          label="Horas Estimadas"
                           type="number"
-                          slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                          slotProps={{
+                            htmlInput: { min: 0, max: 4, step: 0.5 },
+                          }}
                           value={form.storyPoints ?? ""}
                           onChange={(e) =>
                             handleFieldChange(
@@ -559,7 +605,7 @@ const TaskFormDialog = ({
                                 : Number(e.target.value),
                             )
                           }
-                          helperText="Número de story points para esta tarea."
+                          helperText="Máximo 4 horas. Si excede este límite, subdivide la tarea."
                         />
                       </>
                     )}
@@ -587,7 +633,7 @@ const TaskFormDialog = ({
                     variant="outlined"
                     startIcon={<RestoreRounded />}
                     onClick={handleRestore}
-                    disabled={!hasUnsavedChanges || loading}
+                    disabled={!hasUnsavedChanges || loading || submitting}
                   >
                     Restaurar
                   </Button>
@@ -600,11 +646,20 @@ const TaskFormDialog = ({
                 <Button
                   variant="contained"
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || submitting}
+                  startIcon={
+                    submitting ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : undefined
+                  }
                 >
-                  {internalMode === "create"
-                    ? "Guardar tarea"
-                    : "Guardar cambios"}
+                  {submitting
+                    ? internalMode === "create"
+                      ? "Subiendo tarea…"
+                      : "Actualizando tarea…"
+                    : internalMode === "create"
+                      ? "Guardar tarea"
+                      : "Guardar cambios"}
                 </Button>
               </Stack>
             </Stack>

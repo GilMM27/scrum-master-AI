@@ -1,6 +1,6 @@
 import { apiClient } from '../../../services/Api';
 import { API_ENDPOINTS } from '../../../services/Endpoints';
-import type { SprintOption, TaskAssignee, TaskDetailItem, TaskItem } from '../types/tasks.types';
+import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDetailItem, TaskItem, UpdateTaskPayload } from '../types/tasks.types';
 
 export const getProjectTasks = async (projectId: string): Promise<TaskItem[]> => {
     const response = await apiClient.get<TaskItem[]>(API_ENDPOINTS.tasks.byProject(projectId));
@@ -20,4 +20,18 @@ export const getProjectDevelopers = async (projectId: string): Promise<TaskAssig
 export const getAvailableSprints = async (projectId: string): Promise<SprintOption[]> => {
     const response = await apiClient.get<SprintOption[]>(API_ENDPOINTS.sprints.available(projectId));
     return response.data;
+};
+
+export const createTask = async (payload: CreateTaskPayload): Promise<TaskDetailItem> => {
+    const response = await apiClient.post<TaskDetailItem>(API_ENDPOINTS.tasks.create, payload);
+    return response.data;
+};
+
+export const updateTask = async (taskId: string, payload: UpdateTaskPayload): Promise<TaskDetailItem> => {
+    const response = await apiClient.put<TaskDetailItem>(API_ENDPOINTS.tasks.update(taskId), payload);
+    return response.data;
+};
+
+export const deleteTask = async (taskId: string): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.tasks.delete(taskId));
 };

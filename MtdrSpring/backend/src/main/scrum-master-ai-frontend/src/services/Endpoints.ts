@@ -18,6 +18,9 @@ export const API_ENDPOINTS = {
     tasks: {
         byProject: (projectId: string) => `/api/tasks/project/${projectId}`,
         byId: (taskId: string) => `/api/tasks/${taskId}`,
+        create: '/api/tasks',
+        update: (taskId: string) => `/api/tasks/${taskId}`,
+        delete: (taskId: string) => `/api/tasks/${taskId}`,
     },
     sprints: {
         available: (projectId: string) => `/api/sprints/project/${projectId}/available`,
