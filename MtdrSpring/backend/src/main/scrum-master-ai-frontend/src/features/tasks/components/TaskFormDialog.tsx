@@ -23,10 +23,12 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
   Chip,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
@@ -72,8 +74,15 @@ const createInitialState = (task?: TaskItem | null): TaskFormState => ({
       : task.storyPoints,
 });
 
-const getSprintLabel = (sprint?: SprintOption) =>
-  sprint ? `Sprint ${sprint.sprintNumber}` : "Sin sprint";
+const formatSprintDate = (iso: string | null): string => {
+  if (!iso) return "";
+  const [year, month, day] = iso.split("-");
+  const months = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+  return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
+};
+
+const getSprintLabel = (sprint: SprintOption): string =>
+  sprint.name ?? `Sprint (${sprint.sprintId.slice(0, 6)}…)`;
 
 const TaskFormDialog = ({
   open,
@@ -114,12 +123,6 @@ const TaskFormDialog = ({
   // View mode: derive display values directly from the task prop (comes from API with full data)
   const viewAssignees = task?.assignees ?? [];
   const viewSprintLabel = task?.sprintName ?? "Backlog";
-
-  // Edit / create mode: derive display values from form state + lookup lists
-  const selectedSprint = sprints.find((s) => s.sprintId === form.sprintId);
-  const selectedDevelopers = developers.filter((d) =>
-    form.assigneeIds.includes(d.userId),
-  );
 
   const handleFieldChange = <K extends keyof TaskFormState>(
     key: K,
@@ -434,63 +437,113 @@ const TaskFormDialog = ({
                           <MenuItem value="CRITICAL">Critical</MenuItem>
                         </TextField>
 
-                        <TextField
-                          select
-                          fullWidth
-                          label="Desarrolladores"
-                          value={form.assigneeIds}
-                          slotProps={{ select: { multiple: true } }}
-                          onChange={(e) =>
-                            handleFieldChange(
-                              "assigneeIds",
-                              e.target.value as unknown as string[],
-                            )
-                          }
-                          helperText={
-                            selectedDevelopers.length > 0
-                              ? selectedDevelopers
-                                  .map((d) => d.username)
-                                  .join(", ")
-                              : "Sin asignados"
-                          }
-                        >
-                          {developers.map((developer) => (
-                            <MenuItem
-                              key={developer.userId}
-                              value={developer.userId}
-                            >
-                              {developer.username}
-                            </MenuItem>
-                          ))}
-                        </TextField>
+                        {/* Developers — checkbox list (multi-select) */}
+                        <Stack spacing={0.5}>
+                          <Typography variant="caption" color="text.secondary">
+                            Desarrolladores
+                          </Typography>
+                          {developers.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary">
+                              Sin desarrolladores disponibles
+                            </Typography>
+                          ) : (
+                            developers.map((dev) => (
+                              <FormControlLabel
+                                key={dev.userId}
+                                label={dev.username}
+                                control={
+                                  <Checkbox
+                                    size="small"
+                                    checked={form.assigneeIds.includes(
+                                      dev.userId,
+                                    )}
+                                    onChange={(e) => {
+                                      const ids = e.target.checked
+                                        ? [...form.assigneeIds, dev.userId]
+                                        : form.assigneeIds.filter(
+                                            (id) => id !== dev.userId,
+                                          );
+                                      handleFieldChange("assigneeIds", ids);
+                                    }}
+                                    sx={{
+                                      color: "info.main",
+                                      "&.Mui-checked": { color: "info.main" },
+                                    }}
+                                  />
+                                }
+                              />
+                            ))
+                          )}
+                        </Stack>
 
-                        <TextField
-                          select
-                          fullWidth
-                          label="Sprint"
-                          value={form.sprintId ?? ""}
-                          onChange={(e) =>
-                            handleFieldChange(
-                              "sprintId",
-                              e.target.value || null,
-                            )
-                          }
-                          helperText={
-                            selectedSprint
-                              ? getSprintLabel(selectedSprint)
-                              : "Backlog"
-                          }
-                        >
-                          <MenuItem value="">Backlog</MenuItem>
+                        {/* Sprint — single-select checkbox list (mutually exclusive) */}
+                        <Stack spacing={0.5}>
+                          <Typography variant="caption" color="text.secondary">
+                            Sprint
+                          </Typography>
+
+                          <FormControlLabel
+                            label="Backlog"
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={form.sprintId === null}
+                                onChange={() =>
+                                  handleFieldChange("sprintId", null)
+                                }
+                                sx={{
+                                  color: "info.main",
+                                  "&.Mui-checked": { color: "info.main" },
+                                }}
+                              />
+                            }
+                          />
+
                           {sprints.map((sprint) => (
-                            <MenuItem
+                            <FormControlLabel
                               key={sprint.sprintId}
-                              value={sprint.sprintId}
-                            >
-                              {getSprintLabel(sprint)}
-                            </MenuItem>
+                              label={
+                                <Stack spacing={0}>
+                                  <Typography variant="body2">
+                                    {getSprintLabel(sprint)}
+                                  </Typography>
+                                  {sprint.startDate && sprint.endDate && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {formatSprintDate(sprint.startDate)}
+                                      {" – "}
+                                      {formatSprintDate(sprint.endDate)}
+                                    </Typography>
+                                  )}
+                                </Stack>
+                              }
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={form.sprintId === sprint.sprintId}
+                                  onChange={() =>
+                                    handleFieldChange(
+                                      "sprintId",
+                                      sprint.sprintId,
+                                    )
+                                  }
+                                  sx={{
+                                    color: "info.main",
+                                    "&.Mui-checked": { color: "info.main" },
+                                  }}
+                                />
+                              }
+                            />
                           ))}
-                        </TextField>
+
+                          {sprints.length === 0 && (
+                            <Typography variant="body2" color="text.secondary">
+                              Sin sprints disponibles
+                            </Typography>
+                          )}
+                        </Stack>
 
                         <TextField
                           fullWidth

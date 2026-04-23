@@ -13,9 +13,13 @@ export const API_ENDPOINTS = {
     projects: {
         base: '/api/projects',
         mySelector: '/api/projects/my/selector',
+        developers: (projectId: string) => `/api/projects/${projectId}/developers`,
     },
     tasks: {
         byProject: (projectId: string) => `/api/tasks/project/${projectId}`,
         byId: (taskId: string) => `/api/tasks/${taskId}`,
+    },
+    sprints: {
+        available: (projectId: string) => `/api/sprints/project/${projectId}/available`,
     },
 };

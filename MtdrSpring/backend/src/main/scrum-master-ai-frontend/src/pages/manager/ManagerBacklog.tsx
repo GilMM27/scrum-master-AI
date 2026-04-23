@@ -10,7 +10,7 @@ import { applyTaskFilters } from "../../features/tasks/utils/taskFilters";
 import { getTaskStats } from "../../features/tasks/utils/taskStats";
 import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDetailItem, TaskDialogMode, TaskFiltersState, TaskItem, UpdateTaskPayload } from "../../features/tasks/types/tasks.types";
 import TaskFormDialog from "../../features/tasks/components/TaskFormDialog";
-import { getProjectTasks, getTaskDetails } from "../../features/tasks/services/tasks.service";
+import { getProjectTasks, getTaskDetails, getProjectDevelopers, getAvailableSprints } from "../../features/tasks/services/tasks.service";
 import useProject from "../../hooks/useProject";
 
 const initialFilters: TaskFiltersState = {
@@ -21,14 +21,14 @@ const initialFilters: TaskFiltersState = {
   blocked: false,
 };
 
-const mockDevelopers: TaskAssignee[] = [];
-const mockSprints: SprintOption[] = [];
-
 const ManagerBacklogContent = () => {
   const { selectedProjectId } = useProject();
 
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
+
+  const [developers, setDevelopers] = useState<TaskAssignee[]>([]);
+  const [sprints, setSprints] = useState<SprintOption[]>([]);
 
   const [filters, setFilters] = useState<TaskFiltersState>(initialFilters);
 
@@ -58,10 +58,29 @@ const ManagerBacklogContent = () => {
     }
   }, [selectedProjectId]);
 
+  const fetchProjectData = useCallback(async () => {
+    if (!selectedProjectId) {
+      setDevelopers([]);
+      setSprints([]);
+      return;
+    }
+    try {
+      const [devs, availSprints] = await Promise.all([
+        getProjectDevelopers(selectedProjectId),
+        getAvailableSprints(selectedProjectId),
+      ]);
+      setDevelopers(devs);
+      setSprints(availSprints);
+    } catch {
+      // non-critical: form will show empty lists
+    }
+  }, [selectedProjectId]);
+
   useEffect(() => {
     setTasks([]);
     fetchTasks();
-  }, [fetchTasks]);
+    fetchProjectData();
+  }, [fetchTasks, fetchProjectData]);
 
   const filteredTasks = useMemo(
     () => applyTaskFilters(tasks, filters),
@@ -160,8 +179,8 @@ const ManagerBacklogContent = () => {
         open={dialogOpen}
         mode={dialogMode}
         task={selectedTask}
-        developers={mockDevelopers}
-        sprints={mockSprints}
+        developers={developers}
+        sprints={sprints}
         loading={detailLoading}
         onClose={() => {
           setDialogOpen(false);

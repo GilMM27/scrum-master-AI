@@ -11,8 +11,9 @@ export interface TaskAssignee {
 
 export interface SprintOption {
   sprintId: string;
-  sprintNumber: number;
-  name?: string | null;
+  name: string | null;
+  startDate: string | null;
+  endDate: string | null;
   status: SprintStatus;
 }
 
