@@ -14,4 +14,8 @@ export const API_ENDPOINTS = {
         base: '/api/projects',
         mySelector: '/api/projects/my/selector',
     },
+    tasks: {
+        byProject: (projectId: string) => `/api/tasks/project/${projectId}`,
+        byId: (taskId: string) => `/api/tasks/${taskId}`,
+    },
 };

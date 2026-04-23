@@ -117,15 +117,11 @@ const TasksTable = ({
                 )}
                 {showSprint && (
                   <TableCell>
-                    {task.sprintNumber
-                      ? `Sprint ${task.sprintNumber}`
-                      : "Backlog"}
+                    {task.sprintName ?? "Backlog"}
                   </TableCell>
                 )}
                 <TableCell>
-                  {task.estimatedHours !== null
-                    ? `${task.estimatedHours}h`
-                    : "-"}
+                  {task.storyPoints > 0 ? task.storyPoints : "-"}
                 </TableCell>
                 <TableCell>
                   {task.actualHours !== null ? `${task.actualHours}h` : "-"}

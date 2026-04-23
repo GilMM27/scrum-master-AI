@@ -8,7 +8,7 @@ interface TaskStatusChipProps {
 const STATUS_LABELS: Record<TaskStatus, string> = {
   TODO: 'To Do',
   IN_PROGRESS: 'In Progress',
-  IN_REVIEW: 'In Review',
+  REVIEW: 'In Review',
   DONE: 'Done',
   BLOCKED: 'Blocked'
 };
@@ -16,7 +16,7 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
 const STATUS_COLORS: Record<TaskStatus, 'secondary' | 'info' | 'warning' | 'success' | 'error'> = {
   TODO: 'secondary',
   IN_PROGRESS: 'info',
-  IN_REVIEW: 'warning',
+  REVIEW: 'warning',
   DONE: 'success',
   BLOCKED: 'error'
 };
