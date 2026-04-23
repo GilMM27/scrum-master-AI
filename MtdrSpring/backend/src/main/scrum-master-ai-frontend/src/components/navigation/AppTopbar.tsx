@@ -7,6 +7,7 @@ import { ChevronRightRounded, LogoutRounded, MenuRounded, NotificationsNoneRound
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
 import StyledUserMenu from "../common/StyledUserMenu";
+import ProjectSelectorChip from "../common/ProjectSelectorChip";
 
 interface AppTopbarProps {
   drawerWidth: number;
@@ -124,6 +125,9 @@ const AppTopbar = ({
         </Box>
 
         <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
+          
+          <ProjectSelectorChip userRole={user.role} />
+
           <Chip
             label={getRoleLabel(user.role)}
             sx={{

@@ -10,4 +10,8 @@ export const API_ENDPOINTS = {
         updateAuthorization: (userId: string) => `/api/users/${userId}/authorization`,
         createManagedUser: '/api/users',
     },
+    projects: {
+        base: '/api/projects',
+        mySelector: '/api/projects/my/selector',
+    },
 };
