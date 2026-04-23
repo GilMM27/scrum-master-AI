@@ -1,7 +1,11 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.dto.CreateProjectRequest;
+import com.springboot.MyTodoList.dto.ProjectSummaryResponse;
+import com.springboot.MyTodoList.model.ProjectMembers;
 import com.springboot.MyTodoList.model.Projects;
+import java.time.OffsetDateTime;
+import com.springboot.MyTodoList.repository.ProjectMembersRepository;
 import com.springboot.MyTodoList.repository.ProjectsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -18,7 +23,10 @@ public class ProjectService {
     @Autowired
     private ProjectsRepository projectsRepository;
 
-    public ResponseEntity<?> createProject(CreateProjectRequest request) {
+    @Autowired
+    private ProjectMembersRepository projectMembersRepository;
+
+    public ResponseEntity<?> createProject(CreateProjectRequest request, UUID creatorId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Name is required"));
         }
@@ -33,6 +41,30 @@ public class ProjectService {
 
         Projects project = request.toEntity();
         Projects savedProject = projectsRepository.save(project);
+
+        ProjectMembers creatorMembership = new ProjectMembers(savedProject.getProjectId(), creatorId, OffsetDateTime.now());
+        projectMembersRepository.save(creatorMembership);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProject);
+    }
+
+    public ResponseEntity<?> getProjectById(UUID projectId) {
+        return projectsRepository.findById(projectId)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    public List<ProjectSummaryResponse> getProjectsForUserSelector(UUID userId) {
+        List<ProjectMembers> memberships = projectMembersRepository.findByUserId(userId);
+
+        List<UUID> projectIds = memberships.stream()
+                .map(ProjectMembers::getProjectId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return projectsRepository.findAllById(projectIds).stream()
+                .map(project -> new ProjectSummaryResponse(project.getProjectId(), project.getName()))
+                .sorted(Comparator.comparing(ProjectSummaryResponse::getName))
+                .collect(Collectors.toList());
     }
 }

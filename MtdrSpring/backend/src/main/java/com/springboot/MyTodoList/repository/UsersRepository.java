@@ -1,5 +1,6 @@
 package com.springboot.MyTodoList.repository;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,4 +28,6 @@ public interface UsersRepository extends JpaRepository<Users, UUID> {
     List<Users> findByUserRole(UserRole userRole);
 
     Optional<Users> findByCellPhone(String cellPhone);
+
+    long countByUserIdIn(Collection<UUID> userIds);
 }

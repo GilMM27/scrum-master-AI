@@ -1,9 +1,10 @@
 package com.springboot.MyTodoList.model;
 
 
-import com.springboot.MyTodoList.dto.CreateTaskRequest;
 import com.springboot.MyTodoList.util.UUIDConverter;
 import jakarta.persistence.*;
+
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -19,6 +20,8 @@ public class Tasks {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "TASK_ID")
     UUID taskId;
+    @Column(name = "PROJECT_ID", nullable = false)
+    UUID projectId;
     @Column(name = "TITLE", nullable = false)
     String title;
     @Lob
@@ -27,6 +30,9 @@ public class Tasks {
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false)
     TaskStatus status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PRIORITY", nullable = false)
+    TaskPriority priority;
     @Column(name = "STORY_POINTS")
     int storyPoints;
     @Convert(converter = UUIDConverter.class)
@@ -46,14 +52,13 @@ public class Tasks {
     public Tasks() {
     }
 
-    public Tasks(UUID taskId, String title, String description, TaskStatus status, int storyPoints,
-                 UUID sprintId,
-                 OffsetDateTime blockedAt, Boolean isAiFlagged,
-                 OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
+    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, int storyPoints, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
         this.taskId = taskId;
+        this.projectId = projectId;
         this.title = title;
         this.description = description;
         this.status = status;
+        this.priority = priority;
         this.storyPoints = storyPoints;
         this.sprintId = sprintId;
         this.blockedAt = blockedAt;
@@ -69,6 +74,14 @@ public class Tasks {
 
     public void setTaskId(UUID taskId) {
         this.taskId = taskId;
+    }
+
+    public UUID getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
     }
 
     public String getTitle() {
@@ -93,6 +106,14 @@ public class Tasks {
 
     public void setStatus(TaskStatus status) {
         this.status = status;
+    }
+
+    public TaskPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(TaskPriority priority) {
+        this.priority = priority;
     }
 
     public int getStoryPoints() {
@@ -155,31 +176,27 @@ public class Tasks {
     public String toString() {
         return "Tasks{" +
                 "taskId=" + taskId +
+                ", projectId=" + projectId +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
+                ", priority='" + priority + '\'' +
                 ", storyPoints=" + storyPoints +
                 ", sprintId=" + sprintId +
                 ", blockedAt=" + blockedAt +
                 ", isAiFlagged=" + isAiFlagged +
                 ", createdAt=" + createdAt +
                 ", deliveredAt=" + deliveredAt +
+                ", startedAt=" + startedAt +
                 '}';
     }
 
-    public void updateFromDto(CreateTaskRequest dto) {
-        if (dto.getTitle() != null) {
-            this.title = dto.getTitle();
+    @Transient
+    public Double getActualHours() {
+        if (startedAt == null || deliveredAt == null) {
+            return null;
         }
-        if (dto.getDescription() != null) {
-            this.description = dto.getDescription();
-        }
-        if (dto.getSprintId() != null) {
-            this.sprintId = dto.getSprintId();
-        }
-        if (dto.getStoryPoints() != null) {
-            this.storyPoints = dto.getStoryPoints();
-        }
+        return Duration.between(startedAt, deliveredAt).toMinutes() / 60.0;
     }
 
     @PrePersist

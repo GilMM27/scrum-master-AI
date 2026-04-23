@@ -12,7 +12,13 @@ import java.time.OffsetDateTime;
 
 
 public interface TasksRepository extends JpaRepository<Tasks, UUID> {
-    
+
+    List<Tasks> findByProjectId(UUID projectId);
+
+    List<Tasks> findByProjectIdOrderByCreatedAtDesc(UUID projectId);
+
+    List<Tasks> findByProjectIdAndSprintIdIsNullOrderByCreatedAtDesc(UUID projectId);
+
     List<Tasks> findBySprintId(UUID sprintId);
 
     List<Tasks> findBySprintIdOrderByCreatedAtDesc(UUID sprintId);
@@ -28,11 +34,17 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID> {
     List<Tasks> findByDeliveredAtIsNull();
 
     Long countBySprintIdAndStatus(UUID sprintId, TaskStatus status);
-    
+
+    Long countBySprintId(UUID sprintId);
+
+    Long countByProjectId(UUID projectId);
+
+    Long countByProjectIdAndStatus(UUID projectId, TaskStatus status);
+
     Optional<Tasks> findByTaskId(UUID taskId);
-    
+
     boolean existsByTaskId(UUID taskId);
-    
+
     List<Tasks> findBySprintIdOrderByStoryPoints(UUID sprintId);
     
 }
