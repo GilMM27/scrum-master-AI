@@ -8,6 +8,7 @@ import com.springboot.MyTodoList.dto.TaskDetailResponse;
 import com.springboot.MyTodoList.dto.TaskStatsResponse;
 import com.springboot.MyTodoList.dto.TaskSummaryResponse;
 import com.springboot.MyTodoList.dto.UpdateTaskRequest;
+import com.springboot.MyTodoList.exception.ResourceNotFoundException;
 import com.springboot.MyTodoList.model.Projects;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.Sprints;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,7 +75,7 @@ public class TasksService {
             syncAssignments(savedTask.getTaskId(), request.getAssigneeIds());
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedTask);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapTaskDetailResponse(savedTask));
     }
 
     public List<TaskSummaryResponse> getTasksByProject(UUID projectId) {
@@ -192,6 +194,11 @@ public class TasksService {
         }
 
         task.setStatus(newStatus);
+        if (newStatus == TaskStatus.BLOCKED) {
+            task.setBlockedAt(OffsetDateTime.now());
+        } else if (currentStatus == TaskStatus.BLOCKED) {
+            task.setBlockedAt(null);
+        }
         Tasks savedTask = tasksRepository.save(task);
         return ResponseEntity.ok(mapTaskDetailResponse(savedTask));
     }
@@ -222,8 +229,8 @@ public class TasksService {
 
         Optional<Sprints> activeSprint = sprintsRepository.findByProjectIdAndStatus(projectId, SprintStatus.ACTIVE);
         long totalCurrentSprintTasks = activeSprint
-                .map(sprint -> tasksRepository.findBySprintId(sprint.getSprintId()).size())
-                .orElse(0);
+                .map(sprint -> tasksRepository.countBySprintId(sprint.getSprintId()))
+                .orElse(0L);
 
         long totalCompletedTasks = tasksRepository.countByProjectIdAndStatus(projectId, TaskStatus.DONE);
         long totalReviewTasks = tasksRepository.countByProjectIdAndStatus(projectId, TaskStatus.REVIEW);
@@ -266,8 +273,14 @@ public class TasksService {
             ));
         }
 
-        if (sprintId != null && sprintsRepository.findById(sprintId).isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Sprint not found"));
+        if (sprintId != null) {
+            Optional<Sprints> sprint = sprintsRepository.findById(sprintId);
+            if (sprint.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Sprint not found"));
+            }
+            if (!sprint.get().getProjectId().equals(projectId)) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Sprint does not belong to the specified project"));
+            }
         }
 
         return null;
@@ -281,11 +294,12 @@ public class TasksService {
 
         Set<UUID> requestedUserIds = new HashSet<>(assigneeIds);
 
-        for (UUID userId : requestedUserIds) {
-            if (!usersRepository.existsById(userId)) {
-                throw new IllegalArgumentException("User not found: " + userId);
-            }
+        long foundCount = usersRepository.countByUserIdIn(requestedUserIds);
+        if (foundCount != requestedUserIds.size()) {
+            throw new ResourceNotFoundException("One or more users not found");
+        }
 
+        for (UUID userId : requestedUserIds) {
             if (!currentUserIds.contains(userId)) {
                 taskAssignmentsRepository.save(new TaskAssignments(taskId, userId));
             }

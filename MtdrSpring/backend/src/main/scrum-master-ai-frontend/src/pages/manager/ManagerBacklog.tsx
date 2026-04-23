@@ -19,6 +19,63 @@ const initialFilters: TaskFiltersState = {
   blocked: false,
 };
 
+const mockDevelopers: TaskAssignee[] = [
+  { userId: 'u1', username: 'diego' },
+  { userId: 'u2', username: 'ana' },
+  { userId: 'u3', username: 'luis' },
+];
+
+const mockSprints: SprintOption[] = [
+  { sprintId: 's1', sprintNumber: 1, status: 'ACTIVE', name: 'Current Sprint' },
+  { sprintId: 's2', sprintNumber: 2, status: 'PLANNED', name: 'Planned Sprint' },
+];
+
+const initialTasks: TaskItem[] = [
+  {
+    taskId: 't1',
+    title: 'Implement login module',
+    description: 'Build login UI and integrate authentication flow.',
+    status: 'DONE',
+    priority: 'HIGH',
+    assignees: [mockDevelopers[0]],
+    sprintId: 's1',
+    sprintNumber: 1,
+    estimatedHours: 4,
+    actualHours: 3.5,
+    blocked: false,
+    inReview: false,
+  },
+  {
+    taskId: 't2',
+    title: 'Create users management table',
+    description: 'Render admin users table with role and authorization actions.',
+    status: 'IN_PROGRESS',
+    priority: 'HIGH',
+    assignees: [mockDevelopers[1], mockDevelopers[2]],
+    sprintId: 's1',
+    sprintNumber: 2,
+    estimatedHours: 4,
+    actualHours: 2,
+    blocked: false,
+    inReview: false,
+  },
+  {
+    taskId: 't3',
+    title: 'Design sprint kanban board',
+    description: 'Prepare board layout for drag-and-drop interactions.',
+    status: 'TODO',
+    priority: 'MEDIUM',
+    assignees: [],
+    sprintId: null,
+    sprintNumber: null,
+    estimatedHours: 2,
+    actualHours: null,
+    blocked: true,
+    inReview: false,
+  },
+];
+
+
 const ManagerBacklog = () => {
   const [tasks, setTasks] = useState<TaskItem[]>(initialTasks);
   const [filters, setFilters] = useState<TaskFiltersState>(initialFilters);
@@ -35,7 +92,9 @@ const ManagerBacklog = () => {
 
   const filteredTasks = useMemo(() => applyTaskFilters(tasks, filters), [tasks, filters]);
 
-  const stats = useMemo(() => getTaskStats(tasks), [tasks]);
+  const activeSprintId = useMemo(() => mockSprints.find(s => s.status === 'ACTIVE')?.sprintId ?? null, []);
+
+  const stats = useMemo(() => getTaskStats(tasks, activeSprintId), [tasks, activeSprintId]);
 
   const openCreateDialog = () => {
     setDialogMode('create');

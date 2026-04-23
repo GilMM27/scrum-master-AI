@@ -35,6 +35,8 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID> {
 
     Long countBySprintIdAndStatus(UUID sprintId, TaskStatus status);
 
+    Long countBySprintId(UUID sprintId);
+
     Long countByProjectId(UUID projectId);
 
     Long countByProjectIdAndStatus(UUID projectId, TaskStatus status);

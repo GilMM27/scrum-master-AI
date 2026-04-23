@@ -1,7 +1,19 @@
-import type { TaskItem } from "../types/tasks.types"
-import TaskStatusChip from "./TaskStatusChip"
-import TaskPriorityChip from "./TaskPriorityChip"
-import { Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography, IconButton, Stack, Avatar } from "@mui/material";
+import type { TaskItem } from "../types/tasks.types";
+import TaskStatusChip from "./TaskStatusChip";
+import TaskPriorityChip from "./TaskPriorityChip";
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tooltip,
+  Typography,
+  IconButton,
+  Stack,
+  Avatar,
+} from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { VisibilityRounded } from "@mui/icons-material";
 import TaskBlockedChip from "./TaskBlockedChip";
@@ -11,11 +23,16 @@ interface TasksTableProps {
   showAssignee?: boolean;
   showSprint?: boolean;
   onViewTask: (task: TaskItem) => void;
-};
+}
 
-const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask }: TasksTableProps) => {
+const TasksTable = ({
+  tasks,
+  showAssignee = true,
+  showSprint = true,
+  onViewTask,
+}: TasksTableProps) => {
   return (
-    <Paper sx={{ borderRadius: 2, overflow: 'hidden' }}>
+    <Paper sx={{ borderRadius: 2, overflow: "hidden" }}>
       <Table>
         <TableHead>
           <TableRow>
@@ -35,7 +52,7 @@ const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask 
         <TableBody>
           {tasks.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={showAssignee && showSprint ? 9 : 7} align="center">
+              <TableCell colSpan={7 + (showAssignee ? 1 : 0) + (showSprint ? 1 : 0)} align="center">
                 <Typography color="text.secondary">
                   No se encontraron tareas.
                 </Typography>
@@ -52,9 +69,7 @@ const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask 
                   </Tooltip>
                 </TableCell>
                 <TableCell>
-                  <Typography variant="subtitle2">
-                    {task.title}
-                  </Typography>
+                  <Typography variant="subtitle2">{task.title}</Typography>
                 </TableCell>
                 <TableCell>
                   <TaskStatusChip status={task.status} />
@@ -62,14 +77,33 @@ const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask 
                 <TableCell>
                   <TaskPriorityChip priority={task.priority} />
                 </TableCell>
-                {showAssignee && 
+                {showAssignee && (
                   <TableCell>
-                    <Stack direction="row" spacing={0.5} useFlexGap sx={{ flexWrap: 'wrap' }}>
+                    <Stack
+                      direction="row"
+                      spacing={0.5}
+                      useFlexGap
+                      sx={{ flexWrap: "wrap" }}
+                    >
                       {task.assignees.length > 0 ? (
                         task.assignees.map((assignee) => (
-                          <Tooltip key={assignee.userId} title={assignee.username}>
-                            <Avatar sx={{ width: 24, height: 24, fontSize: '0.8rem', color: "info.main", border: "1px solid", borderColor: "divider", bgcolor: alpha("#0016a6", 0.34), }}>
-                              {assignee.username.charAt(0).toUpperCase()}{assignee.username.charAt(1).toLowerCase()}
+                          <Tooltip
+                            key={assignee.userId}
+                            title={assignee.username}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 24,
+                                height: 24,
+                                fontSize: "0.8rem",
+                                color: "info.main",
+                                border: "1px solid",
+                                borderColor: "divider",
+                                bgcolor: alpha("#0016a6", 0.34),
+                              }}
+                            >
+                              {assignee.username.charAt(0).toUpperCase()}
+                              {assignee.username.charAt(1).toLowerCase()}
                             </Avatar>
                           </Tooltip>
                         ))
@@ -80,17 +114,21 @@ const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask 
                       )}
                     </Stack>
                   </TableCell>
-                }
-                {showSprint &&
+                )}
+                {showSprint && (
                   <TableCell>
-                    {task.sprintNumber ? `Sprint ${task.sprintNumber}` : 'Backlog'}
+                    {task.sprintNumber
+                      ? `Sprint ${task.sprintNumber}`
+                      : "Backlog"}
                   </TableCell>
-                }
+                )}
                 <TableCell>
-                  {task.estimatedHours !== null ? `${task.estimatedHours}h` : '-'}
+                  {task.estimatedHours !== null
+                    ? `${task.estimatedHours}h`
+                    : "-"}
                 </TableCell>
                 <TableCell>
-                  {task.actualHours !== null ? `${task.actualHours}h` : '-'}
+                  {task.actualHours !== null ? `${task.actualHours}h` : "-"}
                 </TableCell>
                 <TableCell>
                   <TaskBlockedChip blocked={task.blocked} />
@@ -104,7 +142,7 @@ const TasksTable = ({ tasks, showAssignee = true, showSprint = true, onViewTask 
         </TableBody>
       </Table>
     </Paper>
-  )
-}
+  );
+};
 
-export default TasksTable
+export default TasksTable;
