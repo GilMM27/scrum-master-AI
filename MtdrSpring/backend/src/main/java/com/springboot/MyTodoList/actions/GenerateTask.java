@@ -238,6 +238,11 @@ public class GenerateTask extends BotActionBase {
         return BotState.IDLE;
     }
 
+    @Override
+    public void reset(long chatId) {
+        cleanup(chatId);
+    }
+
     private void cleanup(long chatId) {
         userFlowStates.remove(chatId);
         pendingTasks.remove(chatId);

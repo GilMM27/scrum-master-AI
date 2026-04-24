@@ -282,6 +282,11 @@ public class AssignTask extends BotActionBase {
         return BotState.IDLE;
     }
 
+    @Override
+    public void reset(long chatId) {
+        cleanup(chatId);
+    }
+
     private void cleanup(long chatId) {
         userSessions.remove(chatId);
     }

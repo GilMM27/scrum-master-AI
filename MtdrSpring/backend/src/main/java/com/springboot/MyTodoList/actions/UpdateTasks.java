@@ -346,4 +346,14 @@ public class UpdateTasks extends BotActionBase {
                 "✅ State updated!\n\nTask: " + task.getTitle() + "\nNew State: " + newStatus, 
                 null, client);
     }
+
+    @Override
+    public void reset(long chatId) {
+        cleanup(chatId);
+    }
+
+    private void cleanup(long chatId) {
+        userStates.remove(chatId);
+        selectedTaskId.remove(chatId);
+    }
 }

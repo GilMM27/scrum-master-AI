@@ -16,6 +16,10 @@ public interface BotAction {
         return BotState.IDLE;
     }
 
+    default void reset(long chatId) {
+        // Default implementation does nothing
+    }
+
     default boolean canHandleWithMessageCheck(Update update) {
         if (!update.hasMessage()) {
             return false;
