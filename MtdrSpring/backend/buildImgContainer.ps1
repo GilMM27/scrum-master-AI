@@ -29,5 +29,7 @@ docker build -f DockerfileDev --platform linux/amd64 -t agileimage:0.1 `
 	--build-arg "db_user=$($envVars['db_user'])" `
 	--build-arg "dbpassword=$($envVars['dbpassword'])" `
 	--build-arg "db_url=$($envVars['db_url'])" `
+	--build-arg "TELEGRAM_BOT_TOKEN=$($envVars('TELEGRAM_BOT_TOKEN'))"	`
+	--build-arg "TELEGRAM_BOT_NAME=$($envVars('TELEGRAM_BOT_NAME'))"	`
 	.
 docker run --name agilecontainer --volume "${PWD}/target:/tmp/target:rw" -p 8080:8080 -d agileimage:0.1
