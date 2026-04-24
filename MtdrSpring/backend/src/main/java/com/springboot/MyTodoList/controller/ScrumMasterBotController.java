@@ -4,12 +4,14 @@ import com.springboot.MyTodoList.actions.BotAction;
 import com.springboot.MyTodoList.actions.BotActionRegistry;
 import com.springboot.MyTodoList.config.BotProps;
 import com.springboot.MyTodoList.repository.UsersRepository;
+import com.springboot.MyTodoList.states.BotState;
+import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotMessages;
-import com.springboot.MyTodoList.util.BotCommands;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.client.okhttp.OkHttpTelegramClient;
@@ -22,14 +24,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Component
-public class ToDoItemBotController implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
+public class ScrumMasterBotController implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-    private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
 
     private final TelegramClient telegramClient;
     private final BotProps botProps;
     private final BotActionRegistry actionRegistry;
     private final UsersRepository usersRepository;
+    private final ConcurrentHashMap<Long, BotState> userStates = new ConcurrentHashMap<>();
 
     @Value("${telegram.bot.token}")
     private String telegramBotToken;
@@ -43,11 +45,12 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
         }
     }
 
-    public ToDoItemBotController(BotProps bp, BotActionRegistry actionRegistry, UsersRepository usersRepository) {
+    public ScrumMasterBotController(BotProps bp, BotActionRegistry actionRegistry, UsersRepository usersRepository) {
         this.botProps = bp;
         this.actionRegistry = actionRegistry;
         this.usersRepository = usersRepository;
         telegramClient = new OkHttpTelegramClient(getBotToken());
+        BotHelper.setTelegramClient(telegramClient);
     }
 
     @Override
@@ -62,46 +65,63 @@ public class ToDoItemBotController implements SpringLongPollingBot, LongPollingS
             return;
         }
 
-        if (!update.hasMessage() || !update.getMessage().hasText()) {
+        if (!update.hasMessage() ) {
             return;
         }
 
-        String messageText = update.getMessage().getText();
         long chatId = update.getMessage().getChatId();
 
-        if (messageText.startsWith(BotCommands.LOGIN.getCommand())) {
-            BotAction action = actionRegistry.resolve(update);
-            action.handle(update, chatId, telegramClient);
-            return;
-        }else if(messageText.startsWith(BotCommands.START_COMMAND.getCommand())){
-            BotAction action = actionRegistry.resolve(update);
-            action.handle(update, chatId, telegramClient);
+
+
+        long telegramId = update.getMessage().getFrom().getId();
+        boolean authentificated = !usersRepository.findByTelegramId(telegramId).isEmpty();
+
+
+
+        BotAction action = actionRegistry.resolve(update);
+        if(userStates.containsKey(chatId) && userStates.get(chatId) != BotState.IDLE){
+            action = actionRegistry.getActionByState(userStates.get(chatId));
+           
+        }
+                
+        if (update.getMessage().hasText() && update.getMessage().getText().startsWith(BotCommands.EXIT_TRANSACTION.getCommand())) {
+            if (userStates.containsKey(chatId)) {
+                BotAction currentAction = actionRegistry.getActionByState(userStates.get(chatId));
+                if (currentAction != null) {
+                    currentAction.reset(chatId);
+                }
+                userStates.remove(chatId);
+            }
+            BotHelper.sendMessageToTelegram(chatId, "Transaction cancelled.", telegramClient);
             return;
         }
 
-        long telegramId = update.getMessage().getFrom().getId();
-        if (usersRepository.findByTelegramId(telegramId).isEmpty()) {
+        if(action == null){
+            BotHelper.sendMessageToTelegram(chatId, BotMessages.COMMAND_NOT_FOUND.getMessage(), telegramClient);
+            return;
+        }
+        if (!authentificated && !actionRegistry.getUnregisteredUserActions().contains(action)) {
             BotHelper.sendMessageToTelegram(chatId, BotMessages.UNAUTHORIZED.getMessage(), telegramClient);
             return;
         }
 
-        BotAction action = actionRegistry.resolve(update);
-        if (action != null) {
-            action.handle(update, chatId, telegramClient);
-            return;
+        BotState newState = action.handle(update);
+      
+        if(newState == BotState.IDLE){
+            userStates.remove(chatId);
+        }else{
+            userStates.put(chatId, newState);
         }
-		BotHelper.sendMessageToTelegram(chatId, BotMessages.COMMAND_NOT_FOUND.getMessage(), telegramClient);
+        return;
+        
     }
 
     private void handleCallbackQuery(Update update) {
-        String callbackData = update.getCallbackQuery().getData();
-        // long TelegramID = update.getCallbackQuery().getFrom().getId();
-        int messageId = update.getCallbackQuery().getMessage().getMessageId();
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
-
         for (BotAction action : actionRegistry.getActions()) {
-            if (action.canHandleCallback(callbackData)) {
-                action.handleCallback(callbackData, chatId, messageId, telegramClient);
+            if (action.canHandleCallback(update)) {
+                BotState newState = action.handleCallback(update);
+                long chatId = update.getCallbackQuery().getMessage().getChatId();
+                userStates.put(chatId, newState);
                 return;
             }
         }

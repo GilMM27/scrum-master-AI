@@ -1,77 +1,250 @@
 package com.springboot.MyTodoList.actions;
-import com.springboot.MyTodoList.model.TaskAssignments;
-import com.springboot.MyTodoList.model.TaskStatus;
-import com.springboot.MyTodoList.model.Tasks;
-import com.springboot.MyTodoList.model.Users;
-import com.springboot.MyTodoList.repository.TaskAssignmentsRepository;
+
+import com.springboot.MyTodoList.model.*;
+import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.util.BotHelper;
-
-import okhttp3.internal.concurrent.Task;
-
 import com.springboot.MyTodoList.util.BotCommands;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 public class GenerateTask extends BotActionBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(GenerateTask.class);
+    private final Map<Long, TaskFlowState> userFlowStates = new ConcurrentHashMap<>();
+    private final Map<Long, Tasks> pendingTasks = new ConcurrentHashMap<>();
 
+    private enum TaskFlowState {
+        SELECTING_PROJECT,
+        ENTERING_TITLE,
+        ENTERING_DESCRIPTION,
+        SELECTING_PRIORITY,
+        ENTERING_HOURS
+    }
+
+    @Override
+    public BotState getState() {
+        return BotState.GENERATE_TASK;
+    }
 
     @Override
     public boolean canHandle(Update update) {
-
+        if (!update.hasMessage() || !update.getMessage().hasText()) {
+            return false;
+        }
         String messageText = update.getMessage().getText();
         return messageText.startsWith(BotCommands.GENERATE_TASK.getCommand());
     }
 
     @Override
-    public void handle(Update update, long chatId, TelegramClient client) {
+    public boolean canHandleCallback(Update update) {
+        if (!update.hasCallbackQuery()) return false;
+        String callbackData = update.getCallbackQuery().getData();
+        return callbackData.startsWith("gentask_proj_") || callbackData.startsWith("gentask_prio_");
+    }
+
+    @Override
+    public BotState handle(Update update) {
+        long chatId = update.getMessage().getChatId();
+        TelegramClient client = BotHelper.getTelegramClient();
         String messageText = update.getMessage().getText();
-        String[] parts = messageText.split(" ", 3);
-        
-        if (parts.length < 3) {
-            BotHelper.sendMessageToTelegram(chatId, 
-                "❌ Please provide the name of your Task in a single argument and the time just in integert hr\n "+
-                     "/gtask <nombre_sin_espacios> <tiempo en hr>", client);
-            return;
+
+        if (messageText.equalsIgnoreCase("/cancel")) {
+            cleanup(chatId);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Task creation cancelled.", client);
+            return BotState.IDLE;
         }
 
-        int time = Integer.parseInt(parts[2]);
+        TaskFlowState state = userFlowStates.get(chatId);
 
-        if (time> 4) {
-            BotHelper.sendMessageToTelegram(chatId, 
-                "❌ Due to oracle restrictions (advices), the tasks should not be larger than 4hr", client);
-            return;
+        if (state == null) {
+            return startTaskCreation(chatId, update.getMessage().getFrom().getId(), client);
         }
 
-        Users user = usersRepository.findByTelegramId(update.getMessage().getFrom().getId()).orElse(null);
-
-        if (user != null) {
-            Tasks tsk = new Tasks();
-            tsk.setTitle(parts[1]);
-            tsk.setStoryPoints(time);
-            tsk.setStatus(TaskStatus.TO_DO);
-            BotHelper.sendMessageToTelegram(chatId, "Innitating save. "+ parts[1] + " " + time, client);
-            tsk = tasksRepository.save(tsk);
-            BotHelper.sendMessageToTelegram(chatId, "✅ Task Saved Successfully.", client);
-
-            TaskAssignments n = new TaskAssignments(tsk.getTaskId(), user.getUserId());
-            taskAssignmentsRepository.save(n);
-
-
-            BotHelper.sendMessageToTelegram(chatId, "✅ Automatically assigned to yourself", client);
-            
-            String successMessage = "✅ Creation successful! Task " + tsk.getTitle() + "!\n\n"
-                + "Now you need to activate it with /tasks.";
-
-            BotHelper.sendMessageToTelegram(chatId, successMessage, client);
-        } else {
-            BotHelper.sendMessageToTelegram(chatId, 
-                "❌ An error occurred during the creating of the new task. verify you have login with /login", client);
+        switch (state) {
+            case ENTERING_TITLE:
+                return handleTitle(chatId, messageText, client);
+            case ENTERING_DESCRIPTION:
+                return handleDescription(chatId, messageText, client);
+            case ENTERING_HOURS:
+                return handleHours(chatId, messageText, client);
+            default:
+                cleanup(chatId);
+                return BotState.IDLE;
         }
+    }
+
+    @Override
+    public BotState handleCallback(Update update) {
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        int messageId = update.getCallbackQuery().getMessage().getMessageId();
+        String callbackData = update.getCallbackQuery().getData();
+        TelegramClient client = BotHelper.getTelegramClient();
+
+        TaskFlowState state = userFlowStates.get(chatId);
+        if (state == null) return BotState.IDLE;
+
+        if (callbackData.startsWith("gentask_proj_")) {
+            return handleProjectSelection(chatId, messageId, callbackData.substring(13), client);
+        } else if (callbackData.startsWith("gentask_prio_")) {
+            return handlePrioritySelection(chatId, messageId, callbackData.substring(13), client);
+        }
+
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState startTaskCreation(long chatId, long telegramId, TelegramClient client) {
+        Users user = usersRepository.findByTelegramId(telegramId).orElse(null);
+        if (user == null) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ User not found. Please log in first.", client);
+            return BotState.IDLE;
+        }
+
+        List<ProjectMembers> memberships = projectMembersRepository.findByUserId(user.getUserId());
+        if (memberships.isEmpty()) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ You are not a member of any project. Join a project first.", client);
+            return BotState.IDLE;
+        }
+
+        List<Projects> projects = memberships.stream()
+                .map(m -> projectsRepository.findById(m.getProjectId()).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (projects.isEmpty()) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Projects not found.", client);
+            return BotState.IDLE;
+        }
+
+        String text = "📝 Select a Project for the new task:";
+        List<InlineKeyboardRow> rows = new ArrayList<>();
+        for (Projects project : projects) {
+            rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+                    .text(project.getName())
+                    .callbackData("gentask_proj_" + project.getProjectId().toString())
+                    .build()));
+        }
+
+        InlineKeyboardMarkup markup = InlineKeyboardMarkup.builder().keyboard(rows).build();
+        BotHelper.sendMessageWithInlineKeyboard(chatId, text, markup, client);
+
+        userFlowStates.put(chatId, TaskFlowState.SELECTING_PROJECT);
+        pendingTasks.put(chatId, new Tasks());
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handleProjectSelection(long chatId, int messageId, String projectIdStr, TelegramClient client) {
+        UUID projectId = UUID.fromString(projectIdStr);
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setProjectId(projectId);
+        userFlowStates.put(chatId, TaskFlowState.ENTERING_TITLE);
+
+        BotHelper.editMessageText(chatId, messageId, "✅ Project selected. Now, please enter the TITLE of the task:", client);
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handleTitle(long chatId, String title, TelegramClient client) {
+        if (title.startsWith("/")) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Invalid title. Please enter text:", client);
+            return BotState.GENERATE_TASK;
+        }
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setTitle(title);
+        userFlowStates.put(chatId, TaskFlowState.ENTERING_DESCRIPTION);
+        BotHelper.sendMessageToTelegram(chatId, "✅ Title set. Now, please provide a DESCRIPTION for the task:", client);
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handleDescription(long chatId, String description, TelegramClient client) {
+        if (description.startsWith("/")) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Invalid description. Please enter text:", client);
+            return BotState.GENERATE_TASK;
+        }
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setDescription(description);
+        userFlowStates.put(chatId, TaskFlowState.SELECTING_PRIORITY);
+
+        String text = "✅ Description set. Select the PRIORITY:";
+        List<InlineKeyboardRow> rows = new ArrayList<>();
+        for (TaskPriority priority : TaskPriority.values()) {
+            rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
+                    .text(priority.name())
+                    .callbackData("gentask_prio_" + priority.name())
+                    .build()));
+        }
+
+        InlineKeyboardMarkup markup = InlineKeyboardMarkup.builder().keyboard(rows).build();
+        BotHelper.sendMessageWithInlineKeyboard(chatId, text, markup, client);
+
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handlePrioritySelection(long chatId, int messageId, String priorityStr, TelegramClient client) {
+        TaskPriority priority = TaskPriority.valueOf(priorityStr);
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setPriority(priority);
+        userFlowStates.put(chatId, TaskFlowState.ENTERING_HOURS);
+
+        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many HOURS will it take? (Enter a number between 1 and 4):", client);
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handleHours(long chatId, String hoursText, TelegramClient client) {
+        int hours;
+        try {
+            hours = Integer.parseInt(hoursText.trim());
+        } catch (NumberFormatException e) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Please enter a valid number for hours (e.g., 2):", client);
+            return BotState.GENERATE_TASK;
+        }
+
+        if (hours <= 0 || hours > 4) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Tasks should be between 1 and 4 hours. Please try again:", client);
+            return BotState.GENERATE_TASK;
+        }
+
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setStoryPoints(hours);
+        task.setStatus(TaskStatus.TO_DO);
+
+        BotHelper.sendMessageToTelegram(chatId, "⏳ Saving task...", client);
+        tasksRepository.save(task);
+
+        String successMessage = "✅ Task Created Successfully!\n\n"
+                + "Project ID: " + task.getProjectId() + "\n"
+                + "Title: " + task.getTitle() + "\n"
+                + "Priority: " + task.getPriority() + "\n"
+                + "Expected Time: " + task.getStoryPoints() + " hr";
+
+        BotHelper.sendMessageToTelegram(chatId, successMessage, client);
+        cleanup(chatId);
+        return BotState.IDLE;
+    }
+
+    @Override
+    public void reset(long chatId) {
+        cleanup(chatId);
+    }
+
+    private void cleanup(long chatId) {
+        userFlowStates.remove(chatId);
+        pendingTasks.remove(chatId);
     }
 }

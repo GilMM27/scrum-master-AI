@@ -14,6 +14,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 public class BotHelper {
 
 	private static final Logger logger = LoggerFactory.getLogger(BotHelper.class);
+	
+	private static TelegramClient telegramClient;
+	
+	public static void setTelegramClient(TelegramClient client) {
+		telegramClient = client;
+	}
+	
+	public static TelegramClient getTelegramClient() {
+		return telegramClient;
+	}
 
 	public static void sendMessageToTelegram(Long chatId, String text, TelegramClient bot) {
 

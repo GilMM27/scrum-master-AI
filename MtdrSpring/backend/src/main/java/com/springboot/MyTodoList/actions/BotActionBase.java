@@ -1,5 +1,6 @@
 package com.springboot.MyTodoList.actions;
 
+import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.repository.UsersRepository;
 import com.springboot.MyTodoList.repository.TaskAssignmentsRepository;
 import com.springboot.MyTodoList.repository.ProjectMembersRepository;
@@ -12,6 +13,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public abstract class BotActionBase implements BotAction {
+
+    @Override
+    public BotState getState() {
+        return BotState.IDLE;
+    }
 
     protected UsersRepository usersRepository;
     protected TasksService tasksService;

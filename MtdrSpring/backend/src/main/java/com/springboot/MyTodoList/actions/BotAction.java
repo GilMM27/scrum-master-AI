@@ -1,17 +1,29 @@
 package com.springboot.MyTodoList.actions;
 
+import com.springboot.MyTodoList.states.BotState;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 public interface BotAction {
+    BotState getState();
     boolean canHandle(Update update);
-    void handle(Update update, long chatId, TelegramClient client);
+    BotState handle(Update update);
     
-    default boolean canHandleCallback(String callbackData) {
+    default boolean canHandleCallback(Update update) {
         return false;
     }
     
-    default void handleCallback(String callbackData, long chatId, int messageId, TelegramClient client) {
-        // Default: do nothing
+    default BotState handleCallback(Update update) {
+        return BotState.IDLE;
+    }
+
+    default void reset(long chatId) {
+        // Default implementation does nothing
+    }
+
+    default boolean canHandleWithMessageCheck(Update update) {
+        if (!update.hasMessage()) {
+            return false;
+        }
+        return canHandle(update);
     }
 }

@@ -33,6 +33,8 @@ if [ "$DEV_MODE" = true ]; then
         --build-arg db_user="$db_user" \
         --build-arg dbpassword="$dbpassword" \
         --build-arg db_url="$db_url" \
+        --build-arg telegram_bot_token="$TELEGRAM_BOT_TOKEN" \
+        --build-arg telegram_bot_name="$TELEGRAM_BOT_NAME" \
         .
     
     echo "=== Starting container ==="
