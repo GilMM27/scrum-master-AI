@@ -5,5 +5,6 @@ public enum BotState {
     LOGIN,
     START,
     TASKS,
-    GENERATE_TASK
+    GENERATE_TASK,
+    ASSIGN_TASK
 }

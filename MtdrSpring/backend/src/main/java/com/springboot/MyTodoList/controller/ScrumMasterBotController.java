@@ -5,6 +5,7 @@ import com.springboot.MyTodoList.actions.BotActionRegistry;
 import com.springboot.MyTodoList.config.BotProps;
 import com.springboot.MyTodoList.repository.UsersRepository;
 import com.springboot.MyTodoList.states.BotState;
+import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotMessages;
 import java.util.HashMap;
@@ -74,6 +75,8 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
 
         long telegramId = update.getMessage().getFrom().getId();
         boolean authentificated = !usersRepository.findByTelegramId(telegramId).isEmpty();
+
+        if(update.getMessage().getText().startsWith(BotCommands.EXIT_TRANSACTION.getCommand())) userStates.remove(chatId);
         
 
         BotAction action = actionRegistry.resolve(update);

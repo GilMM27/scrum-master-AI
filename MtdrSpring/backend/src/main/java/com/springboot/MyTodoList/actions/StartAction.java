@@ -2,6 +2,7 @@ package com.springboot.MyTodoList.actions;
 
 import com.springboot.MyTodoList.states.BotState;
 import com.springboot.MyTodoList.util.BotHelper;
+import com.springboot.MyTodoList.util.BotMessages;
 import com.springboot.MyTodoList.util.BotCommands;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -30,17 +31,7 @@ public class StartAction extends BotActionBase {
         long chatId = update.getMessage().getChatId();
         TelegramClient client = BotHelper.getTelegramClient();
         
-        String welcomeMessage = "👋 *Welcome to Scrum Master AI!*\n\n"
-            + "I'm your Scrum Assistant bot. Here's what I can do for you:\n\n"
-            + "*Available Commands:*\n\n"
-            + "• `/start` - Show this welcome message\n"
-            + "• `/login <phone>` - Link your Telegram ID with your account\n"
-            + "• `/tasks` - View and manage your tasks\n"
-            + "• `/gtask` <name> <hr>- Generate new tasks \n\n"
-            + "_Note: Use /login first to link your account and access all the different functions._";
-
-        
-
+        String welcomeMessage = BotMessages.HELLO_MYTODO_BOT.getMessage();
         BotHelper.sendMessageToTelegram(chatId, welcomeMessage, client);
         return BotState.IDLE;
     }

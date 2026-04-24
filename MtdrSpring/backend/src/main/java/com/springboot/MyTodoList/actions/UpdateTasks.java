@@ -29,9 +29,9 @@ import java.util.stream.Collectors;
 import java.util.Optional;
 
 @Component
-public class TasksAction extends BotActionBase {
+public class UpdateTasks extends BotActionBase {
 
-    private static final Logger logger = LoggerFactory.getLogger(TasksAction.class);
+    private static final Logger logger = LoggerFactory.getLogger(UpdateTasks.class);
 
     private Map<Long, TaskFlowState> userStates = new HashMap<>();
     private Map<Long, UUID> selectedTaskId = new HashMap<>();
@@ -54,7 +54,7 @@ public class TasksAction extends BotActionBase {
             return false;
         }
         String messageText = update.getMessage().getText();
-        return messageText.equals(BotCommands.TASKS_COMMAND.getCommand());
+        return messageText.equals(BotCommands.TASK_UPDATE.getCommand());
     }
 
     @Override
