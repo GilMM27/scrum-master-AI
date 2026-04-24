@@ -76,7 +76,15 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
         long telegramId = update.getMessage().getFrom().getId();
         boolean authentificated = !usersRepository.findByTelegramId(telegramId).isEmpty();
 
-        if (update.getMessage().getText().startsWith(BotCommands.EXIT_TRANSACTION.getCommand())) {
+
+
+        BotAction action = actionRegistry.resolve(update);
+        if(userStates.containsKey(chatId) && userStates.get(chatId) != BotState.IDLE){
+            action = actionRegistry.getActionByState(userStates.get(chatId));
+           
+        }
+                
+        if (update.getMessage().hasText() && update.getMessage().getText().startsWith(BotCommands.EXIT_TRANSACTION.getCommand())) {
             if (userStates.containsKey(chatId)) {
                 BotAction currentAction = actionRegistry.getActionByState(userStates.get(chatId));
                 if (currentAction != null) {
@@ -86,12 +94,6 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
             }
             BotHelper.sendMessageToTelegram(chatId, "Transaction cancelled.", telegramClient);
             return;
-        }
-
-        BotAction action = actionRegistry.resolve(update);
-        if(userStates.containsKey(chatId) && userStates.get(chatId) != BotState.IDLE){
-            action = actionRegistry.getActionByState(userStates.get(chatId));
-           
         }
 
         if(action == null){

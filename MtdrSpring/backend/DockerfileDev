@@ -12,12 +12,16 @@ ARG ui_password
 ARG db_user
 ARG dbpassword
 ARG db_url
+ARG telegram_bot_token
+ARG telegram_bot_name
 
 ENV ui_username=${ui_username}
 ENV ui_password=${ui_password}
 ENV db_user=${db_user}
 ENV dbpassword=${dbpassword}
 ENV db_url=${db_url}
+ENV TELEGRAM_BOT_TOKEN=${telegram_bot_token}
+ENV TELEGRAM_BOT_NAME=${telegram_bot_name}
 ENV driver_class_name="oracle.jdbc.OracleDriver"
 
 ENTRYPOINT ["java","-jar","MyTodoList.jar"]
