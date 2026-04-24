@@ -10,4 +10,19 @@ export const API_ENDPOINTS = {
         updateAuthorization: (userId: string) => `/api/users/${userId}/authorization`,
         createManagedUser: '/api/users',
     },
+    projects: {
+        base: '/api/projects',
+        mySelector: '/api/projects/my/selector',
+        developers: (projectId: string) => `/api/projects/${projectId}/developers`,
+    },
+    tasks: {
+        byProject: (projectId: string) => `/api/tasks/project/${projectId}`,
+        byId: (taskId: string) => `/api/tasks/${taskId}`,
+        create: '/api/tasks',
+        update: (taskId: string) => `/api/tasks/${taskId}`,
+        delete: (taskId: string) => `/api/tasks/${taskId}`,
+    },
+    sprints: {
+        available: (projectId: string) => `/api/sprints/project/${projectId}/available`,
+    },
 };

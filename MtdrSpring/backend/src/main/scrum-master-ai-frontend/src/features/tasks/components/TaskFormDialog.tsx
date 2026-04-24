@@ -1,39 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  CloseRounded,
-  EditRounded,
-  RestoreRounded,
-  DeleteRounded,
-} from "@mui/icons-material";
-import type {
-  CreateTaskPayload,
-  SprintOption,
-  TaskAssignee,
-  TaskDialogMode,
-  TaskItem,
-  TaskPriority,
-  TaskStatus,
-  UpdateTaskPayload,
-} from "../types/tasks.types";
+import { CloseRounded, EditRounded, RestoreRounded, DeleteRounded } from "@mui/icons-material";
+import CircularProgress from "@mui/material/CircularProgress";
+import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDialogMode, TaskItem, TaskPriority, TaskStatus, UpdateTaskPayload } from "../types/tasks.types";
 import TaskPriorityChip from "./TaskPriorityChip";
 import TaskStatusChip from "./TaskStatusChip";
 import Dialog from "@mui/material/Dialog";
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Checkbox, Chip, DialogActions, DialogContent, DialogTitle, FormControlLabel, Grid, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -55,24 +27,39 @@ interface TaskFormState {
   priority: TaskPriority;
   assigneeIds: string[];
   sprintId: string | null;
-  estimatedHours: number | null;
+  storyPoints: number | null;
 }
 
 const createInitialState = (task?: TaskItem | null): TaskFormState => ({
   title: task?.title ?? "",
   description: task?.description ?? "",
-  status: task?.status ?? "TODO",
+  status: task?.status ?? "TO_DO",
   priority: task?.priority ?? "LOW",
   assigneeIds: task?.assignees.map((a) => a.userId) ?? [],
   sprintId: task?.sprintId ?? null,
-  estimatedHours:
-    task?.estimatedHours === null || task?.estimatedHours === undefined
+  storyPoints:
+    task?.storyPoints === null || task?.storyPoints === undefined
       ? null
-      : task.estimatedHours,
+      : task.storyPoints,
 });
 
-const getSprintLabel = (sprint?: SprintOption) =>
-  sprint ? `Sprint ${sprint.sprintNumber}` : "Sin sprint";
+const formatSprintDate = (iso: string | null): string => {
+  if (!iso) return "";
+  const [year, month, day] = iso.split("-");
+  const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
+};
+
+const getSprintLabel = (sprint: SprintOption): string =>
+  sprint.name ?? `Sprint (${sprint.sprintId.slice(0, 6)}…)`;
+
+const VALID_STATUS_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
+  TO_DO: ["IN_PROGRESS"],
+  IN_PROGRESS: ["REVIEW", "BLOCKED"],
+  REVIEW: ["IN_PROGRESS", "BLOCKED", "DONE"],
+  BLOCKED: ["IN_PROGRESS", "REVIEW"],
+  DONE: [],
+};
 
 const TaskFormDialog = ({
   open,
@@ -93,6 +80,7 @@ const TaskFormDialog = ({
   );
   const [errorMsg, setErrorMsg] = useState("");
   const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const initial = createInitialState(task);
@@ -110,10 +98,25 @@ const TaskFormDialog = ({
     [form, originalForm],
   );
 
-  const selectedSprint = sprints.find((s) => s.sprintId === form.sprintId);
-  const selectedDeveloperNames = developers
-    .filter((dev) => form.assigneeIds.includes(dev.userId))
-    .map((dev) => dev.username);
+  // View mode: derive display values directly from the task prop (comes from API with full data)
+  const viewAssignees = task?.assignees ?? [];
+  const viewSprintLabel = task?.sprintName ?? "Backlog";
+
+  // In edit mode, only allow valid transitions from the original status.
+  // In create mode, all statuses are available.
+  const allowedStatuses: Set<TaskStatus> = useMemo(() => {
+    if (internalMode === "edit" && originalForm.status) {
+      const transitions = VALID_STATUS_TRANSITIONS[originalForm.status];
+      return new Set([originalForm.status, ...transitions]);
+    }
+    return new Set<TaskStatus>([
+      "TO_DO",
+      "IN_PROGRESS",
+      "REVIEW",
+      "DONE",
+      "BLOCKED",
+    ]);
+  }, [internalMode, originalForm.status]);
 
   const handleFieldChange = <K extends keyof TaskFormState>(
     key: K,
@@ -128,13 +131,8 @@ const TaskFormDialog = ({
       return false;
     }
 
-    if (!form.description.trim()) {
-      setErrorMsg("La descripción es obligatoria.");
-      return false;
-    }
-
-    if (form.estimatedHours !== null) {
-      const value = form.estimatedHours;
+    if (form.storyPoints !== null) {
+      const value = form.storyPoints;
 
       if (Number.isNaN(value) || value < 0 || value > 4) {
         setErrorMsg(
@@ -149,6 +147,7 @@ const TaskFormDialog = ({
   };
 
   const handleRequestClose = () => {
+    if (submitting) return;
     if (
       (internalMode === "create" || internalMode === "edit") &&
       hasUnsavedChanges
@@ -170,18 +169,23 @@ const TaskFormDialog = ({
       status: form.status,
       priority: form.priority,
       assigneeIds: form.assigneeIds,
-      sprintId: form.sprintId ?? undefined,
-      estimatedHours: form.estimatedHours ?? undefined,
+      sprintId: form.sprintId,
+      storyPoints: form.storyPoints,
     };
 
-    if (internalMode === "create") {
-      await onSubmitCreate(payload as CreateTaskPayload);
-      return;
-    }
+    setSubmitting(true);
+    try {
+      if (internalMode === "create") {
+        await onSubmitCreate(payload as CreateTaskPayload);
+        return;
+      }
 
-    if (internalMode === "edit" && task) {
-      await onSubmitUpdate(task.taskId, payload as UpdateTaskPayload);
-      return;
+      if (internalMode === "edit" && task) {
+        await onSubmitUpdate(task.taskId, payload as UpdateTaskPayload);
+        return;
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -205,16 +209,12 @@ const TaskFormDialog = ({
             spacing={2}
           >
             <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <Typography variant="h6">
-                {internalMode === "create" ? (
-                  "Crear Tarea"
-                ) : internalMode === "edit" ? (
-                  "Editar Tarea"
-                ) : (
-                  <Typography variant="h5">
-                    {form.title || "Sin título"}
-                  </Typography>
-                )}
+              <Typography variant="h5">
+                {internalMode === "create"
+                  ? "Crear Tarea"
+                  : internalMode === "edit"
+                    ? "Editar Tarea"
+                    : form.title || "Sin título"}
               </Typography>
             </Stack>
 
@@ -248,233 +248,372 @@ const TaskFormDialog = ({
         </DialogTitle>
 
         <DialogContent dividers>
-          <Stack spacing={3}>
-            <Stack spacing={1.5}>
-              {!isReadOnly && (
-                <TextField
-                  fullWidth
-                  label="Título de la tarea"
-                  value={form.title}
-                  onChange={(e) => handleFieldChange("title", e.target.value)}
-                />
-              )}
+          {loading && !task ? (
+            <Stack
+              sx={{
+                alignItems: "center",
+                justifyContent: "center",
+                py: 8,
+                gap: 2,
+              }}
+            >
+              <CircularProgress />
+              <Typography color="text.secondary">
+                Cargando detalles de tarea…
+              </Typography>
             </Stack>
+          ) : (
+            <Stack spacing={3}>
+              <Stack spacing={1.5}>
+                {!isReadOnly && (
+                  <TextField
+                    fullWidth
+                    label="Título de la tarea"
+                    value={form.title}
+                    onChange={(e) => handleFieldChange("title", e.target.value)}
+                  />
+                )}
+              </Stack>
 
-            <Grid container spacing={3}>
-              <Grid size={{ xs: 12, lg: 7 }}>
-                <Stack spacing={1.25}>
-                  <Typography variant="subtitle2">
-                    Información principal
-                  </Typography>
+              <Grid container spacing={3}>
+                <Grid size={{ xs: 12, lg: 7 }}>
+                  <Stack spacing={1.25}>
+                    <Typography variant="subtitle2">
+                      Información principal
+                    </Typography>
 
-                  {isReadOnly ? (
-                    <Box
-                      sx={{
-                        minHeight: 320,
-                        p: 2,
-                        borderRadius: 3,
-                        border: "1px solid",
-                        borderColor: "divider",
-                        backgroundColor: "background.default",
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        sx={{ whiteSpace: "pre-line" }}
+                    {isReadOnly ? (
+                      <Box
+                        sx={{
+                          minHeight: 320,
+                          p: 2,
+                          borderRadius: 3,
+                          border: "1px solid",
+                          borderColor: "divider",
+                          backgroundColor: "background.default",
+                        }}
                       >
-                        {form.description || "Sin descripción"}
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <TextField
-                      fullWidth
-                      label="Descripción"
-                      multiline
-                      minRows={14}
-                      value={form.description}
-                      onChange={(e) =>
-                        handleFieldChange("description", e.target.value)
-                      }
-                    />
-                  )}
-                </Stack>
-              </Grid>
-
-              <Grid size={{ xs: 12, lg: 5 }}>
-                <Stack spacing={2}>
-                  <Typography variant="subtitle2">
-                    Detalles de la tarea
-                  </Typography>
-
-                  {isReadOnly ? (
-                    <>
-                      <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Estado
-                        </Typography>
-                        <TaskStatusChip status={form.status} />
-                      </Stack>
-
-                      <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Prioridad
-                        </Typography>
-                        <TaskPriorityChip priority={form.priority} />
-                      </Stack>
-
-                      <Stack spacing={0.75}>
-                        <Typography variant="caption" color="text.secondary">
-                          Asignados
-                        </Typography>
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          useFlexGap
-                          sx={{ flexWrap: "wrap" }}
+                        <Typography
+                          variant="body1"
+                          sx={{ whiteSpace: "pre-line" }}
                         >
-                          {selectedDeveloperNames.length > 0 ? (
-                            selectedDeveloperNames.map((name) => (
-                              <Chip
-                                key={name}
-                                label={name}
-                                size="small"
-                                variant="outlined"
+                          {form.description || "Sin descripción"}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <TextField
+                        fullWidth
+                        label="Descripción"
+                        multiline
+                        minRows={14}
+                        value={form.description}
+                        onChange={(e) =>
+                          handleFieldChange("description", e.target.value)
+                        }
+                      />
+                    )}
+                  </Stack>
+                </Grid>
+
+                <Grid size={{ xs: 12, lg: 5 }}>
+                  <Stack spacing={2}>
+                    <Typography variant="subtitle2">
+                      Detalles de la tarea
+                    </Typography>
+
+                    {isReadOnly ? (
+                      <>
+                        <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Estado
+                          </Typography>
+                          <TaskStatusChip status={form.status} />
+                        </Stack>
+
+                        <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Prioridad
+                          </Typography>
+                          <TaskPriorityChip priority={form.priority} />
+                        </Stack>
+
+                        <Stack spacing={0.75}>
+                          <Typography variant="caption" color="text.secondary">
+                            Desarrolladores Asignados
+                          </Typography>
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            useFlexGap
+                            sx={{ flexWrap: "wrap" }}
+                          >
+                            {viewAssignees.length > 0 ? (
+                              viewAssignees.map((a) => (
+                                <Chip
+                                  key={a.userId}
+                                  label={a.username}
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              ))
+                            ) : (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                Sin asignados
+                              </Typography>
+                            )}
+                          </Stack>
+                        </Stack>
+
+                        <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
+                          <Typography variant="caption" color="text.secondary">
+                            Sprint
+                          </Typography>
+                          <Chip
+                            label={viewSprintLabel}
+                            color={task?.sprintName ? "info" : "default"}
+                            size="small"
+                            variant="outlined"
+                          />
+                        </Stack>
+
+                        <Stack spacing={0.75}>
+                          <Typography variant="caption" color="text.secondary">
+                            Horas Estimadas
+                          </Typography>
+                          <Typography>
+                            {task?.storyPoints != null && task.storyPoints > 0
+                              ? task.storyPoints
+                              : "No definidas"}
+                          </Typography>
+                        </Stack>
+                      </>
+                    ) : (
+                      <>
+                        <TextField
+                          select
+                          fullWidth
+                          label="Status"
+                          value={form.status}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "status",
+                              e.target.value as TaskStatus,
+                            )
+                          }
+                        >
+                          <MenuItem
+                            value="TO_DO"
+                            disabled={!allowedStatuses.has("TO_DO")}
+                          >
+                            To Do
+                          </MenuItem>
+                          <MenuItem
+                            value="IN_PROGRESS"
+                            disabled={!allowedStatuses.has("IN_PROGRESS")}
+                          >
+                            In Progress
+                          </MenuItem>
+                          <MenuItem
+                            value="REVIEW"
+                            disabled={!allowedStatuses.has("REVIEW")}
+                          >
+                            In Review
+                          </MenuItem>
+                          <MenuItem
+                            value="BLOCKED"
+                            disabled={!allowedStatuses.has("BLOCKED")}
+                          >
+                            Blocked
+                          </MenuItem>
+                          <MenuItem
+                            value="DONE"
+                            disabled={!allowedStatuses.has("DONE")}
+                          >
+                            Done
+                          </MenuItem>
+                        </TextField>
+
+                        <TextField
+                          select
+                          fullWidth
+                          label="Priority"
+                          value={form.priority}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "priority",
+                              e.target.value as TaskPriority,
+                            )
+                          }
+                        >
+                          <MenuItem value="LOW">Low</MenuItem>
+                          <MenuItem value="MEDIUM">Medium</MenuItem>
+                          <MenuItem value="HIGH">High</MenuItem>
+                          <MenuItem value="CRITICAL">Critical</MenuItem>
+                        </TextField>
+
+                        {/* Developers — checkbox list (multi-select) */}
+                        <Stack spacing={0.5}>
+                          <Typography variant="caption" color="text.secondary">
+                            Desarrolladores
+                          </Typography>
+                          {developers.length === 0 ? (
+                            <Typography variant="body2" color="text.secondary">
+                              Sin desarrolladores disponibles
+                            </Typography>
+                          ) : (
+                            developers.map((dev) => (
+                              <FormControlLabel
+                                key={dev.userId}
+                                label={dev.username}
+                                control={
+                                  <Checkbox
+                                    size="small"
+                                    checked={form.assigneeIds.includes(
+                                      dev.userId,
+                                    )}
+                                    onChange={(e) => {
+                                      const ids = e.target.checked
+                                        ? [...form.assigneeIds, dev.userId]
+                                        : form.assigneeIds.filter(
+                                            (id) => id !== dev.userId,
+                                          );
+                                      handleFieldChange("assigneeIds", ids);
+                                    }}
+                                    sx={{
+                                      color: "info.main",
+                                      "&.Mui-checked": { color: "info.main" },
+                                    }}
+                                  />
+                                }
                               />
                             ))
-                          ) : (
+                          )}
+                        </Stack>
+
+                        {/* Sprint — single-select checkbox list (mutually exclusive) */}
+                        <Stack spacing={0.5}>
+                          <Typography variant="caption" color="text.secondary">
+                            Sprint
+                          </Typography>
+
+                          <FormControlLabel
+                            label="Backlog"
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={form.sprintId === null}
+                                onChange={() =>
+                                  handleFieldChange("sprintId", null)
+                                }
+                                sx={{
+                                  color: "info.main",
+                                  "&.Mui-checked": { color: "info.main" },
+                                }}
+                              />
+                            }
+                          />
+
+                          {sprints.map((sprint) => (
+                            <FormControlLabel
+                              key={sprint.sprintId}
+                              label={
+                                <Stack spacing={0}>
+                                  <Stack
+                                    direction="row"
+                                    spacing={0.75}
+                                    sx={{ alignItems: "center" }}
+                                  >
+                                    <Typography variant="body2">
+                                      {getSprintLabel(sprint)}
+                                    </Typography>
+                                    {sprint.status === "ACTIVE" && (
+                                      <Chip
+                                        label="Activo"
+                                        size="small"
+                                        color="success"
+                                        variant="outlined"
+                                        sx={{
+                                          height: 18,
+                                          fontSize: "0.65rem",
+                                          "& .MuiChip-label": { px: 0.75 },
+                                        }}
+                                      />
+                                    )}
+                                  </Stack>
+                                  {sprint.startDate && sprint.endDate && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      {formatSprintDate(sprint.startDate)}
+                                      {" - "}
+                                      {formatSprintDate(sprint.endDate)}
+                                    </Typography>
+                                  )}
+                                </Stack>
+                              }
+                              control={
+                                <Checkbox
+                                  size="small"
+                                  checked={form.sprintId === sprint.sprintId}
+                                  onChange={() =>
+                                    handleFieldChange(
+                                      "sprintId",
+                                      sprint.sprintId,
+                                    )
+                                  }
+                                  sx={{
+                                    color:
+                                      sprint.status === "ACTIVE"
+                                        ? "success.main"
+                                        : "info.main",
+                                    "&.Mui-checked": {
+                                      color:
+                                        sprint.status === "ACTIVE"
+                                          ? "success.main"
+                                          : "info.main",
+                                    },
+                                  }}
+                                />
+                              }
+                            />
+                          ))}
+
+                          {sprints.length === 0 && (
                             <Typography variant="body2" color="text.secondary">
-                              Sin asignados
+                              Sin sprints disponibles
                             </Typography>
                           )}
                         </Stack>
-                      </Stack>
 
-                      <Stack spacing={0.75} sx={{ alignItems: "flex-start" }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Sprint
-                        </Typography>
-                        <Chip
-                          label={getSprintLabel(selectedSprint)}
-                          color={selectedSprint ? "info" : "default"}
-                          size="small"
-                          variant="outlined"
+                        <TextField
+                          fullWidth
+                          label="Horas Estimadas"
+                          type="number"
+                          slotProps={{
+                            htmlInput: { min: 0, max: 4, step: 0.5 },
+                          }}
+                          value={form.storyPoints ?? ""}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "storyPoints",
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value),
+                            )
+                          }
+                          helperText="Máximo 4 horas. Si excede este límite, subdivide la tarea."
                         />
-                      </Stack>
-
-                      <Stack spacing={0.75}>
-                        <Typography variant="caption" color="text.secondary">
-                          Horas Estimadas
-                        </Typography>
-                        <Typography>
-                          {form.estimatedHours !== null
-                            ? `${form.estimatedHours}h`
-                            : "No definidas"}
-                        </Typography>
-                      </Stack>
-                    </>
-                  ) : (
-                    <>
-                      <TextField
-                        select
-                        fullWidth
-                        label="Status"
-                        value={form.status}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "status",
-                            e.target.value as TaskStatus,
-                          )
-                        }
-                      >
-                        <MenuItem value="TODO">To Do</MenuItem>
-                        <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                        <MenuItem value="IN_REVIEW">In Review</MenuItem>
-                        <MenuItem value="DONE">Done</MenuItem>
-                      </TextField>
-
-                      <TextField
-                        select
-                        fullWidth
-                        label="Priority"
-                        value={form.priority}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "priority",
-                            e.target.value as TaskPriority,
-                          )
-                        }
-                      >
-                        <MenuItem value="LOW">Low</MenuItem>
-                        <MenuItem value="MEDIUM">Medium</MenuItem>
-                        <MenuItem value="HIGH">High</MenuItem>
-                        <MenuItem value="CRITICAL">Critical</MenuItem>
-                      </TextField>
-
-                      <TextField
-                        select
-                        fullWidth
-                        label="Assignee"
-                        value={form.assigneeIds}
-                        slotProps={{ select: { multiple: true } }}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "assigneeIds",
-                            e.target.value as unknown as string[],
-                          )
-                        }
-                      >
-                        {developers.map((developer) => (
-                          <MenuItem
-                            key={developer.userId}
-                            value={developer.userId}
-                          >
-                            {developer.username}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-
-                      <TextField
-                        select
-                        fullWidth
-                        label="Sprint"
-                        value={form.sprintId ?? ""}
-                        onChange={(e) =>
-                          handleFieldChange("sprintId", e.target.value || null)
-                        }
-                      >
-                        <MenuItem value="">Backlog</MenuItem>
-                        {sprints.map((sprint) => (
-                          <MenuItem
-                            key={sprint.sprintId}
-                            value={sprint.sprintId}
-                          >
-                            {getSprintLabel(sprint)}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-
-                      <TextField
-                        fullWidth
-                        label="Horas estimadas"
-                        type="number"
-                        slotProps={{ htmlInput: { min: 0, max: 4, step: 0.5 } }}
-                        value={form.estimatedHours ?? ""}
-                        onChange={(e) =>
-                          handleFieldChange(
-                            "estimatedHours",
-                            e.target.value === ""
-                              ? null
-                              : Number(e.target.value),
-                          )
-                        }
-                        helperText="Máximo 4 horas. Si excede este límite, subdivide la tarea."
-                      />
-                    </>
-                  )}
-                </Stack>
+                      </>
+                    )}
+                  </Stack>
+                </Grid>
               </Grid>
-            </Grid>
-          </Stack>
+            </Stack>
+          )}
         </DialogContent>
 
         {!isReadOnly && (
@@ -494,7 +633,7 @@ const TaskFormDialog = ({
                     variant="outlined"
                     startIcon={<RestoreRounded />}
                     onClick={handleRestore}
-                    disabled={!hasUnsavedChanges || loading}
+                    disabled={!hasUnsavedChanges || loading || submitting}
                   >
                     Restaurar
                   </Button>
@@ -507,11 +646,20 @@ const TaskFormDialog = ({
                 <Button
                   variant="contained"
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || submitting}
+                  startIcon={
+                    submitting ? (
+                      <CircularProgress size={16} color="inherit" />
+                    ) : undefined
+                  }
                 >
-                  {internalMode === "create"
-                    ? "Guardar tarea"
-                    : "Guardar cambios"}
+                  {submitting
+                    ? internalMode === "create"
+                      ? "Subiendo tarea…"
+                      : "Actualizando tarea…"
+                    : internalMode === "create"
+                      ? "Guardar tarea"
+                      : "Guardar cambios"}
                 </Button>
               </Stack>
             </Stack>

@@ -32,7 +32,7 @@ const TaskFiltersBar = ({ filters, onChange }: TaskFiltersBarProps) => {
           <MenuItem value="">Todos</MenuItem>
           <MenuItem value="TODO">To Do</MenuItem>
           <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-          <MenuItem value="IN_REVIEW">In Review</MenuItem>
+          <MenuItem value="REVIEW">In Review</MenuItem>
           <MenuItem value="DONE">Done</MenuItem>
         </TextField>
       </Grid>

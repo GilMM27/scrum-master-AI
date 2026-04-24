@@ -1,19 +1,7 @@
 import type { TaskItem } from "../types/tasks.types";
 import TaskStatusChip from "./TaskStatusChip";
 import TaskPriorityChip from "./TaskPriorityChip";
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-  IconButton,
-  Stack,
-  Avatar,
-} from "@mui/material";
+import { Paper, Table, TableBody, TableCell, TableHead, TableRow, Tooltip, Typography, IconButton, Stack, Avatar } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import { VisibilityRounded } from "@mui/icons-material";
 import TaskBlockedChip from "./TaskBlockedChip";
@@ -117,15 +105,11 @@ const TasksTable = ({
                 )}
                 {showSprint && (
                   <TableCell>
-                    {task.sprintNumber
-                      ? `Sprint ${task.sprintNumber}`
-                      : "Backlog"}
+                    {task.sprintName ?? "Backlog"}
                   </TableCell>
                 )}
                 <TableCell>
-                  {task.estimatedHours !== null
-                    ? `${task.estimatedHours}h`
-                    : "-"}
+                  {task.storyPoints > 0 ? `${task.storyPoints}h` : "-"}
                 </TableCell>
                 <TableCell>
                   {task.actualHours !== null ? `${task.actualHours}h` : "-"}
