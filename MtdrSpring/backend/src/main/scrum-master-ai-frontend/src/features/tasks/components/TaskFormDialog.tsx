@@ -305,7 +305,7 @@ const TaskFormDialog = ({
                         fullWidth
                         label="Descripción"
                         multiline
-                        minRows={14}
+                        minRows={13.4}
                         value={form.description}
                         onChange={(e) =>
                           handleFieldChange("description", e.target.value)
@@ -316,7 +316,7 @@ const TaskFormDialog = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, lg: 5 }}>
-                  <Stack spacing={2}>
+                  <Stack spacing={1.25}>
                     <Typography variant="subtitle2">
                       Detalles de la tarea
                     </Typography>

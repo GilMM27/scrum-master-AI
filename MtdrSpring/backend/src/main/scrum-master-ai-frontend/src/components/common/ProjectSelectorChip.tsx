@@ -75,19 +75,19 @@ const ProjectSelectorChip = ({ userRole }: ProjectSelectorChipProps) => {
         onDelete={handleChipClick}
         sx={{
           display: { xs: "none", sm: "inline-flex" },
-          bgcolor: alpha("#964ad9", 0.1),
-          color: "#964ad9",
+          bgcolor: alpha("#d94ab3", 0.1),
+          color: "#d94ab3",
           border: "1px solid",
-          borderColor: alpha("#964ad9", 0.18),
+          borderColor: alpha("#d94ab3", 0.22),
           cursor: "pointer",
           p: 1,
-          "& .MuiChip-icon": { color: "#964ad9" },
+          "& .MuiChip-icon": { color: "#d94ab3" },
           "& .MuiChip-deleteIcon": {
-            color: "#964ad9",
-            "&:hover": { color: "#964ad9" },
+            color: "#d94ab3",
+            "&:hover": { color: "#d94ab3" },
           },
           "&:hover": {
-            bgcolor: alpha("#964ad9", 0.18),
+            bgcolor: alpha("#d94ab3", 0.18),
           },
         }}
       />
@@ -109,6 +109,7 @@ const ProjectSelectorChip = ({ userRole }: ProjectSelectorChipProps) => {
               maxWidth: 300,
               marginTop: 2,
               boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              maxHeight: 300
             },
           },
         }}
@@ -136,8 +137,8 @@ const ProjectSelectorChip = ({ userRole }: ProjectSelectorChipProps) => {
                   borderRadius: 1,
                   mx: 0.5,
                   "&.Mui-selected": {
-                    bgcolor: alpha("#964ad9", 0.18),
-                    "&:hover": { bgcolor: alpha("#964ad9", 0.22) },
+                    bgcolor: alpha("#d94ab3", 0.18),
+                    "&:hover": { bgcolor: alpha("#d94ab3", 0.22) },
                   },
                 }}
               >
@@ -167,6 +168,25 @@ const ProjectSelectorChip = ({ userRole }: ProjectSelectorChipProps) => {
                 size="small"
                 startIcon={<AddRounded />}
                 onClick={handleOpenCreate}
+                sx={{
+                  display: { xs: "none", sm: "inline-flex" },
+                  bgcolor: alpha("#d94ab3", 0.1),
+                  color: "#d94ab3",
+                  border: "1px solid",
+                  borderColor: alpha("#d94ab3", 0.22),
+                  cursor: "pointer",
+                  p: 1,
+                  "& .MuiChip-icon": { color: "#d94ab3" },
+                  "& .MuiChip-deleteIcon": {
+                    color: "#d94ab3",
+                    "&:hover": { color: "#d94ab3" },
+                  },
+                  "&:hover": {
+                    bgcolor: alpha("#d94ab3", 0.18),
+                    borderColor: "#d94ab3",
+                    borderWidth: 1.5,
+                  },
+                }}
               >
                 Nuevo Proyecto
               </Button>

@@ -10,10 +10,10 @@ export const AppTheme = createTheme({
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#1f73d4",
-      light: "#4272aa",
-      dark: "#02234a",
-      contrastText: "#0e75eb",
+      main: "#1eb1ce",
+      light: "#49bbd2",
+      dark: "#136879",
+      contrastText: "#21cfdb",
     },
     info: {
       main: "#77ffc0",
