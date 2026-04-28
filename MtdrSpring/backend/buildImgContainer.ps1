@@ -29,7 +29,8 @@ docker build -f DockerfileDev --platform linux/amd64 -t agileimage:0.1 `
 	--build-arg "db_user=$($envVars['db_user'])" `
 	--build-arg "dbpassword=$($envVars['dbpassword'])" `
 	--build-arg "db_url=$($envVars['db_url'])" `
-	--build-arg "TELEGRAM_BOT_TOKEN=$($envVars('TELEGRAM_BOT_TOKEN'))"	`
-	--build-arg "TELEGRAM_BOT_NAME=$($envVars('TELEGRAM_BOT_NAME'))"	`
+	--build-arg "telegram_bot_token=$($envVars['TELEGRAM_BOT_TOKEN'])"	`
+	--build-arg "telegram_bot_name=$($envVars['TELEGRAM_BOT_NAME'])"	`
+	--build-arg "gemini_api_key=$($envVars['GEMINI_API_KEY'])" `
 	.
 docker run --name agilecontainer --volume "${PWD}/target:/tmp/target:rw" -p 8080:8080 -d agileimage:0.1
