@@ -35,6 +35,8 @@ public class Tasks {
     TaskPriority priority;
     @Column(name = "STORY_POINTS")
     int storyPoints;
+    @Column(name = "EXPECTED_HOURS")
+    int expectedHours;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID")
     UUID sprintId;
@@ -52,7 +54,7 @@ public class Tasks {
     public Tasks() {
     }
 
-    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, int storyPoints, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
+    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, int storyPoints, int expectedHours, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.title = title;
@@ -60,6 +62,7 @@ public class Tasks {
         this.status = status;
         this.priority = priority;
         this.storyPoints = storyPoints;
+        this.expectedHours = expectedHours;
         this.sprintId = sprintId;
         this.blockedAt = blockedAt;
         this.isAiFlagged = isAiFlagged;
@@ -124,6 +127,14 @@ public class Tasks {
         this.storyPoints = storyPoints;
     }
 
+    public int getExpectedHours() {
+        return expectedHours;
+    }
+
+    public void setExpectedHours(int expectedHours) {
+        this.expectedHours = expectedHours;
+    }
+
     public UUID getSprintId() {
         return sprintId;
     }
@@ -182,6 +193,7 @@ public class Tasks {
                 ", status='" + status + '\'' +
                 ", priority='" + priority + '\'' +
                 ", storyPoints=" + storyPoints +
+                ", expectedHours=" + expectedHours +
                 ", sprintId=" + sprintId +
                 ", blockedAt=" + blockedAt +
                 ", isAiFlagged=" + isAiFlagged +
