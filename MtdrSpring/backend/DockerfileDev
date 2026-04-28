@@ -14,6 +14,7 @@ ARG dbpassword
 ARG db_url
 ARG telegram_bot_token
 ARG telegram_bot_name
+ARG gemini_api_key
 
 ENV ui_username=${ui_username}
 ENV ui_password=${ui_password}
@@ -22,6 +23,7 @@ ENV dbpassword=${dbpassword}
 ENV db_url=${db_url}
 ENV TELEGRAM_BOT_TOKEN=${telegram_bot_token}
 ENV TELEGRAM_BOT_NAME=${telegram_bot_name}
+ENV GEMINI_API_KEY=${gemini_api_key}
 ENV driver_class_name="oracle.jdbc.OracleDriver"
 
 ENTRYPOINT ["java","-jar","MyTodoList.jar"]

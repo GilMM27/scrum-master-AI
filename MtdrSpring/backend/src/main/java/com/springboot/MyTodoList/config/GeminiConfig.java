@@ -1,5 +1,6 @@
 package com.springboot.MyTodoList.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,5 +24,10 @@ public class GeminiConfig {
     @Bean
     public String geminiApiUrl() {
         return apiUrl + "?key=" + apiKey;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

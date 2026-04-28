@@ -97,6 +97,10 @@ public class ScrumMasterBotController implements SpringLongPollingBot, LongPolli
         }
 
         if(action == null){
+            action = actionRegistry.getActionByState(BotState.GEMINI);
+        }
+
+        if(action == null){
             BotHelper.sendMessageToTelegram(chatId, BotMessages.COMMAND_NOT_FOUND.getMessage(), telegramClient);
             return;
         }
