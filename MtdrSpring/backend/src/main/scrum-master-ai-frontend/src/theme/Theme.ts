@@ -160,18 +160,6 @@ export const AppTheme = createTheme({
             boxShadow: `0 8px 24px ${alpha("#0300a6", 0.35)}`,
           },
         },
-        {
-          props: { variant: "outlined" },
-          style: ({ theme }) => ({
-            borderColor: theme.palette.info.main,
-            color: theme.palette.info.main,
-            backgroundColor: alpha(theme.palette.info.main, 0.08),
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.info.main, 0.16),
-              borderColor: theme.palette.info.main,
-            },
-          }),
-        },
       ],
     },
     MuiLink: {

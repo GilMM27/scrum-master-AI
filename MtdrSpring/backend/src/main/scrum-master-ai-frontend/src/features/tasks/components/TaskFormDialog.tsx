@@ -631,6 +631,7 @@ const TaskFormDialog = ({
                 {internalMode === "edit" && (
                   <Button
                     variant="outlined"
+                    color="info"
                     startIcon={<RestoreRounded />}
                     onClick={handleRestore}
                     disabled={!hasUnsavedChanges || loading || submitting}
@@ -685,6 +686,7 @@ const TaskFormDialog = ({
         <DialogActions>
           <Button
             variant="outlined"
+            color="info"
             onClick={() => setConfirmDiscardOpen(false)}
           >
             Continuar editando

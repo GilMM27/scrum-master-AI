@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { AddRounded } from "@mui/icons-material";
 import { createProject } from "../../features/projects/services/project.service";
 import useProject from "../../hooks/useProject";
@@ -84,29 +83,16 @@ const CreateProjectDialog = ({ open, onClose }: CreateProjectDialogProps) => {
         <Button
           onClick={handleClose}
           disabled={loading}
-          color="inherit"
+          color="error"
           variant="outlined"
           size="small"
-          sx={{
-            borderRadius: 1.5,
-            borderColor: "error.main",
-            color: "error.main",
-            bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-            "&:hover": {
-              bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
-              borderColor: "error.main",
-            },
-            "& .MuiButton-startIcon": {
-              color: "error.main",
-            },
-          }}
         >
           Cancelar
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          variant="outlined"
+          variant="contained"
           size="small"
           endIcon={<AddRounded />}
         >
