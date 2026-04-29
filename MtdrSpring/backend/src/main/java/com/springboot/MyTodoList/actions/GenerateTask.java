@@ -203,7 +203,7 @@ public class GenerateTask extends BotActionBase {
         task.setPriority(priority);
         userFlowStates.put(chatId, TaskFlowState.ENTERING_STORY_POINTS);
 
-        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many STORY POINTS will it have? (Enter a number between 1 and 4):", client);
+        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many STORY POINTS will it have? (Enter a number between 1 and 13):", client);
         return BotState.GENERATE_TASK;
     }
 
@@ -216,8 +216,8 @@ public class GenerateTask extends BotActionBase {
             return BotState.GENERATE_TASK;
         }
 
-        if (storyPoints <= 0 || storyPoints > 4) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Story points should be between 1 and 4. Please try again:", client);
+        if (storyPoints <= 0 || storyPoints > 13) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Story points should be between 1 and 13. Please try again:", client);
             return BotState.GENERATE_TASK;
         }
 

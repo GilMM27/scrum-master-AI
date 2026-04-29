@@ -34,9 +34,9 @@ public class Tasks {
     @Column(name = "PRIORITY", nullable = false)
     TaskPriority priority;
     @Column(name = "STORY_POINTS")
-    int storyPoints;
+    Integer storyPoints;
     @Column(name = "EXPECTED_HOURS")
-    int expectedHours;
+    Integer expectedHours;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID")
     UUID sprintId;
@@ -54,7 +54,7 @@ public class Tasks {
     public Tasks() {
     }
 
-    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, int storyPoints, int expectedHours, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
+    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, Integer storyPoints, Integer expectedHours, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.title = title;
@@ -119,19 +119,19 @@ public class Tasks {
         this.priority = priority;
     }
 
-    public int getStoryPoints() {
+    public Integer getStoryPoints() {
         return storyPoints;
     }
 
-    public void setStoryPoints(int storyPoints) {
+    public void setStoryPoints(Integer storyPoints) {
         this.storyPoints = storyPoints;
     }
 
-    public int getExpectedHours() {
+    public Integer getExpectedHours() {
         return expectedHours;
     }
 
-    public void setExpectedHours(int expectedHours) {
+    public void setExpectedHours(Integer expectedHours) {
         this.expectedHours = expectedHours;
     }
 
