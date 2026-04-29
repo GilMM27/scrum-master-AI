@@ -282,7 +282,7 @@ public class TasksService {
             return ResponseEntity.badRequest().body(Map.of("error", "Title must be at most 255 characters"));
         }
 
-        if (storyPoints != null && (storyPoints < 0 || storyPoints > 4)) {
+        if (storyPoints != null && (storyPoints < 0 || storyPoints > 13)) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error", "Story points must be between 0 and 4. Consider splitting the task into subtasks."
             ));
