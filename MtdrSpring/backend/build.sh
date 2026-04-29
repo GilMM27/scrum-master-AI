@@ -36,6 +36,7 @@ if [ "$DEV_MODE" = true ]; then
         --build-arg telegram_bot_token="$TELEGRAM_BOT_TOKEN" \
         --build-arg telegram_bot_name="$TELEGRAM_BOT_NAME" \
         --build-arg gemini_api_key="$GEMINI_API_KEY" \
+        --build-arg jwt_secret="$JWT_SECRET" \
         .
     
     echo "=== Starting container ==="
