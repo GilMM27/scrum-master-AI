@@ -115,7 +115,7 @@ const TasksTable = ({
                   {task.expectedHours > 0 ? `${task.expectedHours}h` : "-"}
                 </TableCell>
                 <TableCell>
-                  {task.actualHours !== null ? `${task.actualHours}h` : "-"}
+                  {task.actualHours !== null ? `${Math.round(task.actualHours)}h` : "-"}
                 </TableCell>
                 <TableCell>
                   <TaskBlockedChip blocked={task.blocked} />
