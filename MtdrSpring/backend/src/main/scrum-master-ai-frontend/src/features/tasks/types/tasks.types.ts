@@ -28,18 +28,19 @@ export interface TaskItem {
   sprintId: string | null;
   sprintName: string | null;
   storyPoints: number;
+  expectedHours: number;
   actualHours: number | null;
   blocked: boolean;
   inReview: boolean;
+  createdAt: string | null;
+  startedAt: string | null;
+  deliveredAt: string | null;
 }
 
 export interface TaskDetailItem extends TaskItem {
   projectName?: string | null;
   aiFlagged?: boolean;
   blockedAt?: string | null;
-  createdAt?: string | null;
-  startedAt?: string | null;
-  deliveredAt?: string | null;
 }
 
 export interface TaskFiltersState {
@@ -54,7 +55,7 @@ export interface TaskStats {
   totalProjectTasks: number;
   totalCurrentSprintTasks: number;
   totalCompletedTasks: number;
-  totalInReviewTasks: number;
+  totalReviewTasks: number;
   totalBlockedTasks: number;
 }
 
@@ -67,8 +68,17 @@ export interface CreateTaskPayload {
   assigneeIds?: string[] | null;
   sprintId?: string | null;
   storyPoints?: number | null;
+  expectedHours?: number | null;
 }
 
 export interface UpdateTaskPayload extends CreateTaskPayload {}
+
+export interface SprintTasksByStatus {
+  todo: TaskItem[];
+  inProgress: TaskItem[];
+  review: TaskItem[];
+  blocked: TaskItem[];
+  done: TaskItem[];
+}
 
 export type TaskDialogMode = 'create' | 'view' | 'edit';
