@@ -6,5 +6,6 @@ public enum BotState {
     START,
     TASKS,
     GENERATE_TASK,
-    ASSIGN_TASK
+    ASSIGN_TASK,
+    GEMINI
 }

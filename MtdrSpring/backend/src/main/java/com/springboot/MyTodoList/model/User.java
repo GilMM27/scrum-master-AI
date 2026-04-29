@@ -19,7 +19,7 @@ import jakarta.persistence.*;
    );
  */
 @Entity
-@Table(name = "USERS")
+@Table(name = "USERS_DEPRECATED")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

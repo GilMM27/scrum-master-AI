@@ -35,6 +35,7 @@ if [ "$DEV_MODE" = true ]; then
         --build-arg db_url="$db_url" \
         --build-arg telegram_bot_token="$TELEGRAM_BOT_TOKEN" \
         --build-arg telegram_bot_name="$TELEGRAM_BOT_NAME" \
+        --build-arg gemini_api_key="$GEMINI_API_KEY" \
         .
     
     echo "=== Starting container ==="
