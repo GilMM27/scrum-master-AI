@@ -10,7 +10,7 @@ import { PersonAddAlt1Rounded } from "@mui/icons-material";
 import CreateUserDialog from "../../features/users/components/CreateUserDialog";
 import useNotification from "../../hooks/useNotification";
 
-const AdminUsers = () => {
+const AdminUsersContent = () => {
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyUserId, setBusyUserId] = useState<string | null>(null);
@@ -182,7 +182,7 @@ const AdminUsers = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <Stack spacing={3}>
         <Box>
           <Typography variant="h4" gutterBottom>
@@ -247,8 +247,14 @@ const AdminUsers = () => {
           setSelectedUserDetail(null);
         }}
       />
-    </DashboardLayout>
+    </>
   );
 };
+
+const AdminUsers = () => (
+  <DashboardLayout>
+    <AdminUsersContent />
+  </DashboardLayout>
+);
 
 export default AdminUsers;
