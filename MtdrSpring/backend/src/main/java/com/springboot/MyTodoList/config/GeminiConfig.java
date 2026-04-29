@@ -25,9 +25,4 @@ public class GeminiConfig {
     public String geminiApiUrl() {
         return apiUrl + "?key=" + apiKey;
     }
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
 }
