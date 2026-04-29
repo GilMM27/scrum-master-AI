@@ -55,7 +55,7 @@ public class TasksService {
         TaskStatus.TO_DO, Set.of(TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED),
         TaskStatus.IN_PROGRESS, Set.of(TaskStatus.REVIEW, TaskStatus.BLOCKED, TaskStatus.TO_DO),
         TaskStatus.REVIEW, Set.of(TaskStatus.DONE, TaskStatus.IN_PROGRESS),
-        TaskStatus.BLOCKED, Set.of(TaskStatus.TO_DO),
+        TaskStatus.BLOCKED, Set.of(TaskStatus.TO_DO, TaskStatus.IN_PROGRESS),
         TaskStatus.DONE, Set.of()
     );
 

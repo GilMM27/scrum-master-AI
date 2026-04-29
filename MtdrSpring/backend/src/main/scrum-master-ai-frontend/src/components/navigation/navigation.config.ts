@@ -18,7 +18,7 @@ export const NAVIGATION_BY_ROLE: Record<UserRole, NavigationItem[]> = {
     MANAGER: [
         { label: 'Inicio', path: '/manager/home', icon: SpaceDashboardRoundedIcon },
         { label: 'Backlog', path: '/manager/backlog', icon: TableChartRounded },
-        { label: 'Sprint Actual', path: '/manager/sprint', icon: ViewKanbanRounded },
+        { label: 'Sprints', path: '/manager/sprint', icon: ViewKanbanRounded },
         //{ label: 'KPIs y Dashboard', path: '/manager/kpis', icon: AreaChartRounded },
         //{ label: 'Reportes', path: '/manager/reports', icon: AssignmentIndRounded },
         //{ label: 'AI Scrum Master', path: '/manager/ai', icon: SmartToyRounded }

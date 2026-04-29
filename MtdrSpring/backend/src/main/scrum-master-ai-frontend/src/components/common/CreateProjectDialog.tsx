@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from "@mui/material";
-import { alpha } from "@mui/material/styles";
 import { AddRounded } from "@mui/icons-material";
 import { createProject } from "../../features/projects/services/project.service";
 import useProject from "../../hooks/useProject";
+import useNotification from "../../hooks/useNotification";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -12,25 +12,26 @@ interface CreateProjectDialogProps {
 
 const CreateProjectDialog = ({ open, onClose }: CreateProjectDialogProps) => {
   const { refreshProjects, setSelectedProjectId } = useProject();
+  const { showSuccess, showError } = useNotification();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [inlineError, setInlineError] = useState<string | null>(null);
 
   const handleClose = () => {
     setName("");
     setDescription("");
-    setError(null);
+    setInlineError(null);
     onClose();
   };
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setError("El nombre del proyecto es requerido.");
+      setInlineError("El nombre del proyecto es requerido.");
       return;
     }
     setLoading(true);
-    setError(null);
+    setInlineError(null);
     try {
       const created = await createProject({
         name: name.trim(),
@@ -39,21 +40,17 @@ const CreateProjectDialog = ({ open, onClose }: CreateProjectDialogProps) => {
       await refreshProjects();
       setSelectedProjectId(created.projectId);
       handleClose();
+      showSuccess("Proyecto creado exitosamente.");
     } catch {
-      setError("No se pudo crear el proyecto. Inténtalo de nuevo.");
+      showError("No se pudo crear el proyecto. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      maxWidth="xs"
-      fullWidth
-    >
-      <DialogTitle sx={{ p:2, bgcolor: "primary.dark" }}>
+    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ p: 2, bgcolor: "primary.dark" }}>
         Nuevo Proyecto
       </DialogTitle>
 
@@ -77,7 +74,7 @@ const CreateProjectDialog = ({ open, onClose }: CreateProjectDialogProps) => {
             rows={3}
           />
 
-          {error && <Alert severity="error">{error}</Alert>}
+          {inlineError && <Alert severity="error">{inlineError}</Alert>}
 
         </Stack>
       </DialogContent>
@@ -86,29 +83,16 @@ const CreateProjectDialog = ({ open, onClose }: CreateProjectDialogProps) => {
         <Button
           onClick={handleClose}
           disabled={loading}
-          color="inherit"
+          color="error"
           variant="outlined"
           size="small"
-          sx={{
-            borderRadius: 1.5,
-            borderColor: "error.main",
-            color: "error.main",
-            bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-            "&:hover": {
-              bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
-              borderColor: "error.main",
-            },
-            "& .MuiButton-startIcon": {
-              color: "error.main",
-            },
-          }}
         >
           Cancelar
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          variant="outlined"
+          variant="contained"
           size="small"
           endIcon={<AddRounded />}
         >

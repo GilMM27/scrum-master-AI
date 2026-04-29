@@ -10,10 +10,10 @@ export const AppTheme = createTheme({
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#1f73d4",
-      light: "#4272aa",
-      dark: "#02234a",
-      contrastText: "#0e75eb",
+      main: "#1eb1ce",
+      light: "#49bbd2",
+      dark: "#136879",
+      contrastText: "#21cfdb",
     },
     info: {
       main: "#77ffc0",
@@ -159,18 +159,6 @@ export const AppTheme = createTheme({
             color: "#F5F7FF",
             boxShadow: `0 8px 24px ${alpha("#0300a6", 0.35)}`,
           },
-        },
-        {
-          props: { variant: "outlined" },
-          style: ({ theme }) => ({
-            borderColor: theme.palette.info.main,
-            color: theme.palette.info.main,
-            backgroundColor: alpha(theme.palette.info.main, 0.08),
-            "&:hover": {
-              backgroundColor: alpha(theme.palette.info.main, 0.16),
-              borderColor: theme.palette.info.main,
-            },
-          }),
         },
       ],
     },

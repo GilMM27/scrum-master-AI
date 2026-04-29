@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, CircularProgress, Snackbar, Stack, Typography } from "@mui/material";
+import { CircularProgress, Stack, Typography } from "@mui/material";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import TaskBacklogHeader from "../../features/tasks/components/TaskBacklogHeader";
 import TaskFiltersBar from "../../features/tasks/components/TaskFiltersBar";
@@ -12,6 +12,7 @@ import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDetailItem, Tas
 import TaskFormDialog from "../../features/tasks/components/TaskFormDialog";
 import { getProjectTasks, getTaskDetails, getProjectDevelopers, getAvailableSprints, createTask, updateTask, deleteTask } from "../../features/tasks/services/tasks.service";
 import useProject from "../../hooks/useProject";
+import useNotification from "../../hooks/useNotification";
 
 const initialFilters: TaskFiltersState = {
   search: "",
@@ -42,8 +43,7 @@ const ManagerBacklogContent = () => {
     null,
   );
 
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
+  const { showSuccess, showError } = useNotification();
 
   const fetchTasks = useCallback(async () => {
     if (!selectedProjectId) return;
@@ -52,7 +52,7 @@ const ManagerBacklogContent = () => {
       const data = await getProjectTasks(selectedProjectId);
       setTasks(data);
     } catch {
-      setErrorMsg("No fue posible cargar las tareas del proyecto.");
+      showError("No fue posible cargar las tareas del proyecto.");
     } finally {
       setTasksLoading(false);
     }
@@ -92,7 +92,10 @@ const ManagerBacklogContent = () => {
     [sprints],
   );
 
-  const stats = useMemo(() => getTaskStats(tasks, activeSprintId), [tasks, activeSprintId]);
+  const stats = useMemo(
+    () => getTaskStats(tasks, activeSprintId),
+    [tasks, activeSprintId],
+  );
 
   const openCreateDialog = () => {
     setDialogMode("create");
@@ -109,7 +112,7 @@ const ManagerBacklogContent = () => {
       const detail = await getTaskDetails(task.taskId);
       setSelectedTask(detail);
     } catch {
-      setErrorMsg("No fue posible cargar los detalles de la tarea.");
+      showError("No fue posible cargar los detalles de la tarea.");
       setDialogOpen(false);
     } finally {
       setDetailLoading(false);
@@ -120,11 +123,11 @@ const ManagerBacklogContent = () => {
     if (!selectedProjectId) return;
     try {
       await createTask({ ...payload, projectId: selectedProjectId });
-      setSuccessMsg("Tarea creada exitosamente.");
+      showSuccess("Tarea creada exitosamente.");
       setDialogOpen(false);
       await fetchTasks();
     } catch {
-      setErrorMsg("No fue posible crear la tarea.");
+      showError("No fue posible crear la tarea.");
     }
   };
 
@@ -135,11 +138,11 @@ const ManagerBacklogContent = () => {
     try {
       await updateTask(taskId, payload);
       setSelectedTask(null);
-      setSuccessMsg("Tarea actualizada exitosamente.");
+      showSuccess("Tarea actualizada exitosamente.");
       setDialogOpen(false);
       await fetchTasks();
     } catch {
-      setErrorMsg("No fue posible actualizar la tarea.");
+      showError("No fue posible actualizar la tarea.");
     }
   };
 
@@ -157,11 +160,11 @@ const ManagerBacklogContent = () => {
       );
       setSelectedTask(null);
       setTaskPendingDelete(null);
-      setSuccessMsg("La tarea se eliminó correctamente.");
+      showSuccess("La tarea se eliminó correctamente.");
       setDeleteOpen(false);
       setDialogOpen(false);
     } catch {
-      setErrorMsg("No fue posible eliminar la tarea.");
+      showError("No fue posible eliminar la tarea.");
     }
   };
 
@@ -214,26 +217,6 @@ const ManagerBacklogContent = () => {
         }}
         onConfirm={handleDeleteTask}
       />
-
-      <Snackbar
-        open={Boolean(successMsg)}
-        autoHideDuration={3500}
-        onClose={() => setSuccessMsg("")}
-      >
-        <Alert onClose={() => setSuccessMsg("")} severity="success">
-          {successMsg}
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={Boolean(errorMsg)}
-        autoHideDuration={4000}
-        onClose={() => setErrorMsg("")}
-      >
-        <Alert onClose={() => setErrorMsg("")} severity="error">
-          {errorMsg}
-        </Alert>
-      </Snackbar>
     </>
   );
 };
