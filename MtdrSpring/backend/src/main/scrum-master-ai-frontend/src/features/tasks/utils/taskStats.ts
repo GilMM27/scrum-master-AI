@@ -7,7 +7,7 @@ export const getTaskStats = (tasks: TaskItem[], activeSprintId?: string | null):
             ? tasks.filter(task => task.sprintId === activeSprintId).length
             : 0,
         totalCompletedTasks: tasks.filter(task => task.status === "DONE").length,
-        totalInReviewTasks: tasks.filter(task => task.inReview).length,
+        totalReviewTasks: tasks.filter(task => task.inReview).length,
         totalBlockedTasks: tasks.filter(task => task.blocked).length,
     }
 }

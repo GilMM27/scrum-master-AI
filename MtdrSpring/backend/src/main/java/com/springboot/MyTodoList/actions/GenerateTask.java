@@ -26,7 +26,8 @@ public class GenerateTask extends BotActionBase {
         ENTERING_TITLE,
         ENTERING_DESCRIPTION,
         SELECTING_PRIORITY,
-        ENTERING_HOURS
+        ENTERING_STORY_POINTS,
+        ENTERING_EXPECTED_HOURS
     }
 
     @Override
@@ -73,8 +74,10 @@ public class GenerateTask extends BotActionBase {
                 return handleTitle(chatId, messageText, client);
             case ENTERING_DESCRIPTION:
                 return handleDescription(chatId, messageText, client);
-            case ENTERING_HOURS:
-                return handleHours(chatId, messageText, client);
+            case ENTERING_STORY_POINTS:
+                return handleStoryPoints(chatId, messageText, client);
+            case ENTERING_EXPECTED_HOURS:
+                return handleExpectedHours(chatId, messageText, client);
             default:
                 cleanup(chatId);
                 return BotState.IDLE;
@@ -198,44 +201,80 @@ public class GenerateTask extends BotActionBase {
         if (task == null) return BotState.IDLE;
 
         task.setPriority(priority);
-        userFlowStates.put(chatId, TaskFlowState.ENTERING_HOURS);
+        userFlowStates.put(chatId, TaskFlowState.ENTERING_STORY_POINTS);
 
-        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many HOURS will it take? (Enter a number between 1 and 4):", client);
+        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many STORY POINTS will it have? (Enter a number between 1 and 13):", client);
         return BotState.GENERATE_TASK;
     }
 
-    private BotState handleHours(long chatId, String hoursText, TelegramClient client) {
-        int hours;
+    private BotState handleStoryPoints(long chatId, String spText, TelegramClient client) {
+        int storyPoints;
         try {
-            hours = Integer.parseInt(hoursText.trim());
+            storyPoints = Integer.parseInt(spText.trim());
         } catch (NumberFormatException e) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Please enter a valid number for hours (e.g., 2):", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Please enter a valid number for story points (e.g., 2):", client);
             return BotState.GENERATE_TASK;
         }
 
-        if (hours <= 0 || hours > 4) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Tasks should be between 1 and 4 hours. Please try again:", client);
+        if (storyPoints <= 0 || storyPoints > 13) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Story points should be between 1 and 13. Please try again:", client);
             return BotState.GENERATE_TASK;
         }
 
         Tasks task = pendingTasks.get(chatId);
         if (task == null) return BotState.IDLE;
 
-        task.setStoryPoints(hours);
+        task.setStoryPoints(storyPoints);
+        userFlowStates.put(chatId, TaskFlowState.ENTERING_EXPECTED_HOURS);
+        BotHelper.sendMessageToTelegram(chatId, "✅ Story points set. Now, how many EXPECTED HOURS will it take? (Enter a number between 1 and 4):", client);
+        return BotState.GENERATE_TASK;
+    }
+
+    private BotState handleExpectedHours(long chatId, String hoursText, TelegramClient client) {
+        int hours;
+        try {
+            hours = Integer.parseInt(hoursText.trim());
+        } catch (NumberFormatException e) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Please enter a valid number for expected hours (e.g., 2):", client);
+            return BotState.GENERATE_TASK;
+        }
+
+        if (hours <= 0 || hours > 4) {
+            BotHelper.sendMessageToTelegram(chatId, "❌ Expected hours should be between 1 and 4. Please try again:", client);
+            return BotState.GENERATE_TASK;
+        }
+
+        Tasks task = pendingTasks.get(chatId);
+        if (task == null) return BotState.IDLE;
+
+        task.setExpectedHours(hours);
         task.setStatus(TaskStatus.TO_DO);
 
         BotHelper.sendMessageToTelegram(chatId, "⏳ Saving task...", client);
-        tasksRepository.save(task);
+        tasksService.createTask(mapToCreateRequest(task));
 
         String successMessage = "✅ Task Created Successfully!\n\n"
                 + "Project ID: " + task.getProjectId() + "\n"
                 + "Title: " + task.getTitle() + "\n"
                 + "Priority: " + task.getPriority() + "\n"
-                + "Expected Time: " + task.getStoryPoints() + " hr";
+                + "Story Points: " + task.getStoryPoints() + "\n"
+                + "Expected Time: " + task.getExpectedHours() + " hr";
 
         BotHelper.sendMessageToTelegram(chatId, successMessage, client);
         cleanup(chatId);
         return BotState.IDLE;
+    }
+
+    private com.springboot.MyTodoList.dto.CreateTaskRequest mapToCreateRequest(Tasks task) {
+        com.springboot.MyTodoList.dto.CreateTaskRequest request = new com.springboot.MyTodoList.dto.CreateTaskRequest();
+        request.setProjectId(task.getProjectId());
+        request.setTitle(task.getTitle());
+        request.setDescription(task.getDescription());
+        request.setStatus(task.getStatus());
+        request.setPriority(task.getPriority());
+        request.setStoryPoints(task.getStoryPoints());
+        request.setExpectedHours(task.getExpectedHours());
+        return request;
     }
 
     @Override

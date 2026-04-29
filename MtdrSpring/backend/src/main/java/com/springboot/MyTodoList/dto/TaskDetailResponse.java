@@ -16,6 +16,7 @@ public class TaskDetailResponse {
     private TaskStatus status;
     private TaskPriority priority;
     private Integer storyPoints;
+    private Integer expectedHours;
     private UUID sprintId;
     private String sprintName;
     private List<TaskAssigneeResponse> assignees;
@@ -40,6 +41,7 @@ public class TaskDetailResponse {
             TaskStatus status,
             TaskPriority priority,
             Integer storyPoints,
+            Integer expectedHours,
             UUID sprintId,
             String sprintName,
             List<TaskAssigneeResponse> assignees,
@@ -60,6 +62,7 @@ public class TaskDetailResponse {
         this.status = status;
         this.priority = priority;
         this.storyPoints = storyPoints;
+        this.expectedHours = expectedHours;
         this.sprintId = sprintId;
         this.sprintName = sprintName;
         this.assignees = assignees;
@@ -135,6 +138,14 @@ public class TaskDetailResponse {
 
     public void setStoryPoints(Integer storyPoints) {
         this.storyPoints = storyPoints;
+    }
+
+    public Integer getExpectedHours() {
+        return expectedHours;
+    }
+
+    public void setExpectedHours(Integer expectedHours) {
+        this.expectedHours = expectedHours;
     }
 
     public UUID getSprintId() {

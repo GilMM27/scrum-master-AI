@@ -13,6 +13,7 @@ public class UpdateTaskRequest {
     private TaskPriority priority;
     private UUID sprintId;
     private Integer storyPoints;
+    private Integer expectedHours;
     private List<UUID> assigneeIds;
 
     public UpdateTaskRequest() {
@@ -64,6 +65,14 @@ public class UpdateTaskRequest {
 
     public void setStoryPoints(Integer storyPoints) {
         this.storyPoints = storyPoints;
+    }
+
+    public Integer getExpectedHours() {
+        return expectedHours;
+    }
+
+    public void setExpectedHours(Integer expectedHours) {
+        this.expectedHours = expectedHours;
     }
 
     public List<UUID> getAssigneeIds() {

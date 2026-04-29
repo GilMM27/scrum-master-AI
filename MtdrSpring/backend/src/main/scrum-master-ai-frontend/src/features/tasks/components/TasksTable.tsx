@@ -30,17 +30,17 @@ const TasksTable = ({
             <TableCell>Prioridad</TableCell>
             {showAssignee && <TableCell>Asignados</TableCell>}
             {showSprint && <TableCell>Sprint</TableCell>}
+            <TableCell>Puntos</TableCell>
             <TableCell>Horas estimadas</TableCell>
             <TableCell>Horas reales</TableCell>
             <TableCell>Bloqueada</TableCell>
-            {/* <TableCell>In Review</TableCell> */}
           </TableRow>
         </TableHead>
 
         <TableBody>
           {tasks.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7 + (showAssignee ? 1 : 0) + (showSprint ? 1 : 0)} align="center">
+              <TableCell colSpan={8 + (showAssignee ? 1 : 0) + (showSprint ? 1 : 0)} align="center">
                 <Typography color="text.secondary">
                   No se encontraron tareas.
                 </Typography>
@@ -109,17 +109,17 @@ const TasksTable = ({
                   </TableCell>
                 )}
                 <TableCell>
-                  {task.storyPoints > 0 ? `${task.storyPoints}h` : "-"}
+                  {task.storyPoints > 0 ? task.storyPoints : "-"}
                 </TableCell>
                 <TableCell>
-                  {task.actualHours !== null ? `${task.actualHours}h` : "-"}
+                  {task.expectedHours > 0 ? `${task.expectedHours}h` : "-"}
+                </TableCell>
+                <TableCell>
+                  {task.actualHours !== null ? `${Math.round(task.actualHours)}h` : "-"}
                 </TableCell>
                 <TableCell>
                   <TaskBlockedChip blocked={task.blocked} />
                 </TableCell>
-                {/* <TableCell>
-                  {task.inReview ? 'Sí' : 'No'}
-                </TableCell> */}
               </TableRow>
             ))
           )}

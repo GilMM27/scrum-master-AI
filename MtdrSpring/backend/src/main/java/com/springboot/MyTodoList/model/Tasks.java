@@ -34,7 +34,9 @@ public class Tasks {
     @Column(name = "PRIORITY", nullable = false)
     TaskPriority priority;
     @Column(name = "STORY_POINTS")
-    int storyPoints;
+    Integer storyPoints;
+    @Column(name = "EXPECTED_HOURS")
+    Integer expectedHours;
     @Convert(converter = UUIDConverter.class)
     @Column(name = "SPRINT_ID")
     UUID sprintId;
@@ -52,7 +54,7 @@ public class Tasks {
     public Tasks() {
     }
 
-    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, int storyPoints, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
+    public Tasks(UUID taskId, UUID projectId, String title, String description, TaskStatus status, TaskPriority priority, Integer storyPoints, Integer expectedHours, UUID sprintId, OffsetDateTime blockedAt, Boolean isAiFlagged, OffsetDateTime createdAt, OffsetDateTime deliveredAt, OffsetDateTime startedAt) {
         this.taskId = taskId;
         this.projectId = projectId;
         this.title = title;
@@ -60,6 +62,7 @@ public class Tasks {
         this.status = status;
         this.priority = priority;
         this.storyPoints = storyPoints;
+        this.expectedHours = expectedHours;
         this.sprintId = sprintId;
         this.blockedAt = blockedAt;
         this.isAiFlagged = isAiFlagged;
@@ -116,12 +119,20 @@ public class Tasks {
         this.priority = priority;
     }
 
-    public int getStoryPoints() {
+    public Integer getStoryPoints() {
         return storyPoints;
     }
 
-    public void setStoryPoints(int storyPoints) {
+    public void setStoryPoints(Integer storyPoints) {
         this.storyPoints = storyPoints;
+    }
+
+    public Integer getExpectedHours() {
+        return expectedHours;
+    }
+
+    public void setExpectedHours(Integer expectedHours) {
+        this.expectedHours = expectedHours;
     }
 
     public UUID getSprintId() {
@@ -182,6 +193,7 @@ public class Tasks {
                 ", status='" + status + '\'' +
                 ", priority='" + priority + '\'' +
                 ", storyPoints=" + storyPoints +
+                ", expectedHours=" + expectedHours +
                 ", sprintId=" + sprintId +
                 ", blockedAt=" + blockedAt +
                 ", isAiFlagged=" + isAiFlagged +

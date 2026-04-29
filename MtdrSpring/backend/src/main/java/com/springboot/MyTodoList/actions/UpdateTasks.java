@@ -295,9 +295,8 @@ public class UpdateTasks extends BotActionBase {
             return;
         }
         task.setSprintId(sprintId);
-        task.setStatus(TaskStatus.IN_PROGRESS);
-        
         tasksRepository.save(task);
+        tasksService.updateStatus(taskId, TaskStatus.IN_PROGRESS);
 
         Sprints sprint = sprintsRepository.findById(sprintId).orElse(null);
         String sprintName = sprint != null ? sprint.getName() : "Unknown";
@@ -336,8 +335,7 @@ public class UpdateTasks extends BotActionBase {
             return;
         }
 
-        task.setStatus(newStatus);
-        tasksRepository.save(task);
+        tasksService.updateStatus(taskId, newStatus);
 
         userStates.remove(chatId);
         selectedTaskId.remove(chatId);
