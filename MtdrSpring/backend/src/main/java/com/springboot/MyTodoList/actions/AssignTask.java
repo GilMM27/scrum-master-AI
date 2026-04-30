@@ -72,7 +72,7 @@ public class AssignTask extends BotActionBase {
 
         if (update.getMessage().getText().equalsIgnoreCase("/cancel")) {
             cleanup(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Assignment cancelled.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Asignación cancelada.", client);
             return BotState.IDLE;
         }
 
@@ -86,7 +86,7 @@ public class AssignTask extends BotActionBase {
 
         Users user = usersRepository.findByTelegramId(telegramId).orElse(null);
         if (user == null) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ User not found. Please log in.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Usuario no encontrado. Por favor, inicia sesión.", client);
             cleanup(chatId);
             return BotState.IDLE;
         }
@@ -95,17 +95,17 @@ public class AssignTask extends BotActionBase {
 
         userSessions.put(chatId, session);
 
-        String text = "📋 What do you want to assign?";
+        String text = "📋 ¿Qué deseas asignar?";
         List<InlineKeyboardRow> rows = new ArrayList<>();
         if(session.userRole != UserRole.DEVELOPER){
             rows.add(new InlineKeyboardRow(
-                    InlineKeyboardButton.builder().text("🏃 Assign to Sprint").callbackData("asgn_flow_sprint").build(),
-                    InlineKeyboardButton.builder().text("👤 Assign to User").callbackData("asgn_flow_user").build()
+                    InlineKeyboardButton.builder().text("🏃 Asignar a Sprint").callbackData("asgn_flow_sprint").build(),
+                    InlineKeyboardButton.builder().text("👤 Asignar a Usuario").callbackData("asgn_flow_user").build()
             ));
         }else{
             rows.add(new InlineKeyboardRow(
-                    InlineKeyboardButton.builder().text("🏃 Assign to Sprint").callbackData("asgn_flow_sprint").build(),
-                    InlineKeyboardButton.builder().text("👤 Assign to Yourself").callbackData("asgn_flow_user").build()
+                    InlineKeyboardButton.builder().text("🏃 Asignar a Sprint").callbackData("asgn_flow_sprint").build(),
+                    InlineKeyboardButton.builder().text("👤 Asignar a ti mismo").callbackData("asgn_flow_user").build()
             ));
         }
 
@@ -148,12 +148,12 @@ public class AssignTask extends BotActionBase {
                 .collect(Collectors.toList());
 
         if (projects.isEmpty()) {
-            BotHelper.editMessageText(chatId, messageId, "❌ No projects found for you.", client);
+            BotHelper.editMessageText(chatId, messageId, "❌ No se encontraron proyectos para ti.", client);
             cleanup(chatId);
             return BotState.IDLE;
         }
 
-        String text = "📁 Select a Project:";
+        String text = "📁 Selecciona un Proyecto:";
         List<InlineKeyboardRow> rows = projects.stream()
                 .map(p -> new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text(p.getName())
@@ -183,12 +183,12 @@ public class AssignTask extends BotActionBase {
         }
 
         if (tasks.isEmpty()) {
-            BotHelper.editMessageText(chatId, messageId, "❌ No eligible tasks found in this project.", client);
+            BotHelper.editMessageText(chatId, messageId, "❌ No se encontraron tareas elegibles en este proyecto.", client);
             cleanup(chatId);
             return BotState.IDLE;
         }
 
-        String text = "📝 Select a Task: " + (session.userRole == UserRole.DEVELOPER && session.flowType  == FlowType.USER ? "! THIS TASK WILL BE ASSIGNED TO YOU" : "");
+        String text = "📝 Selecciona una Tarea: " + (session.userRole == UserRole.DEVELOPER && session.flowType  == FlowType.USER ? "! ESTA TAREA SE TE ASIGNARÁ A TI" : "");
         List<InlineKeyboardRow> rows = tasks.stream()
                 .map(t -> new InlineKeyboardRow(InlineKeyboardButton.builder()
                         .text(t.getTitle())
@@ -208,12 +208,12 @@ public class AssignTask extends BotActionBase {
         if (session.flowType == FlowType.SPRINT) {
             List<Sprints> sprints = sprintsRepository.findByProjectId(session.projectId);
             if (sprints.isEmpty()) {
-                BotHelper.editMessageText(chatId, messageId, "❌ No sprints found for this project.", client);
+                BotHelper.editMessageText(chatId, messageId, "❌ No se encontraron sprints para este proyecto.", client);
                 cleanup(chatId);
                 return BotState.IDLE;
             }
 
-            String text = "🏃 Select a Sprint:";
+            String text = "🏃 Selecciona un Sprint:";
             List<InlineKeyboardRow> rows = sprints.stream()
                     .map(s -> new InlineKeyboardRow(InlineKeyboardButton.builder()
                             .text(s.getName() + " (" + s.getStatus() + ")")
@@ -226,11 +226,11 @@ public class AssignTask extends BotActionBase {
         } else {
             if (session.userRole == UserRole.DEVELOPER) {
                 if (taskAssignmentsRepository.existsByTaskIdAndUserId(session.taskId, session.userId)) {
-                    BotHelper.editMessageText(chatId, messageId, "⚠️ Task is already assigned to you.", client);
+                    BotHelper.editMessageText(chatId, messageId, "⚠️ La tarea ya está asignada a ti.", client);
                 } else {
                     TaskAssignments assignment = new TaskAssignments(session.taskId, session.userId);
                     taskAssignmentsRepository.save(assignment);
-                    BotHelper.editMessageText(chatId, messageId, "✅ Task successfully assigned to you!", client);
+                    BotHelper.editMessageText(chatId, messageId, "✅ ¡Tarea asignada con éxito a ti!", client);
                 }
                 cleanup(chatId);
                 return BotState.IDLE;
@@ -238,12 +238,12 @@ public class AssignTask extends BotActionBase {
 
             List<ProjectMembers> members = projectMembersRepository.findByProjectId(session.projectId);
             if (members.isEmpty()) {
-                BotHelper.editMessageText(chatId, messageId, "❌ No members found in this project.", client);
+                BotHelper.editMessageText(chatId, messageId, "❌ No se encontraron miembros en este proyecto.", client);
                 cleanup(chatId);
                 return BotState.IDLE;
             }
 
-            String text = "👤 Select a User:";
+            String text = "👤 Selecciona un Usuario:";
             List<InlineKeyboardRow> rows = members.stream()
                     .map(m -> usersRepository.findById(m.getUserId()).orElse(null))
                     .filter(Objects::nonNull)
@@ -267,15 +267,15 @@ public class AssignTask extends BotActionBase {
             if (task != null) {
                 task.setSprintId(targetId);
                 tasksRepository.save(task);
-                BotHelper.editMessageText(chatId, messageId, "✅ Task successfully assigned to sprint!", client);
+                BotHelper.editMessageText(chatId, messageId, "✅ ¡Tarea asignada con éxito al sprint!", client);
             } else {
-                BotHelper.editMessageText(chatId, messageId, "❌ Error: Task not found.", client);
+                BotHelper.editMessageText(chatId, messageId, "❌ Error: Tarea no encontrada.", client);
             }
         } else {
             // Assign to user: check if already assigned or just add new
             TaskAssignments assignment = new TaskAssignments(session.taskId, targetId);
             taskAssignmentsRepository.save(assignment);
-            BotHelper.editMessageText(chatId, messageId, "✅ Task successfully assigned to user!", client);
+            BotHelper.editMessageText(chatId, messageId, "✅ ¡Tarea asignada con éxito al usuario!", client);
         }
 
         cleanup(chatId);

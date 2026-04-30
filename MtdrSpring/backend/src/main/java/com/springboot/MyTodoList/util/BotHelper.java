@@ -33,6 +33,7 @@ public class BotHelper {
 					.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(new ReplyKeyboardRemove(true))
 					.build()
 				;
@@ -52,6 +53,7 @@ public class BotHelper {
 					.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(rk)
 					.build()
 				;
@@ -68,6 +70,7 @@ public class BotHelper {
 			SendMessage messageToTelegram = SendMessage.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(keyboard)
 					.build();
 			bot.execute(messageToTelegram);
@@ -83,6 +86,7 @@ public class BotHelper {
 					.chatId(chatId)
 					.messageId(messageId)
 					.text(text)
+					.parseMode("Markdown")
 					.build();
 			bot.execute(editMessage);
 		} catch (Exception e) {
@@ -97,6 +101,7 @@ public class BotHelper {
 					.chatId(chatId)
 					.messageId(messageId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(keyboard)
 					.build();
 			bot.execute(editMessage);
@@ -119,6 +124,16 @@ public class BotHelper {
 			System.out.println("Cannot Send new Keyboard options ");
 			logger.error(e.getLocalizedMessage(), e);
 		}
+	}
+
+	public static String escapeMarkdown(String text) {
+		if (text == null) {
+			return null;
+		}
+		return text.replace("_", "\\_")
+				.replace("*", "\\*")
+				.replace("`", "\\`")
+				.replace("[", "\\[");
 	}
 
 }

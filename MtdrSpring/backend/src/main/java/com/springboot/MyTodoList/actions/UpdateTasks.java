@@ -65,14 +65,14 @@ public class UpdateTasks extends BotActionBase {
 
         Users user = usersRepository.findByTelegramId(telegramId).orElse(null);
         if (user == null) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ You must be logged in to use this command. Use /login first.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Debes iniciar sesión para usar este comando. Usa /login primero.", client);
             return BotState.IDLE;
         }
 
         List<Tasks> userTasks = getUserTasksThatArentDone(user.getUserId());
         
         if (userTasks.isEmpty()) {
-            BotHelper.sendMessageToTelegram(chatId, "📋 You have no tasks in active sprints.", client);
+            BotHelper.sendMessageToTelegram(chatId, "📋 No tienes tareas en sprints activos.", client);
             return BotState.IDLE;
         }
 
@@ -96,7 +96,7 @@ public class UpdateTasks extends BotActionBase {
     }
 
     private void showTaskSelection(long chatId, List<Tasks> tasks, TelegramClient client) {
-        String text = "📋 Select a Task:";
+        String text = "📋 Selecciona una Tarea:";
 
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (Tasks task : tasks) {
@@ -153,7 +153,7 @@ public class UpdateTasks extends BotActionBase {
             logger.error("Error handling callback: {}", e.getMessage(), e);
             userStates.remove(chatId);
             selectedTaskId.remove(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ An error occurred. Please try again.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Ocurrió un error. Por favor intenta de nuevo.", client);
             return BotState.IDLE;
         }
         
@@ -168,12 +168,12 @@ public class UpdateTasks extends BotActionBase {
         selectedTaskId.put(chatId, taskId);
         userStates.put(chatId, TaskFlowState.SELECTING_ACTION);
 
-        String text = "⚙️ Select an action:";
+        String text = "⚙️ Selecciona una acción:";
 
         InlineKeyboardMarkup markup = InlineKeyboardMarkup.builder()
                 .keyboardRow(new InlineKeyboardRow(
                         InlineKeyboardButton.builder()
-                                .text("🔄 Change State")
+                                .text("🔄 Cambiar Estado")
                                 .callbackData("action_change_state_" + taskIdStr)
                                 .build()
                 ))
@@ -188,7 +188,7 @@ public class UpdateTasks extends BotActionBase {
         UUID taskId = selectedTaskId.get(chatId);
         if (taskId == null) {
             userStates.remove(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Session expired. Please use /tasks again.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Sesión expirada. Por favor usa /utask de nuevo.", client);
             return;
         }
 
@@ -210,7 +210,7 @@ public class UpdateTasks extends BotActionBase {
             .filter(sprint -> userProjectIds.contains(sprint.getProjectId()))
             .collect(Collectors.toList());
         
-        String text = "This task has no sprint. Select a Sprint to move it to IN_PROGRESS";
+        String text = "Esta tarea no tiene sprint. Selecciona un Sprint para moverla a EN PROGRESO";
 
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (Sprints sprint : activeSprints) {
@@ -238,14 +238,14 @@ public class UpdateTasks extends BotActionBase {
         Tasks task = tasksRepository.findByTaskId(taskId).orElse(null);
         if (task == null) {
             userStates.remove(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Task not found.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Tarea no encontrada.", client);
             return;
         }
 
         TaskStatus currentStatus = task.getStatus();
         List<TaskStatus> nextStates = getValidNextStates(currentStatus);
 
-        String text = "🔄 Current Status: " + currentStatus + "\nSelect new state:";
+        String text = "🔄 Estado Actual: " + BotHelper.escapeMarkdown(currentStatus.toString()) + "\nSelecciona el nuevo estado:";
 
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (TaskStatus nextStatus : nextStates) {
@@ -291,7 +291,7 @@ public class UpdateTasks extends BotActionBase {
         if (task == null) {
             userStates.remove(chatId);
             selectedTaskId.remove(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Task not found.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Tarea no encontrada.", client);
             return;
         }
         task.setSprintId(sprintId);
@@ -305,7 +305,7 @@ public class UpdateTasks extends BotActionBase {
         selectedTaskId.remove(chatId);
 
 
-        String message = "✅ Sprint assigned and state changed!\n\nTask: " + task.getTitle() + "\nSprint: " + sprintName + "\nNew State: IN_PROGRESS";
+        String message = "✅ ¡Sprint asignado y estado cambiado!\n\nTarea: " + BotHelper.escapeMarkdown(task.getTitle()) + "\nSprint: " + BotHelper.escapeMarkdown(sprintName) + "\nNuevo Estado: EN PROGRESO";
 
         BotHelper.editMessageTextWithKeyboard(chatId, messageId, message, null, client);
     }
@@ -316,7 +316,7 @@ public class UpdateTasks extends BotActionBase {
 
         String[] parts = callbackData.substring(6).split("\\$");
         if (parts.length != 2) {
-            BotHelper.sendMessageToTelegram(chatId, "Error on managing task_id and state: " + parts[0]  , client);
+            BotHelper.sendMessageToTelegram(chatId, "Error al gestionar task_id y estado: " + parts[0]  , client);
             return;
         }
 
@@ -327,7 +327,7 @@ public class UpdateTasks extends BotActionBase {
         if (task == null) {
             userStates.remove(chatId);
             selectedTaskId.remove(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Task not found.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Tarea no encontrada.", client);
             return;
         }if(task.getSprintId() == null && newStatus == TaskStatus.IN_PROGRESS){
             userStates.put(chatId, TaskFlowState.SELECTING_SPRINT);
@@ -341,7 +341,7 @@ public class UpdateTasks extends BotActionBase {
         selectedTaskId.remove(chatId);
 
         BotHelper.editMessageTextWithKeyboard(chatId, messageId, 
-                "✅ State updated!\n\nTask: " + task.getTitle() + "\nNew State: " + newStatus, 
+                "✅ ¡Estado actualizado!\n\nTarea: " + BotHelper.escapeMarkdown(task.getTitle()) + "\nNuevo Estado: " + BotHelper.escapeMarkdown(newStatus.toString()), 
                 null, client);
     }
 

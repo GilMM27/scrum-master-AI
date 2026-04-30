@@ -60,23 +60,23 @@ public class LoginAction extends BotActionBase {
             .oneTimeKeyboard(true)
             .keyboardRow(new KeyboardRow(
                 KeyboardButton.builder()
-                    .text("📱 Share Phone Number")
+                    .text("📱 Compartir Número de Teléfono")
                     .requestContact(true)
                     .build()
             ))
             .build();
         
         BotHelper.sendMessageToTelegram(chatId, 
-            "Please tap the button below to share your phone number:", client, keyboard);
+            "Por favor, toca el botón de abajo para compartir tu número de teléfono:", client, keyboard);
         return BotState.LOGIN;
     }
 
     private BotState processPhoneNumber(String phoneNumber, long chatId, long telegramId, TelegramClient client) {
         String cleanPhone = phoneNumber.replaceAll("[^0-9]", "");
-        BotHelper.sendMessageToTelegram(chatId, "is this you phone? " + cleanPhone, client);
+        BotHelper.sendMessageToTelegram(chatId, "¿es este tu teléfono? " + cleanPhone, client);
         if (cleanPhone.length() < 10) {
             BotHelper.sendMessageToTelegram(chatId, 
-                "❌ Invalid phone number. Please try again.", client);
+                "❌ Número de teléfono inválido. Por favor intenta de nuevo.", client);
             return BotState.LOGIN;
         }
 
@@ -86,13 +86,13 @@ public class LoginAction extends BotActionBase {
             user.setTelegramId(telegramId);
             usersRepository.save(user);
             
-            String successMessage = "✅ Login successful! Welcome " + user.getUsername() + "!\n\n"
-                + "Your Telegram ID has been linked to your account.";
+            String successMessage = "✅ ¡Inicio de sesión exitoso! ¡Bienvenido " + user.getUsername() + "!\n\n"
+                + "Tu ID de Telegram ha sido vinculado a tu cuenta.";
 
             BotHelper.sendMessageToTelegram(chatId, successMessage, client, null);
         } else {
             BotHelper.sendMessageToTelegram(chatId, 
-                "❌ Phone number not found. Please contact your manager to register your number.", client);
+                "❌ Número de teléfono no encontrado. Por favor contacta a tu manager para registrar tu número.", client);
             return BotState.LOGIN;
         }
         
