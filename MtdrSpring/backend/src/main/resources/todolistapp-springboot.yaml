@@ -7,13 +7,13 @@ metadata:
 spec:
   type: LoadBalancer
   externalTrafficPolicy: Local
-
   ports:
     - port: 80
       protocol: TCP
       targetPort: 8080
   selector:
     app: todolistapp-springboot
+
 ---
 #this is new stuff for hosting on the load balancer
 apiVersion: v1
@@ -27,6 +27,28 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: http
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todolistapp-backend-config
+data:
+  OCI_REGION: "%OCI_REGION%"
+  TELEGRAM_BOT_NAME: "%TELEGRAM_BOT_NAME%"
+  JWT_EXPIRATION: "%JWT_EXPIRATION%"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: todolistapp-backend-secrets
+type: Opaque
+stringData:
+  TELEGRAM_BOT_TOKEN: "%TELEGRAM_BOT_TOKEN%"
+  GEMINI_API_KEY: "%GEMINI_API_KEY%"
+  JWT_SECRET: "%JWT_SECRET%"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -58,20 +80,57 @@ spec:
               value: "oracle.jdbc.OracleDriver"
             - name: OCI_REGION
               value: "%OCI_REGION%"
+
+            - name: TELEGRAM_BOT_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: todolistapp-backend-config
+                  key: TELEGRAM_BOT_NAME
+
+            - name: JWT_EXPIRATION
+              valueFrom:
+                configMapKeyRef:
+                  name: todolistapp-backend-config
+                  key: JWT_EXPIRATION
+
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: todolistapp-backend-secrets
+                  key: TELEGRAM_BOT_TOKEN
+                  optional: true
+
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: todolistapp-backend-secrets
+                  key: GEMINI_API_KEY
+                  optional: true
+
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: todolistapp-backend-secrets
+                  key: JWT_SECRET
+                  optional: true
+
             - name: dbpassword
               valueFrom:
                 secretKeyRef:
                   name: dbuser
                   key: dbpassword
                   optional: true
+
             - name: ui_username
               value: "%UI_USERNAME%"
+
             - name: ui_password
               valueFrom:
                 secretKeyRef:
                   name: frontendadmin
                   key: password
                   optional: true
+
           volumeMounts:
             - name: creds
               mountPath: /mtdrworkshop/creds
@@ -89,4 +148,3 @@ spec:
           labelSelector:
             matchLabels:
               app: todolistapp-springboot
----

@@ -38,21 +38,51 @@ if [ -z "$UI_USERNAME" ]; then
     exit 1
 fi
 
-echo "Creating springboot deplyoment and service"
-export CURRENTTIME=$( date '+%F_%H:%M:%S' )
-echo CURRENTTIME is $CURRENTTIME  ...this will be appended to generated deployment yaml
+# New required vars
+if [ -z "$TELEGRAM_BOT_NAME" ]; then
+    echo "Error: TELEGRAM_BOT_NAME env variable needs to be set!"
+    exit 1
+fi
+
+if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+    echo "Error: TELEGRAM_BOT_TOKEN env variable needs to be set!"
+    exit 1
+fi
+
+if [ -z "$JWT_SECRET" ]; then
+    echo "Error: JWT_SECRET env variable needs to be set!"
+    exit 1
+fi
+
+if [ -z "$JWT_EXPIRATION" ]; then
+    export JWT_EXPIRATION=86400000
+fi
+
+if [ -z "$GEMINI_API_KEY" ]; then
+    echo "Error: GEMINI_API_KEY env variable needs to be set!"
+    exit 1
+fi
+
+echo "Creating springboot deployment, service, configmap and secrets"
+
+export CURRENTTIME=$(date '+%F_%H:%M:%S')
+echo "CURRENTTIME is $CURRENTTIME ...this will be appended to generated deployment yaml"
+
 cp src/main/resources/todolistapp-springboot.yaml todolistapp-springboot-$CURRENTTIME.yaml
 
-sed -i "s|%DOCKER_REGISTRY%|${DOCKER_REGISTRY}|g" todolistapp-springboot-$CURRENTTIME.yaml
+sed -e "s|%DOCKER_REGISTRY%|${DOCKER_REGISTRY}|g" \
+    -e "s|%TODO_PDB_NAME%|${TODO_PDB_NAME}|g" \
+    -e "s|%OCI_REGION%|${OCI_REGION}|g" \
+    -e "s|%UI_USERNAME%|${UI_USERNAME}|g" \
+    -e "s|%TELEGRAM_BOT_NAME%|${TELEGRAM_BOT_NAME}|g" \
+    -e "s|%TELEGRAM_BOT_TOKEN%|${TELEGRAM_BOT_TOKEN}|g" \
+    -e "s|%GEMINI_API_KEY%|${GEMINI_API_KEY}|g" \
+    -e "s|%JWT_SECRET%|${JWT_SECRET}|g" \
+    -e "s|%JWT_EXPIRATION%|${JWT_EXPIRATION}|g" \
+    todolistapp-springboot-$CURRENTTIME.yaml > /tmp/todolistapp-springboot-$CURRENTTIME.yaml
 
-sed -e "s|%DOCKER_REGISTRY%|${DOCKER_REGISTRY}|g" todolistapp-springboot-${CURRENTTIME}.yaml > /tmp/todolistapp-springboot-${CURRENTTIME}.yaml
 mv -- /tmp/todolistapp-springboot-$CURRENTTIME.yaml todolistapp-springboot-$CURRENTTIME.yaml
-sed -e "s|%TODO_PDB_NAME%|${TODO_PDB_NAME}|g" todolistapp-springboot-${CURRENTTIME}.yaml > /tmp/todolistapp-springboot-${CURRENTTIME}.yaml
-mv -- /tmp/todolistapp-springboot-$CURRENTTIME.yaml todolistapp-springboot-$CURRENTTIME.yaml
-sed -e "s|%OCI_REGION%|${OCI_REGION}|g" todolistapp-springboot-${CURRENTTIME}.yaml > /tmp/todolistapp-springboot-$CURRENTTIME.yaml
-mv -- /tmp/todolistapp-springboot-$CURRENTTIME.yaml todolistapp-springboot-$CURRENTTIME.yaml
-sed -e "s|%UI_USERNAME%|${UI_USERNAME}|g" todolistapp-springboot-${CURRENTTIME}.yaml > /tmp/todolistapp-springboot-$CURRENTTIME.yaml
-mv -- /tmp/todolistapp-springboot-$CURRENTTIME.yaml todolistapp-springboot-$CURRENTTIME.yaml
+
 if [ -z "$1" ]; then
     kubectl apply -f $SCRIPT_DIR/todolistapp-springboot-$CURRENTTIME.yaml -n mtdrworkshop
 else
