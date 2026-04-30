@@ -51,6 +51,9 @@ public class TasksService {
     @Autowired
     private TaskAssignmentsRepository taskAssignmentsRepository;
 
+    @Autowired
+    private com.springboot.MyTodoList.repository.TaskHistoryRepository taskHistoryRepository;
+
     private static final Map<TaskStatus, Set<TaskStatus>> VALID_TRANSITIONS = Map.of(
         TaskStatus.TO_DO, Set.of(TaskStatus.IN_PROGRESS, TaskStatus.BLOCKED),
         TaskStatus.IN_PROGRESS, Set.of(TaskStatus.REVIEW, TaskStatus.BLOCKED, TaskStatus.TO_DO),
@@ -64,12 +67,15 @@ public class TasksService {
             request.getProjectId(),
             request.getTitle(),
             request.getStoryPoints(),
+            request.getExpectedHours(),
             request.getSprintId()
         );
         if (validationError != null) return validationError;
 
         Tasks task = request.toEntity();
         Tasks savedTask = tasksRepository.save(task);
+
+        recordStatusHistory(savedTask.getTaskId(), null, savedTask.getStatus());
 
         if (request.getAssigneeIds() != null && !request.getAssigneeIds().isEmpty()) {
             syncAssignments(savedTask.getTaskId(), request.getAssigneeIds());
@@ -146,16 +152,23 @@ public class TasksService {
             task.getProjectId(),
             request.getTitle(),
             request.getStoryPoints(),
+            request.getExpectedHours(),
             request.getSprintId()
         );
         if (validationError != null) return validationError;
 
         if (request.getTitle() != null) task.setTitle(request.getTitle().trim());
         if (request.getDescription() != null) task.setDescription(request.getDescription());
-        if (request.getStatus() != null) task.setStatus(request.getStatus());
+        
+        if (request.getStatus() != null && task.getStatus() != request.getStatus()) {
+            recordStatusHistory(task.getTaskId(), task.getStatus(), request.getStatus());
+            task.setStatus(request.getStatus());
+        }
+        
         if (request.getPriority() != null) task.setPriority(request.getPriority());
         task.setSprintId(request.getSprintId());
         if (request.getStoryPoints() != null) task.setStoryPoints(request.getStoryPoints());
+        if (request.getExpectedHours() != null) task.setExpectedHours(request.getExpectedHours());
 
         Tasks savedTask = tasksRepository.save(task);
 
@@ -193,6 +206,7 @@ public class TasksService {
                     );
         }
 
+        recordStatusHistory(task.getTaskId(), currentStatus, newStatus);
         task.setStatus(newStatus);
         if (newStatus == TaskStatus.BLOCKED) {
             task.setBlockedAt(OffsetDateTime.now());
@@ -249,6 +263,7 @@ public class TasksService {
             UUID projectId,
             String title,
             Integer storyPoints,
+            Integer expectedHours,
             UUID sprintId
     ) {
         if (projectId == null) {
@@ -267,9 +282,15 @@ public class TasksService {
             return ResponseEntity.badRequest().body(Map.of("error", "Title must be at most 255 characters"));
         }
 
-        if (storyPoints != null && (storyPoints < 0 || storyPoints > 4)) {
+        if (storyPoints != null && (storyPoints < 0 || storyPoints > 13)) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "error", "Estimated hours must be between 0 and 4. Consider splitting the task into subtasks."
+                    "error", "Story points must be between 0 and 4. Consider splitting the task into subtasks."
+            ));
+        }
+
+        if (expectedHours != null && (expectedHours < 0 || expectedHours > 4)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Expected hours must be between 0 and 4. Consider splitting the task into subtasks."
             ));
         }
 
@@ -312,6 +333,15 @@ public class TasksService {
         }
     }
 
+    private void recordStatusHistory(UUID taskId, TaskStatus oldStatus, TaskStatus newStatus) {
+        com.springboot.MyTodoList.model.TaskHistory history = new com.springboot.MyTodoList.model.TaskHistory();
+        history.setTaskId(taskId);
+        history.setOldStatus(oldStatus);
+        history.setNewStatus(newStatus);
+        history.setChangedAt(OffsetDateTime.now());
+        taskHistoryRepository.save(history);
+    }
+
     private List<TaskAssigneeResponse> getTaskAssignees(UUID taskId) {
         List<TaskAssignments> assignments = taskAssignmentsRepository.findByTaskId(taskId);
         List<UUID> userIds = assignments.stream()
@@ -340,6 +370,7 @@ public class TasksService {
                 task.getStatus(),
                 task.getPriority(),
                 task.getStoryPoints(),
+                task.getExpectedHours(),
                 task.getSprintId(),
                 getSprintName(task.getSprintId()),
                 getTaskAssignees(task.getTaskId()),
@@ -362,6 +393,7 @@ public class TasksService {
                 task.getStatus(),
                 task.getPriority(),
                 task.getStoryPoints(),
+                task.getExpectedHours(),
                 task.getSprintId(),
                 getSprintName(task.getSprintId()),
                 getTaskAssignees(task.getTaskId()),

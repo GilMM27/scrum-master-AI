@@ -28,6 +28,7 @@ interface TaskFormState {
   assigneeIds: string[];
   sprintId: string | null;
   storyPoints: number | null;
+  expectedHours: number | null;
 }
 
 const createInitialState = (task?: TaskItem | null): TaskFormState => ({
@@ -41,6 +42,10 @@ const createInitialState = (task?: TaskItem | null): TaskFormState => ({
     task?.storyPoints === null || task?.storyPoints === undefined
       ? null
       : task.storyPoints,
+  expectedHours:
+    task?.expectedHours === null || task?.expectedHours === undefined
+      ? null
+      : task.expectedHours,
 });
 
 const formatSprintDate = (iso: string | null): string => {
@@ -134,6 +139,16 @@ const TaskFormDialog = ({
     if (form.storyPoints !== null) {
       const value = form.storyPoints;
 
+      if (Number.isNaN(value) || value < 0 || value > 13) {
+        setErrorMsg(
+          "Los puntos de historia deben ser un número entre 0 y 13. Considera subdividir la tarea en subtareas si requiere más esfuerzo.",
+        );
+        return false;
+      }
+    }
+
+    if (form.expectedHours !== null) {
+      const value = form.expectedHours;
       if (Number.isNaN(value) || value < 0 || value > 4) {
         setErrorMsg(
           "Las horas estimadas deben ser un número entre 0 y 4. Considera subdividir la tarea en subtareas si requiere más tiempo.",
@@ -171,6 +186,7 @@ const TaskFormDialog = ({
       assigneeIds: form.assigneeIds,
       sprintId: form.sprintId,
       storyPoints: form.storyPoints,
+      expectedHours: form.expectedHours,
     };
 
     setSubmitting(true);
@@ -381,11 +397,22 @@ const TaskFormDialog = ({
 
                         <Stack spacing={0.75}>
                           <Typography variant="caption" color="text.secondary">
-                            Horas Estimadas
+                            Puntos de Historia
                           </Typography>
                           <Typography>
                             {task?.storyPoints != null && task.storyPoints > 0
                               ? task.storyPoints
+                              : "No definidos"}
+                          </Typography>
+                        </Stack>
+
+                        <Stack spacing={0.75}>
+                          <Typography variant="caption" color="text.secondary">
+                            Horas Estimadas
+                          </Typography>
+                          <Typography>
+                            {task?.expectedHours != null && task.expectedHours > 0
+                              ? `${task.expectedHours}h`
                               : "No definidas"}
                           </Typography>
                         </Stack>
@@ -591,15 +618,35 @@ const TaskFormDialog = ({
 
                         <TextField
                           fullWidth
-                          label="Horas Estimadas"
+                          label="Puntos de Historia"
                           type="number"
                           slotProps={{
-                            htmlInput: { min: 0, max: 4, step: 0.5 },
+                            htmlInput: { min: 0, max: 13, step: 1 },
                           }}
                           value={form.storyPoints ?? ""}
                           onChange={(e) =>
                             handleFieldChange(
                               "storyPoints",
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value),
+                            )
+                          }
+                          helperText="Máximo 13 puntos."
+                          sx={{ mb: 2 }}
+                        />
+
+                        <TextField
+                          fullWidth
+                          label="Horas Estimadas"
+                          type="number"
+                          slotProps={{
+                            htmlInput: { min: 0, max: 4, step: 0.5 },
+                          }}
+                          value={form.expectedHours ?? ""}
+                          onChange={(e) =>
+                            handleFieldChange(
+                              "expectedHours",
                               e.target.value === ""
                                 ? null
                                 : Number(e.target.value),

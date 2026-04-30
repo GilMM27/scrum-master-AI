@@ -16,6 +16,7 @@ public class CreateTaskRequest {
     private TaskPriority priority;
     private UUID sprintId;
     private Integer storyPoints;
+    private Integer expectedHours;
     private List<UUID> assigneeIds;
 
     public CreateTaskRequest() {
@@ -28,6 +29,7 @@ public class CreateTaskRequest {
         task.setDescription(this.description);
         task.setSprintId(this.sprintId);
         task.setStoryPoints(this.storyPoints != null ? this.storyPoints : 0);
+        task.setExpectedHours(this.expectedHours != null ? this.expectedHours : 0);
         task.setStatus(this.status != null ? this.status : TaskStatus.TO_DO);
         task.setPriority(this.priority != null ? this.priority : TaskPriority.MEDIUM);
         task.setCreatedAt(OffsetDateTime.now());
@@ -91,6 +93,14 @@ public class CreateTaskRequest {
 
     public void setStoryPoints(Integer storyPoints) {
         this.storyPoints = storyPoints;
+    }
+
+    public Integer getExpectedHours() {
+        return expectedHours;
+    }
+
+    public void setExpectedHours(Integer expectedHours) {
+        this.expectedHours = expectedHours;
     }
 
     public List<UUID> getAssigneeIds() {
