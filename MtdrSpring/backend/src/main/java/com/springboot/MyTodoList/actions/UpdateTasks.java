@@ -245,7 +245,7 @@ public class UpdateTasks extends BotActionBase {
         TaskStatus currentStatus = task.getStatus();
         List<TaskStatus> nextStates = getValidNextStates(currentStatus);
 
-        String text = "🔄 Estado Actual: " + currentStatus + "\nSelecciona el nuevo estado:";
+        String text = "🔄 Estado Actual: " + BotHelper.escapeMarkdown(currentStatus.toString()) + "\nSelecciona el nuevo estado:";
 
         List<InlineKeyboardRow> keyboard = new ArrayList<>();
         for (TaskStatus nextStatus : nextStates) {
@@ -305,7 +305,7 @@ public class UpdateTasks extends BotActionBase {
         selectedTaskId.remove(chatId);
 
 
-        String message = "✅ ¡Sprint asignado y estado cambiado!\n\nTarea: " + task.getTitle() + "\nSprint: " + sprintName + "\nNuevo Estado: EN PROGRESO";
+        String message = "✅ ¡Sprint asignado y estado cambiado!\n\nTarea: " + BotHelper.escapeMarkdown(task.getTitle()) + "\nSprint: " + BotHelper.escapeMarkdown(sprintName) + "\nNuevo Estado: EN PROGRESO";
 
         BotHelper.editMessageTextWithKeyboard(chatId, messageId, message, null, client);
     }
@@ -341,7 +341,7 @@ public class UpdateTasks extends BotActionBase {
         selectedTaskId.remove(chatId);
 
         BotHelper.editMessageTextWithKeyboard(chatId, messageId, 
-                "✅ ¡Estado actualizado!\n\nTarea: " + task.getTitle() + "\nNuevo Estado: " + newStatus, 
+                "✅ ¡Estado actualizado!\n\nTarea: " + BotHelper.escapeMarkdown(task.getTitle()) + "\nNuevo Estado: " + BotHelper.escapeMarkdown(newStatus.toString()), 
                 null, client);
     }
 

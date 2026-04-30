@@ -255,7 +255,7 @@ public class GenerateTask extends BotActionBase {
 
         String successMessage = "✅ Task Created Successfully!\n\n"
                 + "Project ID: " + task.getProjectId() + "\n"
-                + "Title: " + task.getTitle() + "\n"
+                + "Title: " + BotHelper.escapeMarkdown(task.getTitle()) + "\n"
                 + "Priority: " + task.getPriority() + "\n"
                 + "Story Points: " + task.getStoryPoints() + "\n"
                 + "Expected Time: " + task.getExpectedHours() + " hr";

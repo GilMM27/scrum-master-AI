@@ -126,4 +126,14 @@ public class BotHelper {
 		}
 	}
 
+	public static String escapeMarkdown(String text) {
+		if (text == null) {
+			return null;
+		}
+		return text.replace("_", "\\_")
+				.replace("*", "\\*")
+				.replace("`", "\\`")
+				.replace("[", "\\[");
+	}
+
 }

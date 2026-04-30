@@ -103,8 +103,8 @@ public class GeminiAction extends BotActionBase {
                     .content();
             BotHelper.sendMessageToTelegram(chatId, result, BotHelper.getTelegramClient());
         } catch (Exception e) {
-            logger.warn("Failed to parse Gemini response: {}", jsonResponse);
-            return "Error al analizar la respuesta de Gemini.";
+            logger.error("Error calling Gemini service", e);
+            BotHelper.sendMessageToTelegram(chatId, "Lo siento, encontré un error al hablar con Gemini.", BotHelper.getTelegramClient());
         }
         return BotState.IDLE;
     }

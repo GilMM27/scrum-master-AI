@@ -143,7 +143,7 @@ public class KpiAction extends BotActionBase {
                 .orElse(0.0);
 
         StringBuilder report = new StringBuilder();
-        report.append("📊 *Informe de KPI: ").append(project.getName()).append("*\n\n");
+        report.append("📊 *Informe de KPI: ").append(BotHelper.escapeMarkdown(project.getName())).append("*\n\n");
         report.append("👥 *Tamaño del Equipo:* ").append(members.size()).append("\n");
         report.append("🏃 *Total de Sprints:* ").append(sprints.size()).append("\n\n");
 
