@@ -11,6 +11,7 @@ public enum BotCommands {
 	TASK_UPDATE("/utask"),
 	GENERATE_TASK("/gtask"),
 	ASSIGN_TASK("/assignTask"),
+	KPI("/kpi"),
 	EXIT_TRANSACTION("/exit");
 
 	private String command;
