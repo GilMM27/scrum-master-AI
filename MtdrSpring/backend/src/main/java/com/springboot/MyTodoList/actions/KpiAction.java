@@ -150,8 +150,7 @@ public class KpiAction extends BotActionBase {
         report.append("📝 *Estadísticas de Tareas:*\n");
         report.append("• Total de Tareas: ").append(totalTasks).append("\n");
         report.append("• Tareas Completadas: ").append(completedTasks).append(" (").append(String.format("%.1f", completionRate)).append("%)\n");
-        report.append("• Tareas Bloqueadas: ").append(blockedCount).append("\n");
-        report.append("• Tareas Marcadas por IA: ").append(aiFlaggedCount).append("\n\n");
+        report.append("• Tareas Bloqueadas: ").append(blockedCount).append("\n\n");
 
         report.append("🎯 *Story Points:*\n");
         report.append("• Total de SP: ").append(totalStoryPoints).append("\n");
