@@ -11,7 +11,6 @@ public class SprintAnalyticsResponse {
     private Double sprintAccomplishment;
     private Double avgCycleTimeDays;
     private long delayedTasksCount;
-    private List<WipByDeveloperItem> wipByDeveloper;
     private List<BurndownDataPoint> burndownData;
     private List<HistogramBucket> leadTimeHistogram;
     private Double leadTimeMean;
@@ -30,7 +29,6 @@ public class SprintAnalyticsResponse {
             Double sprintAccomplishment,
             Double avgCycleTimeDays,
             long delayedTasksCount,
-            List<WipByDeveloperItem> wipByDeveloper,
             List<BurndownDataPoint> burndownData,
             List<HistogramBucket> leadTimeHistogram,
             Double leadTimeMean,
@@ -45,7 +43,6 @@ public class SprintAnalyticsResponse {
         this.sprintAccomplishment = sprintAccomplishment;
         this.avgCycleTimeDays = avgCycleTimeDays;
         this.delayedTasksCount = delayedTasksCount;
-        this.wipByDeveloper = wipByDeveloper;
         this.burndownData = burndownData;
         this.leadTimeHistogram = leadTimeHistogram;
         this.leadTimeMean = leadTimeMean;
@@ -75,9 +72,6 @@ public class SprintAnalyticsResponse {
 
     public long getDelayedTasksCount() { return delayedTasksCount; }
     public void setDelayedTasksCount(long delayedTasksCount) { this.delayedTasksCount = delayedTasksCount; }
-
-    public List<WipByDeveloperItem> getWipByDeveloper() { return wipByDeveloper; }
-    public void setWipByDeveloper(List<WipByDeveloperItem> wipByDeveloper) { this.wipByDeveloper = wipByDeveloper; }
 
     public List<BurndownDataPoint> getBurndownData() { return burndownData; }
     public void setBurndownData(List<BurndownDataPoint> burndownData) { this.burndownData = burndownData; }

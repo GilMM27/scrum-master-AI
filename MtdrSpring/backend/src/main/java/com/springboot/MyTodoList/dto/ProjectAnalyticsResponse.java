@@ -8,7 +8,6 @@ public class ProjectAnalyticsResponse {
     private Double completionRate;
     private long blockedTasksCount;
     private long delayedTasksCount;
-    private List<VelocityDataPoint> velocityBySprint;
     private List<HistogramBucket> leadTimeHistogram;
     private Double leadTimeMean;
     private List<HistogramBucket> cycleTimeHistogram;
@@ -24,7 +23,6 @@ public class ProjectAnalyticsResponse {
             Double completionRate,
             long blockedTasksCount,
             long delayedTasksCount,
-            List<VelocityDataPoint> velocityBySprint,
             List<HistogramBucket> leadTimeHistogram,
             Double leadTimeMean,
             List<HistogramBucket> cycleTimeHistogram,
@@ -36,7 +34,6 @@ public class ProjectAnalyticsResponse {
         this.completionRate = completionRate;
         this.blockedTasksCount = blockedTasksCount;
         this.delayedTasksCount = delayedTasksCount;
-        this.velocityBySprint = velocityBySprint;
         this.leadTimeHistogram = leadTimeHistogram;
         this.leadTimeMean = leadTimeMean;
         this.cycleTimeHistogram = cycleTimeHistogram;
@@ -59,9 +56,6 @@ public class ProjectAnalyticsResponse {
 
     public long getDelayedTasksCount() { return delayedTasksCount; }
     public void setDelayedTasksCount(long delayedTasksCount) { this.delayedTasksCount = delayedTasksCount; }
-
-    public List<VelocityDataPoint> getVelocityBySprint() { return velocityBySprint; }
-    public void setVelocityBySprint(List<VelocityDataPoint> velocityBySprint) { this.velocityBySprint = velocityBySprint; }
 
     public List<HistogramBucket> getLeadTimeHistogram() { return leadTimeHistogram; }
     public void setLeadTimeHistogram(List<HistogramBucket> leadTimeHistogram) { this.leadTimeHistogram = leadTimeHistogram; }

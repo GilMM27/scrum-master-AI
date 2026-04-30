@@ -5,8 +5,6 @@ import com.springboot.MyTodoList.dto.HistogramBucket;
 import com.springboot.MyTodoList.dto.ProjectAnalyticsResponse;
 import com.springboot.MyTodoList.dto.SprintAnalyticsResponse;
 import com.springboot.MyTodoList.dto.TasksDoneBySprintRow;
-import com.springboot.MyTodoList.dto.VelocityDataPoint;
-import com.springboot.MyTodoList.dto.WipByDeveloperItem;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.Sprints;
 import com.springboot.MyTodoList.model.TaskAssignments;
@@ -64,8 +62,6 @@ public class AnalyticsService {
 
         long delayedTasksCount = computeProjectDelayedTasks(tasks, sprints);
 
-        List<VelocityDataPoint> velocityBySprint = computeVelocityBySprint(tasks, sprints);
-
         // Histograms use only tasks from ACTIVE or CLOSED sprints
         List<Tasks> histogramTasks = filterTasksForHistogram(tasks, sprints);
         List<HistogramBucket> leadTimeHistogram = computeLeadTimeHistogram(histogramTasks);
@@ -82,7 +78,6 @@ public class AnalyticsService {
                 completionRate,
                 blockedTasksCount,
                 delayedTasksCount,
-                velocityBySprint,
                 leadTimeHistogram,
                 leadTimeMean,
                 cycleTimeHistogram,
@@ -109,8 +104,6 @@ public class AnalyticsService {
 
         long delayedTasksCount = computeSprintDelayedTasks(tasks, sprint);
 
-        List<WipByDeveloperItem> wipByDeveloper = computeWipByDeveloper(tasks);
-
         List<BurndownDataPoint> burndownData = computeBurndownData(tasks, sprint);
 
         List<HistogramBucket> leadTimeHistogram = computeLeadTimeHistogram(tasks);
@@ -135,7 +128,6 @@ public class AnalyticsService {
                 sprintAccomplishment,
                 avgCycleTimeDays,
                 delayedTasksCount,
-                wipByDeveloper,
                 burndownData,
                 leadTimeHistogram,
                 leadTimeMean,
@@ -198,32 +190,6 @@ public class AnalyticsService {
             return 0L;
         }
         return tasks.stream().filter(t -> t.getStatus() != TaskStatus.DONE).count();
-    }
-
-    private List<VelocityDataPoint> computeVelocityBySprint(List<Tasks> tasks, List<Sprints> sprints) {
-        Map<UUID, List<Tasks>> tasksBySprint = tasks.stream()
-                .filter(t -> t.getSprintId() != null)
-                .collect(Collectors.groupingBy(Tasks::getSprintId));
-
-        return sprints.stream()
-                .filter(s -> tasksBySprint.containsKey(s.getSprintId()))
-                .sorted(Comparator.comparing(s -> s.getStartDate() != null ? s.getStartDate() : LocalDate.MIN))
-                .map(sprint -> {
-                    List<Tasks> sprintTasks = tasksBySprint.getOrDefault(sprint.getSprintId(), Collections.emptyList());
-                    int completedPoints = sprintTasks.stream()
-                            .filter(t -> t.getStatus() == TaskStatus.DONE)
-                            .mapToInt(t -> t.getStoryPoints() != null ? t.getStoryPoints() : 0)
-                            .sum();
-                    long completedCount = sprintTasks.stream().filter(t -> t.getStatus() == TaskStatus.DONE).count();
-                    return new VelocityDataPoint(
-                            sprint.getSprintId(),
-                            sprint.getName(),
-                            completedPoints,
-                            completedCount,
-                            (long) sprintTasks.size()
-                    );
-                })
-                .collect(Collectors.toList());
     }
 
     // ── histogram helpers ─────────────────────────────────────────────────────
@@ -296,44 +262,6 @@ public class AnalyticsService {
         List<Integer> days = extractCycleTimeDays(tasks);
         if (days.isEmpty()) return null;
         return days.stream().mapToInt(d -> d).average().orElse(0.0);
-    }
-
-    private List<WipByDeveloperItem> computeWipByDeveloper(List<Tasks> tasks) {
-        List<Tasks> wipTasks = tasks.stream()
-                .filter(t -> t.getStatus() == TaskStatus.IN_PROGRESS || t.getStatus() == TaskStatus.REVIEW)
-                .collect(Collectors.toList());
-
-        Map<UUID, long[]> userCounts = new LinkedHashMap<>();
-
-        for (Tasks task : wipTasks) {
-            List<TaskAssignments> assignments = taskAssignmentsRepository.findByTaskId(task.getTaskId());
-            for (TaskAssignments assignment : assignments) {
-                UUID userId = assignment.getUserId();
-                userCounts.computeIfAbsent(userId, k -> new long[]{0L, 0L});
-                if (task.getStatus() == TaskStatus.IN_PROGRESS) {
-                    userCounts.get(userId)[0]++;
-                } else {
-                    userCounts.get(userId)[1]++;
-                }
-            }
-        }
-
-        if (userCounts.isEmpty()) return Collections.emptyList();
-
-        Map<UUID, String> usernames = new HashMap<>();
-        usersRepository.findAllById(new ArrayList<>(userCounts.keySet()))
-                .forEach(user -> usernames.put(user.getUserId(), user.getUsername()));
-
-        return userCounts.entrySet().stream()
-                .map(e -> new WipByDeveloperItem(
-                        e.getKey(),
-                        usernames.getOrDefault(e.getKey(), "Unknown"),
-                        e.getValue()[0],
-                        e.getValue()[1],
-                        e.getValue()[0] + e.getValue()[1]
-                ))
-                .sorted(Comparator.comparingLong(w -> -w.getTotalActiveTasks()))
-                .collect(Collectors.toList());
     }
 
     private List<BurndownDataPoint> computeBurndownData(List<Tasks> tasks, Sprints sprint) {

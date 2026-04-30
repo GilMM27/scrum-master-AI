@@ -18,14 +18,6 @@ export interface KpiCardData {
   Icon: SvgIconComponent;
 }
 
-export interface VelocityDataPoint {
-  sprintId: string;
-  sprintName: string | null;
-  completedStoryPoints: number;
-  completedTasks: number;
-  totalTasks: number;
-}
-
 export interface LeadTimeTrendPoint {
   weekLabel: string;
   avgLeadTimeDays: number | null;
@@ -36,14 +28,6 @@ export interface BurndownDataPoint {
   date: string;
   remaining: number | null;
   ideal: number;
-}
-
-export interface WipByDeveloperItem {
-  userId: string;
-  username: string;
-  inProgressTasks: number;
-  reviewTasks: number;
-  totalActiveTasks: number;
 }
 
 export interface HistogramBucket {
@@ -63,7 +47,6 @@ export interface ProjectAnalyticsData {
   completionRate: number | null;
   blockedTasksCount: number;
   delayedTasksCount: number;
-  velocityBySprint: VelocityDataPoint[];
   leadTimeHistogram: HistogramBucket[];
   leadTimeMean: number | null;
   cycleTimeHistogram: HistogramBucket[];
@@ -81,7 +64,6 @@ export interface SprintAnalyticsData {
   avgCycleTimeDays: number | null;
   delayedTasksCount: number;
   blockedTasksCount: number;
-  wipByDeveloper: WipByDeveloperItem[];
   burndownData: BurndownDataPoint[];
   leadTimeHistogram: HistogramBucket[];
   leadTimeMean: number | null;
