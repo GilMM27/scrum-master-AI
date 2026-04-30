@@ -59,7 +59,7 @@ public class GenerateTask extends BotActionBase {
 
         if (messageText.equalsIgnoreCase("/cancel")) {
             cleanup(chatId);
-            BotHelper.sendMessageToTelegram(chatId, "❌ Task creation cancelled.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Creación de tarea cancelada.", client);
             return BotState.IDLE;
         }
 
@@ -106,13 +106,13 @@ public class GenerateTask extends BotActionBase {
     private BotState startTaskCreation(long chatId, long telegramId, TelegramClient client) {
         Users user = usersRepository.findByTelegramId(telegramId).orElse(null);
         if (user == null) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ User not found. Please log in first.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Usuario no encontrado. Por favor, inicia sesión primero.", client);
             return BotState.IDLE;
         }
 
         List<ProjectMembers> memberships = projectMembersRepository.findByUserId(user.getUserId());
         if (memberships.isEmpty()) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ You are not a member of any project. Join a project first.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ No eres miembro de ningún proyecto. Únete a un proyecto primero.", client);
             return BotState.IDLE;
         }
 
@@ -122,11 +122,11 @@ public class GenerateTask extends BotActionBase {
                 .collect(Collectors.toList());
 
         if (projects.isEmpty()) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Projects not found.", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ No se encontraron proyectos.", client);
             return BotState.IDLE;
         }
 
-        String text = "📝 Select a Project for the new task:";
+        String text = "📝 Selecciona un Proyecto para la nueva tarea:";
         List<InlineKeyboardRow> rows = new ArrayList<>();
         for (Projects project : projects) {
             rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -151,13 +151,13 @@ public class GenerateTask extends BotActionBase {
         task.setProjectId(projectId);
         userFlowStates.put(chatId, TaskFlowState.ENTERING_TITLE);
 
-        BotHelper.editMessageText(chatId, messageId, "✅ Project selected. Now, please enter the TITLE of the task:", client);
+        BotHelper.editMessageText(chatId, messageId, "✅ Proyecto seleccionado. Ahora, por favor ingresa el TÍTULO de la tarea:", client);
         return BotState.GENERATE_TASK;
     }
 
     private BotState handleTitle(long chatId, String title, TelegramClient client) {
         if (title.startsWith("/")) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Invalid title. Please enter text:", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Título inválido. Por favor ingresa texto:", client);
             return BotState.GENERATE_TASK;
         }
         Tasks task = pendingTasks.get(chatId);
@@ -165,13 +165,13 @@ public class GenerateTask extends BotActionBase {
 
         task.setTitle(title);
         userFlowStates.put(chatId, TaskFlowState.ENTERING_DESCRIPTION);
-        BotHelper.sendMessageToTelegram(chatId, "✅ Title set. Now, please provide a DESCRIPTION for the task:", client);
+        BotHelper.sendMessageToTelegram(chatId, "✅ Título establecido. Ahora, por favor proporciona una DESCRIPCIÓN para la tarea:", client);
         return BotState.GENERATE_TASK;
     }
 
     private BotState handleDescription(long chatId, String description, TelegramClient client) {
         if (description.startsWith("/")) {
-            BotHelper.sendMessageToTelegram(chatId, "❌ Invalid description. Please enter text:", client);
+            BotHelper.sendMessageToTelegram(chatId, "❌ Descripción inválida. Por favor ingresa texto:", client);
             return BotState.GENERATE_TASK;
         }
         Tasks task = pendingTasks.get(chatId);
@@ -180,7 +180,7 @@ public class GenerateTask extends BotActionBase {
         task.setDescription(description);
         userFlowStates.put(chatId, TaskFlowState.SELECTING_PRIORITY);
 
-        String text = "✅ Description set. Select the PRIORITY:";
+        String text = "✅ Descripción establecida. Selecciona la PRIORIDAD:";
         List<InlineKeyboardRow> rows = new ArrayList<>();
         for (TaskPriority priority : TaskPriority.values()) {
             rows.add(new InlineKeyboardRow(InlineKeyboardButton.builder()
@@ -203,7 +203,7 @@ public class GenerateTask extends BotActionBase {
         task.setPriority(priority);
         userFlowStates.put(chatId, TaskFlowState.ENTERING_STORY_POINTS);
 
-        BotHelper.editMessageText(chatId, messageId, "✅ Priority set to " + priority + ". How many STORY POINTS will it have? (Enter a number between 1 and 13):", client);
+        BotHelper.editMessageText(chatId, messageId, "✅ Prioridad hecha a " + priority + ". Cuantos puntos de historia tendra? (Debe ser entre 1 y 13):", client);
         return BotState.GENERATE_TASK;
     }
 

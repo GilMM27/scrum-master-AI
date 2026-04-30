@@ -33,6 +33,7 @@ public class BotHelper {
 					.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(new ReplyKeyboardRemove(true))
 					.build()
 				;
@@ -52,6 +53,7 @@ public class BotHelper {
 					.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(rk)
 					.build()
 				;
@@ -68,6 +70,7 @@ public class BotHelper {
 			SendMessage messageToTelegram = SendMessage.builder()
 					.chatId(chatId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(keyboard)
 					.build();
 			bot.execute(messageToTelegram);
@@ -83,6 +86,7 @@ public class BotHelper {
 					.chatId(chatId)
 					.messageId(messageId)
 					.text(text)
+					.parseMode("Markdown")
 					.build();
 			bot.execute(editMessage);
 		} catch (Exception e) {
@@ -97,6 +101,7 @@ public class BotHelper {
 					.chatId(chatId)
 					.messageId(messageId)
 					.text(text)
+					.parseMode("Markdown")
 					.replyMarkup(keyboard)
 					.build();
 			bot.execute(editMessage);

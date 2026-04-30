@@ -48,7 +48,7 @@ public class GeminiAction extends BotActionBase {
         }
 
         if (prompt.isEmpty()) {
-            BotHelper.sendMessageToTelegram(chatId, "Please provide a prompt for Gemini.", BotHelper.getTelegramClient());
+            BotHelper.sendMessageToTelegram(chatId, "Por favor, proporciona una consulta para Gemini.", BotHelper.getTelegramClient());
             return BotState.IDLE;
         }
 
@@ -62,7 +62,7 @@ public class GeminiAction extends BotActionBase {
             BotHelper.sendMessageToTelegram(chatId, result, BotHelper.getTelegramClient());
         } catch (Exception e) {
             logger.error("Error calling Gemini service", e);
-            BotHelper.sendMessageToTelegram(chatId, "Sorry, I encountered an error while talking to Gemini.", BotHelper.getTelegramClient());
+            BotHelper.sendMessageToTelegram(chatId, "Lo siento, encontré un error al hablar con Gemini.", BotHelper.getTelegramClient());
         }
         return BotState.IDLE;
     }
@@ -79,7 +79,7 @@ public class GeminiAction extends BotActionBase {
                     .asText();
         } catch (Exception e) {
             logger.warn("Failed to parse Gemini response: {}", jsonResponse);
-            return "Error parsing response from Gemini.";
+            return "Error al analizar la respuesta de Gemini.";
         }
     }
 }
