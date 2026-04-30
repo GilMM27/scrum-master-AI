@@ -5,6 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,5 +37,13 @@ public class GeminiConfig {
         mapper.registerModule(new JavaTimeModule());
             mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
+    }
+
+    @Bean
+    public ChatMemory chatMemory() {
+        return MessageWindowChatMemory.builder()
+                .chatMemoryRepository(new InMemoryChatMemoryRepository())
+                .maxMessages(100)
+                .build();
     }
 }

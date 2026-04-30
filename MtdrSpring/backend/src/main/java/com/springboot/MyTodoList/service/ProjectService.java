@@ -67,4 +67,8 @@ public class ProjectService {
                 .sorted(Comparator.comparing(ProjectSummaryResponse::getName))
                 .collect(Collectors.toList());
     }
+
+    public List<Projects> getAllProjects() {
+        return projectsRepository.findAll();
+    }
 }
