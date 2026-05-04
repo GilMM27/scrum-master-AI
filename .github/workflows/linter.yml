@@ -1,0 +1,23 @@
+name: Lint Code
+
+on:
+  push:
+    branches:
+      - main  # Ejecutará el linter cuando se haga push a la rama main
+  pull_request:
+    branches:
+      - main  # También ejecutará el linter cuando se haga un PR hacia la rama main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest  # El job se ejecuta en un entorno Ubuntu
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2  # Esta acción hace un checkout de tu código en el entorno de GitHub Actions
+
+    - name: Set up SuperLinter
+      uses: github/super-linter@v4  # Usamos SuperLinter para revisar el código
+      env:
+        RUN_LOCAL: false  # Esto asegura que SuperLinter no se ejecute de forma local
+        LINTER_RULES_PATH: .github/linters  # Puedes configurar una ruta personalizada para reglas de linters, si deseas
