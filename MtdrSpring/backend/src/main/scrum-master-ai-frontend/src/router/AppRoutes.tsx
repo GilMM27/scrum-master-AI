@@ -12,6 +12,7 @@ import DeveloperTasks from "../pages/developer/DeveloperTasks";
 import ManagerHome from "../pages/manager/ManagerHome";
 import ManagerBacklog from "../pages/manager/ManagerBacklog";
 import ManagerSprint from "../pages/manager/ManagerSprint";
+import ManagerDashboard from "../pages/manager/ManagerDashboard";
 
 import AdminHome from "../pages/admin/AdminHome";
 import AdminUsers from "../pages/admin/AdminUsers";
@@ -51,6 +52,7 @@ const AppRoutes = () => {
           <Route path="/manager/home" element={<ManagerHome />} />
           <Route path="/manager/backlog" element={<ManagerBacklog />} />
           <Route path="/manager/sprint" element={<ManagerSprint />} />
+          <Route path="/manager/kpis" element={<ManagerDashboard />} />
         </Route>
 
         <Route element={<RoleGuard allowedRoles={["ADMIN"]} />}>
