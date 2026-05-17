@@ -26,7 +26,7 @@ steps:
       oci os object get --bucket-name reacttodo-30489 --name deployment_config.tgz --file deployment_config.tgz;
       tar -xzvf deployment_config.tgz;
       source env.sh;
-      cat at.cfg | docker login -u "axjbifthqj4x/A00839075@tec.mx" --password-stdin phx.ocir.io
+      cat at.cfg | docker login -u "axjbifthqj4x/A00839075@tec.mx" --password-stdin mx-queretaro-1.ocir.io
 
   - type: Command
     name: "Build"
