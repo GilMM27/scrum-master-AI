@@ -71,7 +71,7 @@ export interface CreateTaskPayload {
   expectedHours?: number | null;
 }
 
-export interface UpdateTaskPayload extends CreateTaskPayload {}
+export type UpdateTaskPayload = CreateTaskPayload;
 
 export interface SprintTasksByStatus {
   todo: TaskItem[];

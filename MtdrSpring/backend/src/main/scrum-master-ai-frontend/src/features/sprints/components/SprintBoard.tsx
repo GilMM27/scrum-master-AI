@@ -1,14 +1,6 @@
 import { useRef, useState } from "react";
-import {
-  Avatar,
-  Box,
-  Chip,
-  CircularProgress,
-  Paper,
-  Stack,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { VALID_TASK_STATUS_TRANSITIONS } from "../../tasks/constants/taskTransitions";
+import { Avatar, Box, Chip, CircularProgress, Paper, Stack, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
 import type { TaskItem, TaskStatus } from "../../tasks/types/tasks.types";
 import TaskPriorityChip from "../../tasks/components/TaskPriorityChip";
@@ -28,14 +20,7 @@ const COLUMNS: { status: TaskStatus; label: string; color: string }[] = [
   { status: "DONE", label: "Completada", color: "#4ef770" },
 ];
 
-// Matches backend TasksService VALID_TRANSITIONS
-const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
-  TO_DO: ["IN_PROGRESS", "BLOCKED"],
-  IN_PROGRESS: ["REVIEW", "BLOCKED", "TO_DO"],
-  REVIEW: ["DONE", "IN_PROGRESS"],
-  BLOCKED: ["TO_DO", "IN_PROGRESS"],
-  DONE: [],
-};
+
 
 const PRIORITY_ORDER: Record<string, number> = {
   CRITICAL: 0,
@@ -167,7 +152,7 @@ const SprintBoard = ({
     const task = dragRef.current;
     if (!task || task.status === targetStatus) return;
 
-    const validTargets = VALID_TRANSITIONS[task.status];
+    const validTargets = VALID_TASK_STATUS_TRANSITIONS[task.status];
     if (!validTargets.includes(targetStatus)) {
       onDropError(
         `Transición no permitida: ${task.status} → ${targetStatus}. Transiciones válidas: ${validTargets.join(", ") || "ninguna"}.`,

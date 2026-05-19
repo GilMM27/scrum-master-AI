@@ -1,27 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, MenuItem, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import { CloseRounded, RestoreRounded } from "@mui/icons-material";
-import type {
-  SprintDialogMode,
-  SprintItem,
-  CreateSprintPayload,
-  UpdateSprintPayload,
-} from "../types/sprint.types";
+import { useFormDialog } from "../../../hooks/useFormDialog";
+import type { SprintDialogMode, SprintItem, CreateSprintPayload, UpdateSprintPayload } from "../types/sprint.types";
 
 interface SprintFormDialogProps {
   open: boolean;
@@ -79,25 +59,23 @@ const SprintFormDialog = ({
   onSubmitCreate,
   onSubmitUpdate,
 }: SprintFormDialogProps) => {
-  const [form, setForm] = useState<SprintFormState>(toFormState(sprint));
-  const [original, setOriginal] = useState<SprintFormState>(
-    toFormState(sprint),
-  );
-  const [errorMsg, setErrorMsg] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
-
-  useEffect(() => {
-    const s = toFormState(sprint);
-    setForm(s);
-    setOriginal(s);
-    setErrorMsg("");
-    setConfirmDiscardOpen(false);
-  }, [open, sprint, mode]);
-
-  const hasChanges = useMemo(
-    () => JSON.stringify(form) !== JSON.stringify(original),
-    [form, original],
+  const {
+    form,
+    setField,
+    errorMsg,
+    setErrorMsg,
+    submitting,
+    setSubmitting,
+    hasChanges,
+    confirmDiscardOpen,
+    setConfirmDiscardOpen,
+    handleRequestClose,
+    original,
+    restore,
+  } = useFormDialog<SprintFormState>(
+    () => toFormState(sprint),
+    [open, sprint, mode],
+    onClose,
   );
 
   const allowedStatuses =
@@ -106,11 +84,6 @@ const SprintFormDialog = ({
       : ["PLANNED"];
 
   const isStatusLocked = mode === "edit" && sprint?.status === "ACTIVE";
-
-  const setField = <K extends keyof SprintFormState>(
-    key: K,
-    value: SprintFormState[K],
-  ) => setForm((p) => ({ ...p, [key]: value }));
 
   const validate = (): boolean => {
     if (!form.name.trim()) {
@@ -146,15 +119,6 @@ const SprintFormDialog = ({
     }
     setErrorMsg("");
     return true;
-  };
-
-  const handleRequestClose = () => {
-    if (submitting) return;
-    if (hasChanges) {
-      setConfirmDiscardOpen(true);
-      return;
-    }
-    onClose();
   };
 
   const handleSubmit = async () => {
@@ -204,10 +168,7 @@ const SprintFormDialog = ({
               {hasChanges && mode === "edit" && (
                 <Tooltip title="Restaurar cambios">
                   <IconButton
-                    onClick={() => {
-                      setForm(original);
-                      setErrorMsg("");
-                    }}
+                    onClick={restore}
                     disabled={submitting}
                     color="info"
                   >

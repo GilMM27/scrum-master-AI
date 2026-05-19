@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CloseRounded, EditRounded, RestoreRounded, DeleteRounded } from "@mui/icons-material";
+import { VALID_TASK_STATUS_TRANSITIONS } from "../constants/taskTransitions";
+import { useFormDialog } from "../../../hooks/useFormDialog";
 import CircularProgress from "@mui/material/CircularProgress";
 import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDialogMode, TaskItem, TaskPriority, TaskStatus, UpdateTaskPayload } from "../types/tasks.types";
 import TaskPriorityChip from "./TaskPriorityChip";
@@ -58,13 +60,7 @@ const formatSprintDate = (iso: string | null): string => {
 const getSprintLabel = (sprint: SprintOption): string =>
   sprint.name ?? `Sprint (${sprint.sprintId.slice(0, 6)}…)`;
 
-const VALID_STATUS_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
-  TO_DO: ["IN_PROGRESS"],
-  IN_PROGRESS: ["REVIEW", "BLOCKED"],
-  REVIEW: ["IN_PROGRESS", "BLOCKED", "DONE"],
-  BLOCKED: ["IN_PROGRESS", "REVIEW"],
-  DONE: [],
-};
+
 
 const TaskFormDialog = ({
   open,
@@ -79,29 +75,30 @@ const TaskFormDialog = ({
   onSubmitUpdate,
 }: TaskFormDialogProps) => {
   const [internalMode, setInternalMode] = useState<TaskDialogMode>(mode);
-  const [form, setForm] = useState<TaskFormState>(createInitialState(task));
-  const [originalForm, setOriginalForm] = useState<TaskFormState>(
-    createInitialState(task),
+  const {
+    form,
+    setField: handleFieldChange,
+    errorMsg,
+    setErrorMsg,
+    submitting,
+    setSubmitting,
+    hasChanges: hasUnsavedChanges,
+    confirmDiscardOpen,
+    setConfirmDiscardOpen,
+    handleRequestClose,
+    original: originalForm,
+    restore: handleRestore,
+  } = useFormDialog<TaskFormState>(
+    () => createInitialState(task),
+    [mode, task, open],
+    onClose,
   );
-  const [errorMsg, setErrorMsg] = useState("");
-  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const initial = createInitialState(task);
     setInternalMode(mode);
-    setForm(initial);
-    setOriginalForm(initial);
-    setErrorMsg("");
-    setConfirmDiscardOpen(false);
   }, [mode, task, open]);
 
   const isReadOnly = internalMode === "view";
-
-  const hasUnsavedChanges = useMemo(
-    () => JSON.stringify(form) !== JSON.stringify(originalForm),
-    [form, originalForm],
-  );
 
   // View mode: derive display values directly from the task prop (comes from API with full data)
   const viewAssignees = task?.assignees ?? [];
@@ -111,7 +108,7 @@ const TaskFormDialog = ({
   // In create mode, all statuses are available.
   const allowedStatuses: Set<TaskStatus> = useMemo(() => {
     if (internalMode === "edit" && originalForm.status) {
-      const transitions = VALID_STATUS_TRANSITIONS[originalForm.status];
+      const transitions = VALID_TASK_STATUS_TRANSITIONS[originalForm.status];
       return new Set([originalForm.status, ...transitions]);
     }
     return new Set<TaskStatus>([
@@ -123,14 +120,7 @@ const TaskFormDialog = ({
     ]);
   }, [internalMode, originalForm.status]);
 
-  const handleFieldChange = <K extends keyof TaskFormState>(
-    key: K,
-    value: TaskFormState[K],
-  ) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     if (!form.title.trim()) {
       setErrorMsg("El título es obligatorio.");
       return false;
@@ -159,19 +149,6 @@ const TaskFormDialog = ({
 
     setErrorMsg("");
     return true;
-  };
-
-  const handleRequestClose = () => {
-    if (submitting) return;
-    if (
-      (internalMode === "create" || internalMode === "edit") &&
-      hasUnsavedChanges
-    ) {
-      setConfirmDiscardOpen(true);
-      return;
-    }
-
-    onClose();
   };
 
   const handleSubmit = async () => {
@@ -203,11 +180,6 @@ const TaskFormDialog = ({
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleRestore = () => {
-    setForm(originalForm);
-    setErrorMsg("");
   };
 
   return (
