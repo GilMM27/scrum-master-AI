@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import type { CreateManagedUserRequest, ManagedUserRole,} from "../types/users.types";
 import { Alert, alpha, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { CheckCircleRounded, CloseRounded, RadioButtonUncheckedRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
@@ -37,17 +37,9 @@ const CreateUserDialog = ({
   onClose,
   onSubmit,
 }: CreateUserDialogProps) => {
-  const [form, setForm] = React.useState<CreateManagedUserRequest>(initialForm);
-  const [errorMsg, setErrorMsg] = React.useState("");
-
+  const [form, setForm] = useState<CreateManagedUserRequest>(initialForm);
+  const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (!open) {
-      setForm(initialForm);
-      setErrorMsg("");
-    }
-  }, [open]);
 
   const handleChange = <K extends keyof CreateManagedUserRequest>(
     key: K,
