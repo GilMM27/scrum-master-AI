@@ -1,4 +1,5 @@
-import { createContext, useEffect, useMemo, useState, type ReactNode } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useMemo, useState, type ReactNode } from "react";
 import type { AuthState, LoginRequest } from "../types/Auth.types";
 import type { User } from "../types/User.types";
 import loginRequest from "../features/auth/services/auth.service";
@@ -22,22 +23,14 @@ interface AuthProviderProps {
 }
 
 const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [authState, setAuthState] = useState<AuthState>(initialState);
-
-  useEffect(() => {
+  const [authState, setAuthState] = useState<AuthState>(() => {
     const token = getAccessToken();
     const user = getAuthUser<User>();
-
     if (token && user) {
-      console.log(
-        "[Auth] Session persisted — valid token and user found in storage.",
-      );
-      console.log("[Auth] Restored user:", user);
-      setAuthState({ isAuthenticated: true, token, user });
-    } else {
-      console.log("[Auth] No persisted session found.");
+      return { isAuthenticated: true, token, user };
     }
-  }, []);
+    return initialState;
+  });
 
   const login = async (credentials: LoginRequest) => {
     const response = await loginRequest(credentials);
@@ -50,8 +43,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
     setAccessToken(response.token);
     setAuthUser(user);
-    console.log("[Auth] Session stored in browser storage. User:", user);
-
     setAuthState({ isAuthenticated: true, token: response.token, user });
 
     return user;
