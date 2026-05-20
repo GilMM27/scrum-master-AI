@@ -18,6 +18,7 @@ public class SprintAnalyticsResponse {
     private Double cycleTimeMean;
     private List<TasksDoneBySprintRow> tasksDoneBySprint;
     private long blockedTasksCount;
+    private long totalTasksCount;
 
     public SprintAnalyticsResponse() {}
 
@@ -35,7 +36,8 @@ public class SprintAnalyticsResponse {
             List<HistogramBucket> cycleTimeHistogram,
             Double cycleTimeMean,
             List<TasksDoneBySprintRow> tasksDoneBySprint,
-            long blockedTasksCount) {
+            long blockedTasksCount,
+            long totalTasksCount) {
         this.sprintId = sprintId;
         this.sprintName = sprintName;
         this.startDate = startDate;
@@ -50,6 +52,7 @@ public class SprintAnalyticsResponse {
         this.cycleTimeMean = cycleTimeMean;
         this.tasksDoneBySprint = tasksDoneBySprint;
         this.blockedTasksCount = blockedTasksCount;
+        this.totalTasksCount = totalTasksCount;
     }
 
     public UUID getSprintId() { return sprintId; }
@@ -93,4 +96,7 @@ public class SprintAnalyticsResponse {
 
     public long getBlockedTasksCount() { return blockedTasksCount; }
     public void setBlockedTasksCount(long blockedTasksCount) { this.blockedTasksCount = blockedTasksCount; }
+
+    public long getTotalTasksCount() { return totalTasksCount; }
+    public void setTotalTasksCount(long totalTasksCount) { this.totalTasksCount = totalTasksCount; }
 }

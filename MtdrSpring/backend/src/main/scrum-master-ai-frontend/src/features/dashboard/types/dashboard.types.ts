@@ -16,6 +16,9 @@ export interface KpiCardData {
   sublabel?: string;
   alert: AlertLevel;
   Icon: SvgIconComponent;
+  accentColor: string;
+  progress?: number;
+  trend?: string;
 }
 
 export interface LeadTimeTrendPoint {
@@ -47,6 +50,7 @@ export interface ProjectAnalyticsData {
   completionRate: number | null;
   blockedTasksCount: number;
   delayedTasksCount: number;
+  totalTasksCount?: number;
   leadTimeHistogram: HistogramBucket[];
   leadTimeMean: number | null;
   cycleTimeHistogram: HistogramBucket[];
@@ -64,6 +68,7 @@ export interface SprintAnalyticsData {
   avgCycleTimeDays: number | null;
   delayedTasksCount: number;
   blockedTasksCount: number;
+  totalTasksCount?: number;
   burndownData: BurndownDataPoint[];
   leadTimeHistogram: HistogramBucket[];
   leadTimeMean: number | null;

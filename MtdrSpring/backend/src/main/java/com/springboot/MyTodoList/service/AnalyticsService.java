@@ -72,12 +72,15 @@ public class AnalyticsService {
         List<TasksDoneBySprintRow> tasksDoneBySprint = computeTasksDoneBySprintForProject(tasks, sprints);
         List<BurndownDataPoint> projectBurndown = computeProjectBurndownData(tasks, sprints);
 
+        long totalTasksCount = tasks.size();
+
         return ResponseEntity.ok(new ProjectAnalyticsResponse(
                 avgLeadTimeDays,
                 avgCycleTimeDays,
                 completionRate,
                 blockedTasksCount,
                 delayedTasksCount,
+                totalTasksCount,
                 leadTimeHistogram,
                 leadTimeMean,
                 cycleTimeHistogram,
@@ -134,7 +137,8 @@ public class AnalyticsService {
                 cycleTimeHistogram,
                 cycleTimeMean,
                 tasksDoneBySprint,
-                blockedTasksCount
+                blockedTasksCount,
+                totalTasks
         ));
     }
 

@@ -1,91 +1,222 @@
-import { Box, Paper, Stack, Typography } from "@mui/material";
+import { Box, CircularProgress, Paper, Stack, Typography } from "@mui/material";
+import { ArrowDropDown, ArrowDropUp, ArrowRight } from "@mui/icons-material";
 import type { AlertLevel, KpiCardData } from "../types/dashboard.types";
 
-const alertBorderColor: Record<AlertLevel, string> = {
+const alertColor: Record<AlertLevel, string> = {
   green: "#4ef770",
   yellow: "#FFD166",
   red: "#FF5C8A",
   neutral: "#b4bdc7",
 };
 
-const alertBgColor: Record<AlertLevel, string> = {
-  green: "rgba(78,247,112,0.06)",
-  yellow: "rgba(255,209,102,0.06)",
-  red: "rgba(255,92,138,0.06)",
-  neutral: "transparent",
+const trendMeta: Record<
+  AlertLevel,
+  { Icon: React.ElementType; text: string }
+> = {
+  green: { Icon: ArrowDropUp, text: "En buen camino" },
+  yellow: { Icon: ArrowDropDown, text: "Requiere atención" },
+  red: { Icon: ArrowDropDown, text: "Necesita acción" },
+  neutral: { Icon: ArrowRight, text: "Sin datos" },
 };
 
 interface KpiCardProps {
   data: KpiCardData;
 }
 
+const RING_SIZE = 100;
+const RING_THICKNESS = 1;
+
 const KpiCard = ({ data }: KpiCardProps) => {
-  const { label, value, sublabel, alert, Icon } = data;
-  const borderColor = alertBorderColor[alert];
-  const bgColor = alertBgColor[alert];
+  const { label, value, sublabel, alert, Icon, progress = 0, trend, accentColor } = data;
+  const color = alertColor[alert];
   const isUnavailable = value === "No disponible";
+  const { Icon: TrendIcon, text: defaultTrendText } = trendMeta[alert];
+  const trendText = trend ?? defaultTrendText;
 
   return (
     <Paper
       sx={{
-        p: 2.5,
-        borderLeft: `4px solid ${borderColor}`,
-        bgcolor: bgColor,
+        border: `1px solid ${accentColor}55`,
+        bgcolor: `${accentColor}0d`,
+        borderRadius: 3,
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
-        transition: "border 0.2s",
+        overflow: "hidden",
+        transition: "border-color 0.2s, box-shadow 0.2s",
         "&:hover": {
-          borderColor: borderColor,
+          borderColor: `${accentColor}aa`,
+          boxShadow: `0 0 16px ${accentColor}22`,
         },
       }}
     >
-      <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 1.5 }}>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 32,
-            height: 32,
-            borderRadius: 1.5,
-            bgcolor: `${borderColor}22`,
-          }}
-        >
-          <Icon sx={{ fontSize: 18, color: borderColor }} />
-        </Box>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: 0.5,
-          }}
-        >
-          {label}
-        </Typography>
-      </Stack>
-
-      <Typography
-        variant="h4"
+      {/* ── Top section ── */}
+      <Stack
+        direction="row"
         sx={{
-          fontWeight: 700,
-          color: isUnavailable ? "text.disabled" : "text.primary",
-          fontSize: isUnavailable ? "1rem !important" : undefined,
-          lineHeight: 1.2,
-          mb: 0.5,
+          p: 2.5,
+          pb: 1.5,
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexGrow: 1,
         }}
       >
-        {value}
-      </Typography>
+        {/* Left column — icon + title + metric + sublabel */}
+        <Stack sx={{ flexGrow: 1, pr: 2 }}>
+          {/* Icon badge + title */}
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: "center", mb: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                border: `1px solid ${accentColor}`,
+                bgcolor: `${accentColor}18`,
+                flexShrink: 0,
+              }}
+            >
+              <Icon sx={{ fontSize: 16, color: accentColor }} />
+            </Box>
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: 0.8,
+                color: "text.secondary",
+                lineHeight: 1.3,
+              }}
+            >
+              {label}
+            </Typography>
+          </Stack>
 
-      {sublabel && (
-        <Typography variant="caption" color="text.secondary">
-          {sublabel}
-        </Typography>
-      )}
+          {/* Main metric */}
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: isUnavailable ? "text.disabled" : "text.primary",
+              fontSize: isUnavailable ? "1rem !important" : { xs: "1.6rem", sm: "1.9rem" },
+              lineHeight: 1.15,
+              mb: 0.75,
+            }}
+          >
+            {value}
+          </Typography>
+
+          {/* Supporting text */}
+          {sublabel && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ lineHeight: 1.4 }}
+            >
+              {sublabel}
+            </Typography>
+          )}
+        </Stack>
+
+        {/* Right column — circular progress ring */}
+        <Box
+          sx={{
+            position: "relative",
+            width: RING_SIZE,
+            height: RING_SIZE,
+            flexShrink: 0,
+          }}
+        >
+          {/* Track (background circle) */}
+          <CircularProgress
+            variant="determinate"
+            value={100}
+            size={RING_SIZE}
+            thickness={RING_THICKNESS}
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              color: `${color}1a`,
+            }}
+          />
+          {/* Filled arc */}
+          <CircularProgress
+            variant="determinate"
+            value={progress}
+            size={RING_SIZE}
+            thickness={RING_THICKNESS}
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              color,
+              "& .MuiCircularProgress-circle": {
+                strokeLinecap: "round",
+                transition: "stroke-dashoffset 0.6s ease",
+              },
+            }}
+          />
+          {/* Center label */}
+          <Box
+            sx={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              px: 0.5,
+            }}
+          >
+            <Typography
+              sx={{
+                fontWeight: 700,
+                fontSize: isUnavailable ? "0.6rem" : "0.82rem",
+                color: isUnavailable ? "text.disabled" : "text.primary",
+                textAlign: "center",
+                lineHeight: 1.2,
+                fontFamily: "'Space Grotesk', sans-serif",
+              }}
+            >
+              {value}
+            </Typography>
+          </Box>
+        </Box>
+      </Stack>
+
+      {/* ── Trend indicator strip ── */}
+      <Box
+        sx={{
+          px: 2.5,
+          py: 1.25,
+          bgcolor: `${color}0d`,
+          borderTop: `1px solid ${color}33`,
+        }}
+      >
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 26,
+              height: 26,
+              flexShrink: 0,
+            }}
+          >
+            <TrendIcon sx={{ fontSize: 26, color }} />
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{ fontWeight: 600, color, lineHeight: 1 }}
+          >
+            {trendText}
+          </Typography>
+        </Stack>
+      </Box>
     </Paper>
   );
 };
