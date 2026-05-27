@@ -33,4 +33,8 @@ export const API_ENDPOINTS = {
     update: (sprintId: string) => `/api/sprints/${sprintId}`,
     summary: (sprintId: string) => `/api/sprints/${sprintId}/summary`,
   },
+  analytics: {
+    byProject: (projectId: string) => `/api/analytics/project/${projectId}`,
+    bySprint: (sprintId: string) => `/api/analytics/sprint/${sprintId}`,
+  },
 };

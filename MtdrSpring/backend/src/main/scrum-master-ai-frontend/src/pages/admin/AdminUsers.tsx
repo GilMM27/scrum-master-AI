@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { CreateManagedUserRequest, ManagedUserRole, ManagedUserStatus, UserDetail, UsersFilterState, UserSummary } from "../../features/users/types/users.types";
 import { createManagedUser, getAllUsers, getUserById, updateUserAuthorization, updateUserRole } from "../../features/users/services/users.services";
 import DashboardLayout from "../../layouts/DashboardLayout";
@@ -28,7 +28,7 @@ const AdminUsersContent = () => {
 
   const { showSuccess, showError } = useNotification();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await getAllUsers();
@@ -42,11 +42,11 @@ const AdminUsersContent = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
   useEffect(() => {
     void fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   const filteredUsers = useMemo(() => {
     const searchValue = filters.search.toLowerCase();
@@ -233,6 +233,7 @@ const AdminUsersContent = () => {
       </Stack>
 
       <CreateUserDialog
+        key={String(createOpen)}
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         loading={createLoading}

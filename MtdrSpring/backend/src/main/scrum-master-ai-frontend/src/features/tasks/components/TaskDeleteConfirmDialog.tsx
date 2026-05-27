@@ -21,7 +21,7 @@ const TaskDeleteConfirmDialog = ({ open, taskTitle, loading = false, onClose, on
           </Typography>
         </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading} variant="outlined">
+        <Button onClick={onClose} disabled={loading} variant="outlined" color="info">
           Cancelar
         </Button>
         <Button onClick={onConfirm} disabled={loading} variant="contained" color="error">

@@ -6,21 +6,14 @@ import TaskFiltersBar from "../../features/tasks/components/TaskFiltersBar";
 import TaskStatsChips from "../../features/tasks/components/TaskStatsChips";
 import TasksTable from "../../features/tasks/components/TasksTable";
 import TaskDeleteConfirmDialog from "../../features/tasks/components/TaskDeleteConfirmDialog";
-import { applyTaskFilters } from "../../features/tasks/utils/taskFilters";
+import { applyTaskFilters, TASK_FILTERS_INITIAL_STATE } from "../../features/tasks/utils/taskFilters";
 import { getTaskStats } from "../../features/tasks/utils/taskStats";
-import type { CreateTaskPayload, SprintOption, TaskAssignee, TaskDetailItem, TaskDialogMode, TaskFiltersState, TaskItem, UpdateTaskPayload } from "../../features/tasks/types/tasks.types";
+import type { CreateTaskPayload, TaskDialogMode, TaskFiltersState, TaskItem, UpdateTaskPayload } from "../../features/tasks/types/tasks.types";
 import TaskFormDialog from "../../features/tasks/components/TaskFormDialog";
-import { getProjectTasks, getTaskDetails, getProjectDevelopers, getAvailableSprints, createTask, updateTask, deleteTask } from "../../features/tasks/services/tasks.service";
+import { createTask, deleteTask, getProjectTasks, updateTask } from "../../features/tasks/services/tasks.service";
+import useTaskDialogData from "../../features/tasks/hooks/useTaskDialogData";
 import useProject from "../../hooks/useProject";
 import useNotification from "../../hooks/useNotification";
-
-const initialFilters: TaskFiltersState = {
-  search: "",
-  status: "",
-  priority: "",
-  inReview: false,
-  blocked: false,
-};
 
 const ManagerBacklogContent = () => {
   const { selectedProjectId } = useProject();
@@ -28,15 +21,12 @@ const ManagerBacklogContent = () => {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [tasksLoading, setTasksLoading] = useState(false);
 
-  const [developers, setDevelopers] = useState<TaskAssignee[]>([]);
-  const [sprints, setSprints] = useState<SprintOption[]>([]);
-
-  const [filters, setFilters] = useState<TaskFiltersState>(initialFilters);
+  const [filters, setFilters] = useState<TaskFiltersState>(
+    TASK_FILTERS_INITIAL_STATE,
+  );
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<TaskDialogMode>("create");
-  const [selectedTask, setSelectedTask] = useState<TaskDetailItem | null>(null);
-  const [detailLoading, setDetailLoading] = useState(false);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [taskPendingDelete, setTaskPendingDelete] = useState<TaskItem | null>(
@@ -44,6 +34,15 @@ const ManagerBacklogContent = () => {
   );
 
   const { showSuccess, showError } = useNotification();
+  const {
+    clearSelectedTask,
+    detailLoading,
+    developers,
+    loadReferenceData,
+    loadTaskDetails,
+    selectedTask,
+    sprintOptions,
+  } = useTaskDialogData({ projectId: selectedProjectId });
 
   const fetchTasks = useCallback(async () => {
     if (!selectedProjectId) return;
@@ -56,31 +55,13 @@ const ManagerBacklogContent = () => {
     } finally {
       setTasksLoading(false);
     }
-  }, [selectedProjectId]);
-
-  const fetchProjectData = useCallback(async () => {
-    if (!selectedProjectId) {
-      setDevelopers([]);
-      setSprints([]);
-      return;
-    }
-    try {
-      const [devs, availSprints] = await Promise.all([
-        getProjectDevelopers(selectedProjectId),
-        getAvailableSprints(selectedProjectId),
-      ]);
-      setDevelopers(devs);
-      setSprints(availSprints);
-    } catch {
-      // non-critical: form will show empty lists
-    }
-  }, [selectedProjectId]);
+  }, [selectedProjectId, showError]);
 
   useEffect(() => {
     setTasks([]);
     fetchTasks();
-    fetchProjectData();
-  }, [fetchTasks, fetchProjectData]);
+    loadReferenceData();
+  }, [fetchTasks, loadReferenceData]);
 
   const filteredTasks = useMemo(
     () => applyTaskFilters(tasks, filters),
@@ -88,8 +69,8 @@ const ManagerBacklogContent = () => {
   );
 
   const activeSprintId = useMemo(
-    () => sprints.find((s) => s.status === "ACTIVE")?.sprintId ?? null,
-    [sprints],
+    () => sprintOptions.find((sprint) => sprint.status === "ACTIVE")?.sprintId ?? null,
+    [sprintOptions],
   );
 
   const stats = useMemo(
@@ -99,23 +80,20 @@ const ManagerBacklogContent = () => {
 
   const openCreateDialog = () => {
     setDialogMode("create");
-    setSelectedTask(null);
+    clearSelectedTask();
     setDialogOpen(true);
   };
 
   const openViewDialog = async (task: TaskItem) => {
     setDialogMode("view");
-    setSelectedTask(null);
+    clearSelectedTask();
     setDialogOpen(true);
-    setDetailLoading(true);
-    try {
-      const detail = await getTaskDetails(task.taskId);
-      setSelectedTask(detail);
-    } catch {
-      showError("No fue posible cargar los detalles de la tarea.");
+    const taskDetail = await loadTaskDetails(task.taskId, {
+      onError: () => showError("No fue posible cargar los detalles de la tarea."),
+    });
+
+    if (!taskDetail) {
       setDialogOpen(false);
-    } finally {
-      setDetailLoading(false);
     }
   };
 
@@ -137,7 +115,7 @@ const ManagerBacklogContent = () => {
   ) => {
     try {
       await updateTask(taskId, payload);
-      setSelectedTask(null);
+      clearSelectedTask();
       showSuccess("Tarea actualizada exitosamente.");
       setDialogOpen(false);
       await fetchTasks();
@@ -158,7 +136,7 @@ const ManagerBacklogContent = () => {
       setTasks((prev) =>
         prev.filter((t) => t.taskId !== taskPendingDelete.taskId),
       );
-      setSelectedTask(null);
+      clearSelectedTask();
       setTaskPendingDelete(null);
       showSuccess("La tarea se eliminó correctamente.");
       setDeleteOpen(false);
@@ -197,11 +175,11 @@ const ManagerBacklogContent = () => {
         mode={dialogMode}
         task={selectedTask}
         developers={developers}
-        sprints={sprints}
+        sprints={sprintOptions}
         loading={detailLoading}
         onClose={() => {
           setDialogOpen(false);
-          setSelectedTask(null);
+          clearSelectedTask();
         }}
         onDeleteRequest={handleDeleteRequest}
         onSubmitCreate={handleCreateTask}

@@ -1,4 +1,5 @@
-import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { ProjectSelectorItem } from '../types/Project.types';
 import { getMyProjectsSelector } from '../features/projects/services/project.service';
 import useAuth from '../hooks/useAuth';
@@ -43,9 +44,6 @@ const ProjectProvider = ({ children }: ProjectProviderProps) => {
     useEffect(() => {
         fetchProjects();
     }, [fetchProjects]);
-
-    const renderCount = useRef(0);
-    renderCount.current += 1;
 
     const value = useMemo(() => {
         const selectedProject = projects.find((p) => p.projectId === selectedProjectId) ?? null;
