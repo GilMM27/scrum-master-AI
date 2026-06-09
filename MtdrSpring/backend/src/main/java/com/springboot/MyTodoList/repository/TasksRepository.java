@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.springboot.MyTodoList.model.Tasks;
 import com.springboot.MyTodoList.model.TaskStatus;
@@ -46,5 +48,8 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID> {
     boolean existsByTaskId(UUID taskId);
 
     List<Tasks> findBySprintIdOrderByStoryPoints(UUID sprintId);
+
+    @Query("SELECT t FROM Tasks t WHERE t.projectId = :projectId AND (t.createdAt >= :since OR t.startedAt >= :since OR t.deliveredAt >= :since)")
+    List<Tasks> findRecentActivityByProjectId(@Param("projectId") UUID projectId, @Param("since") OffsetDateTime since);
     
 }
