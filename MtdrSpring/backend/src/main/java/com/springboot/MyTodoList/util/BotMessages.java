@@ -12,7 +12,8 @@ public enum BotMessages {
             + "• "+BotCommands.TASK_UPDATE.getCommand()+" - Gestionar tus tareas\n"
             + "• "+BotCommands.GENERATE_TASK.getCommand()+" - Crear una nueva tarea (Proyecto, Título, Descripción, Prioridad, Tiempo)\n"
             + "• "+BotCommands.ASSIGN_TASK.getCommand()+" - Asignar tareas a Sprints o Usuarios\n"
-            + "• "+BotCommands.KPI.getCommand()+" - Ver los KPIs de un proyecto\n\n"
+            + "• "+BotCommands.KPI.getCommand()+" - Ver los KPIs de un proyecto\n"
+            + "• "+BotCommands.REPORT.getCommand()+" - Generar reporte diario con IA\n\n"
             + "_Nota: Usa "+BotCommands.LOGIN.getCommand()+" primero para vincular tu cuenta y acceder a todas las funciones._"),
 	BOT_REGISTERED_STARTED("¡Bot registrado e iniciado con éxito!"),
 	ITEM_DONE("¡Tarea completada! Selecciona /todolist para volver a la lista de tareas, o /start para ir a la pantalla principal."), 

@@ -41,7 +41,20 @@ public class BotHelper {
 			bot.execute(messageToTelegram);
 
 		} catch (Exception e) {
-			logger.error(e.getLocalizedMessage(), e);
+			logger.warn("Failed to send message with Markdown, falling back to plain text. ChatId: {}, Error: {}", chatId, e.getMessage());
+			try {
+				SendMessage messageToTelegram = 
+						SendMessage
+						.builder()
+						.chatId(chatId)
+						.text(text)
+						.replyMarkup(new ReplyKeyboardRemove(true))
+						.build()
+					;
+				bot.execute(messageToTelegram);
+			} catch (Exception ex) {
+				logger.error("Failed to send plain text message to Telegram: {}", ex.getLocalizedMessage(), ex);
+			}
 		}
 	}
 
@@ -61,7 +74,20 @@ public class BotHelper {
 			bot.execute(messageToTelegram);
 
 		} catch (Exception e) {
-			logger.error(e.getLocalizedMessage(), e);
+			logger.warn("Failed to send message with Markdown (keyboard), falling back to plain text. ChatId: {}, Error: {}", chatId, e.getMessage());
+			try {
+				SendMessage messageToTelegram = 
+						SendMessage
+						.builder()
+						.chatId(chatId)
+						.text(text)
+						.replyMarkup(rk)
+						.build()
+					;
+				bot.execute(messageToTelegram);
+			} catch (Exception ex) {
+				logger.error("Failed to send plain text message with keyboard to Telegram: {}", ex.getLocalizedMessage(), ex);
+			}
 		}
 	}
 
