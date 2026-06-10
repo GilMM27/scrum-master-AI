@@ -1,5 +1,8 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LoginResponse {
     private String token;
     private String username;

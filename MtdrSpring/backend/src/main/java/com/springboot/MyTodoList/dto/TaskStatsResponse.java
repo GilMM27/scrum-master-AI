@@ -1,5 +1,7 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 public class TaskStatsResponse {
     private long totalProjectTasks;
     private long totalCurrentSprintTasks;

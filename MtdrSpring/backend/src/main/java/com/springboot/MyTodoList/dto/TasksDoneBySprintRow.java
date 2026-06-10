@@ -1,8 +1,11 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.Map;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TasksDoneBySprintRow {
     private UUID sprintId;
     private String sprintName;

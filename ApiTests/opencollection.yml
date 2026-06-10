@@ -19,6 +19,18 @@ request:
     type: bearer
     token: "{{BearThoken}}"
 bundled: false
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        // Initialize common variables to empty strings if not already set
+        const vars = ["ProjectVar", "sprint", "userId", "TestTaskId", "BearThoken", "username", "password", "email"];
+        vars.forEach(v => {
+          if (bru.getVar(v) === undefined) {
+            bru.setVar(v, "");
+          }
+        });
+
 extensions:
   bruno:
     ignore:

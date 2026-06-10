@@ -1,11 +1,11 @@
 info:
   name: Testing creation of tasks
   type: http
-  seq: 4
+  seq: 1
 
 http:
   method: POST
-  url: http://localhost:8080/api/tasks
+  url: "{{baseUrl}}/api/tasks"
   body:
     type: json
     data: |-
@@ -13,6 +13,9 @@ http:
         "title": "newTest Some",
         "description": "Add login functionality with JWT tokens",
       //   "sprintId":"b6571da-d574-4b77-948a-2fff48f639ef",
+        "projectId":"{{ProjectVar}}",
+        
+        
         "storyPoints": 5
       }
   auth: inherit
@@ -21,8 +24,10 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        bru.setVar('TestTaskId',res.getBody().taskId)
-        console.log("id-: "+bru.getVar('TestTaskId'))
+        if (res.getStatus() === 201 || res.getStatus() === 200) {
+          bru.setVar('TestTaskId', res.getBody().taskId);
+          console.log("Created TestTaskId: " + bru.getVar('TestTaskId'));
+        }
 
 settings:
   encodeUrl: true

@@ -1,11 +1,13 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.SprintStatus;
 import com.springboot.MyTodoList.model.Sprints;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateSprintRequest {
     private UUID projectId;
     private String name;

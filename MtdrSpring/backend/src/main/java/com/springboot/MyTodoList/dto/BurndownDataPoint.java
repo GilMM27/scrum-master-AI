@@ -1,5 +1,8 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BurndownDataPoint {
     private String date;
     private Double remaining;

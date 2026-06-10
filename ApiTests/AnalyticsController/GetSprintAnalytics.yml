@@ -1,11 +1,11 @@
 info:
-  name: Assing Task to user
+  name: Get Sprint Analytics
   type: http
-  seq: 1
+  seq: 2
 
 http:
-  method: POST
-  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}/assignees/{{userId}}"
+  method: GET
+  url: "{{baseUrl}}/api/analytics/sprint/{{sprint}}"
   auth: inherit
 
 settings:

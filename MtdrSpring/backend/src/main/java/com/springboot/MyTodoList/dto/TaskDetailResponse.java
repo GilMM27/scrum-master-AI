@@ -1,5 +1,6 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.TaskPriority;
 import com.springboot.MyTodoList.model.TaskStatus;
 
@@ -7,6 +8,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TaskDetailResponse {
     private UUID taskId;
     private UUID projectId;

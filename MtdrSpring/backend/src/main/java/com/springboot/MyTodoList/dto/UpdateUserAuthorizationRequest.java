@@ -1,7 +1,9 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.AccountStatus;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateUserAuthorizationRequest {
     private AccountStatus accountStatus;
     

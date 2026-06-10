@@ -52,4 +52,8 @@ public interface TasksRepository extends JpaRepository<Tasks, UUID> {
     @Query("SELECT t FROM Tasks t WHERE t.projectId = :projectId AND (t.createdAt >= :since OR t.startedAt >= :since OR t.deliveredAt >= :since)")
     List<Tasks> findRecentActivityByProjectId(@Param("projectId") UUID projectId, @Param("since") OffsetDateTime since);
     
+    void deleteByProjectId(UUID projectId);
+
+    void deleteBySprintId(UUID sprintId);
+    
 }

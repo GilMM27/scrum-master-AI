@@ -21,4 +21,6 @@ public interface SprintsRepository extends JpaRepository<Sprints, UUID> {
     List<Sprints> findByStatus(SprintStatus status);
 
     List<Sprints> findByStartDateBetween(LocalDate startDate, LocalDate endDate);
+
+    void deleteByProjectId(UUID projectId);
 }

@@ -68,4 +68,9 @@ public class ProjectController {
     public List<ProjectMembers> getUserProjects(@PathVariable UUID userId) {
         return projectMemberService.getUserProjects(userId);
     }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable UUID projectId) {
+        return projectService.deleteProject(projectId);
+    }
 }

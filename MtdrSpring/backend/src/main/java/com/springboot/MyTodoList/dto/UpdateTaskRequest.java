@@ -1,11 +1,14 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.UUID;
 
 import com.springboot.MyTodoList.model.TaskPriority;
 import com.springboot.MyTodoList.model.TaskStatus;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateTaskRequest {
     private String title;
     private String description;

@@ -1,7 +1,10 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.UUID;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TaskAssigneeResponse {
     private UUID userId;
     private String username;

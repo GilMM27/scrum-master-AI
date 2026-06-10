@@ -1,9 +1,11 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.Projects;
 
 import java.time.OffsetDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateProjectRequest {
     private String name;
     private String description;

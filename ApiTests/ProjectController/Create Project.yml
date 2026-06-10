@@ -1,7 +1,7 @@
 info:
   name: Create Project
   type: http
-  seq: 5
+  seq: 1
 
 http:
   method: POST
@@ -10,15 +10,22 @@ http:
     type: json
     data: |-
       {
-        "name": "My Project For testing",
+        "name": "{{dynamicProjectName}}",
         "description": "Optional description"
       }
   auth: inherit
 
 runtime:
   scripts:
+    - type: before-request
+      code: |-
+        bru.setVar("dynamicProjectName", "Project " + Date.now());
+
     - type: after-response
-      code: bru.setVar("ProjectVar", res.getBody().projectId)
+      code: |-
+        if (res.getStatus() === 201) {
+          bru.setVar("ProjectVar", res.getBody().projectId);
+        }
 
 settings:
   encodeUrl: true

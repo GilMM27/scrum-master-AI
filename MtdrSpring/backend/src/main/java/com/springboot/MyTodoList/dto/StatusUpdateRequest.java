@@ -1,7 +1,9 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.TaskStatus;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StatusUpdateRequest {
     private TaskStatus status;
 

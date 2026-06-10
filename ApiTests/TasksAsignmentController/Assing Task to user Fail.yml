@@ -1,11 +1,11 @@
 info:
-  name: AddUserToProject
+  name: Assing Task to user Fail
   type: http
-  seq: 2
+  seq: 1
 
 http:
   method: POST
-  url: "{{baseUrl}}/api/projects/{{ProjectVar}}/members/{{userId}}"
+  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}/assignees/{{userId}}"
   auth: inherit
 
 settings:
