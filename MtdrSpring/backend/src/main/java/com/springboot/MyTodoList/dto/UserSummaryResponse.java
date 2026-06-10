@@ -1,10 +1,13 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.UUID;
 
 import com.springboot.MyTodoList.model.AccountStatus;
 import com.springboot.MyTodoList.model.UserRole;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserSummaryResponse {
     private UUID userId;
     private String username;

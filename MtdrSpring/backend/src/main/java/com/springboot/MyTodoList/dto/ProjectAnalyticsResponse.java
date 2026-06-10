@@ -1,7 +1,10 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectAnalyticsResponse {
     private Double avgLeadTimeDays;
     private Double avgCycleTimeDays;

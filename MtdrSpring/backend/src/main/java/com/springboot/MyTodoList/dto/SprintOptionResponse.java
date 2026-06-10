@@ -1,10 +1,13 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
 import com.springboot.MyTodoList.model.SprintStatus;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SprintOptionResponse {
     private UUID sprintId;
     private String name;

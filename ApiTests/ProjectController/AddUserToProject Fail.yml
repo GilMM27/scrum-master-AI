@@ -1,11 +1,11 @@
 info:
-  name: GetBlocked
+  name: AddUserToProject Fail
   type: http
-  seq: 9
+  seq: 2
 
 http:
-  method: GET
-  url: "{{baseUrl}}/api/tasks/blocked"
+  method: POST
+  url: "{{baseUrl}}/api/projects/{{ProjectVar}}/members/{{userId}}"
   auth: inherit
 
 settings:

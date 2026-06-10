@@ -11,17 +11,24 @@ http:
     data: |-
       {
         "projectId": "{{ProjectVar}}",
-        "name": "Sprint 1", 
+        "name": "{{dynamicSprintName}}", 
         "startDate": "2026-04-15",
-        "endDate": "2026-09-05",
+        "endDate": "2026-04-25",
         "status": "PLANNED"
       }
   auth: inherit
 
 runtime:
   scripts:
+    - type: before-request
+      code: |-
+        bru.setVar("dynamicSprintName", "Sprint " + Date.now());
+
     - type: after-response
-      code: bru.setEnvVar("sprint", res.getBody().sprintId)
+      code: |-
+        if (res.getStatus() === 201) {
+          bru.setVar("sprint", res.getBody().sprintId);
+        }
 
 settings:
   encodeUrl: true

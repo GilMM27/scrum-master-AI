@@ -54,4 +54,9 @@ public class SprintController {
     public ResponseEntity<?> getSprintSummary(@PathVariable UUID sprintId) {
         return sprintService.getSprintSummary(sprintId);
     }
+
+    @DeleteMapping("/{sprintId}")
+    public ResponseEntity<?> deleteSprint(@PathVariable UUID sprintId) {
+        return sprintService.deleteSprint(sprintId);
+    }
 }

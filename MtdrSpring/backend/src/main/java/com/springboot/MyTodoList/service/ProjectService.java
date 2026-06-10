@@ -7,6 +7,8 @@ import com.springboot.MyTodoList.model.Projects;
 import java.time.OffsetDateTime;
 import com.springboot.MyTodoList.repository.ProjectMembersRepository;
 import com.springboot.MyTodoList.repository.ProjectsRepository;
+import com.springboot.MyTodoList.repository.TasksRepository;
+import com.springboot.MyTodoList.repository.SprintsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,12 @@ public class ProjectService {
 
     @Autowired
     private ProjectMembersRepository projectMembersRepository;
+
+    @Autowired
+    private TasksRepository tasksRepository;
+
+    @Autowired
+    private SprintsRepository sprintsRepository;
 
     public ResponseEntity<?> createProject(CreateProjectRequest request, UUID creatorId) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
@@ -70,5 +78,16 @@ public class ProjectService {
 
     public List<Projects> getAllProjects() {
         return projectsRepository.findAll();
+    }
+
+    public ResponseEntity<?> deleteProject(UUID projectId) {
+        if (!projectsRepository.existsById(projectId)) {
+            return ResponseEntity.notFound().build();
+        }
+        tasksRepository.deleteByProjectId(projectId);
+        sprintsRepository.deleteByProjectId(projectId);
+        projectMembersRepository.deleteByProjectId(projectId);
+        projectsRepository.deleteById(projectId);
+        return ResponseEntity.ok(Map.of("deleted", true));
     }
 }

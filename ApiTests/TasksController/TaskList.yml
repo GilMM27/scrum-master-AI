@@ -1,7 +1,7 @@
 info:
   name: TaskList
   type: http
-  seq: 1
+  seq: 2
 
 http:
   method: GET
@@ -12,8 +12,13 @@ runtime:
   scripts:
     - type: after-response
       code: |-
-        bru.setVar('TestTaskId',res.getBody()[0].taskId)
-        console.log("id-: "+bru.getVar('TestTaskId'))
+        const body = res.getBody();
+        if (body && Array.isArray(body) && body.length > 0) {
+          bru.setVar('TestTaskId', body[0].taskId);
+          console.log("Found TestTaskId: " + bru.getVar('TestTaskId'));
+        } else {
+          console.warn("No tasks found in TaskList response.");
+        }
   actions:
     - type: set-variable
       phase: after-response
@@ -34,7 +39,7 @@ examples:
   - name: exampleOutput
     description: Basic list
     request:
-      url: http://localhost:8080/api/tasks
+      url: "{{baseUrl}}/api/tasks"
       method: GET
     response:
       status: 200

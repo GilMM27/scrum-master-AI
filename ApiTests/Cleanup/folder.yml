@@ -1,7 +1,7 @@
 info:
-  name: TasksController
+  name: Cleanup
   type: folder
-  seq: 4
+  seq: 7
 
 request:
   auth: inherit

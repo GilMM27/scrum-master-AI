@@ -145,7 +145,6 @@ public class TasksService {
         if (taskOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
         Tasks task = taskOpt.get();
 
         ResponseEntity<?> validationError = validateCreateOrUpdateRequest(
@@ -166,7 +165,7 @@ public class TasksService {
         }
         
         if (request.getPriority() != null) task.setPriority(request.getPriority());
-        task.setSprintId(request.getSprintId());
+        if (request.getSprintId() != null) task.setSprintId(request.getSprintId());
         if (request.getStoryPoints() != null) task.setStoryPoints(request.getStoryPoints());
         if (request.getExpectedHours() != null) task.setExpectedHours(request.getExpectedHours());
 
@@ -228,7 +227,7 @@ public class TasksService {
 
     public ResponseEntity<?> updateTaskAssignees(UUID taskId, TaskAssigneeUpdateRequest request) {
         if (!tasksRepository.existsById(taskId)) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(Map.of("error","taskId invalid"));
         }
 
         List<UUID> assigneeIds = request.getAssigneeIds() != null ? request.getAssigneeIds() : List.of();
@@ -308,6 +307,9 @@ public class TasksService {
     }
 
     private void syncAssignments(UUID taskId, List<UUID> assigneeIds) {
+        if(assigneeIds.isEmpty()){
+            return;
+        }
         List<TaskAssignments> currentAssignments = taskAssignmentsRepository.findByTaskId(taskId);
         Set<UUID> currentUserIds = currentAssignments.stream()
                 .map(TaskAssignments::getUserId)

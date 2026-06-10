@@ -1,7 +1,9 @@
 package com.springboot.MyTodoList.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.springboot.MyTodoList.model.UserRole;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateUserRequest {
     private String username;
     private String email;

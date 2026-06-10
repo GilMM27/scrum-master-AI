@@ -1,19 +1,18 @@
 info:
-  name: ChangeStatus
+  name: Assing Task to user list
   type: http
-  seq: 5
+  seq: 2
 
 http:
-  method: PATCH
-  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}/status"
+  method: PUT
+  url: "{{baseUrl}}/api/tasks/{{TestTaskId}}/assignees"
   body:
     type: json
     data: |-
       {
-        "status":"IN_PROGRESS"
-        
-        
-        
+        "assigneeIds": [
+          "{{userId}}"
+        ]
       }
   auth: inherit
 

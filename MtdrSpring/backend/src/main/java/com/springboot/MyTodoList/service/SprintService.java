@@ -274,6 +274,15 @@ public class SprintService {
         return ResponseEntity.ok(summary);
     }
 
+    public ResponseEntity<?> deleteSprint(UUID sprintId) {
+        if (!sprintsRepository.existsById(sprintId)) {
+            return ResponseEntity.notFound().build();
+        }
+        tasksRepository.deleteBySprintId(sprintId);
+        sprintsRepository.deleteById(sprintId);
+        return ResponseEntity.ok(Map.of("deleted", true));
+    }
+
     private boolean isValidTransition(SprintStatus from, SprintStatus to) {
         switch (from) {
             case PLANNED:

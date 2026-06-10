@@ -102,6 +102,13 @@ public class UserManagementService {
         return mapToUserDetailResponse(updatedUser);
     }
 
+    public void deleteUser(UUID userId) {
+        if (!usersRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found with id: " + userId);
+        }
+        usersRepository.deleteById(userId);
+    }
+
     private UserSummaryResponse mapToUserSummaryResponse(Users user) {
         return new UserSummaryResponse(
             user.getUserId(),
