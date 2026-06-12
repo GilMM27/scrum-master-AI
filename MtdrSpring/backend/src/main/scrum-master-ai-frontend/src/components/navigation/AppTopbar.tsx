@@ -3,7 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import type { User } from "../../types/User.types";
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Chip, IconButton, Link, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { ChevronRightRounded, LogoutRounded, MenuRounded, NotificationsNoneRounded, PersonOutlineRounded, SettingsRounded } from "@mui/icons-material";
+import { ChevronRightRounded, LogoutRounded, MenuRounded, PersonOutlineRounded } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
 import StyledUserMenu from "../common/StyledUserMenu";
@@ -125,8 +125,9 @@ const AppTopbar = ({
         </Box>
 
         <Stack direction="row" spacing={1.25} sx={{ alignItems: "center" }}>
-          
-          <ProjectSelectorChip userRole={user.role} />
+          {(user.role === "MANAGER" || user.role === "DEVELOPER") && (
+            <ProjectSelectorChip userRole={user.role} />
+          )}
 
           <Chip
             label={getRoleLabel(user.role)}
@@ -138,30 +139,6 @@ const AppTopbar = ({
               borderColor: alpha("#77ffc0", 0.18),
             }}
           />
-
-          <Tooltip title="Notificaciones">
-            <IconButton
-              sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: alpha("#77ffc0", 0.04),
-              }}
-            >
-              <NotificationsNoneRounded />
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Configuración">
-            <IconButton
-              sx={{
-                border: "1px solid",
-                borderColor: "divider",
-                bgcolor: alpha("#77ffc0", 0.04),
-              }}
-            >
-              <SettingsRounded />
-            </IconButton>
-          </Tooltip>
 
           <Tooltip title="Cuenta">
             <IconButton
@@ -250,7 +227,7 @@ const AppTopbar = ({
               }}
             >
               Cerrar Sesión
-            </Button> 
+            </Button>
           </Stack>
         </StyledUserMenu>
       </Toolbar>
