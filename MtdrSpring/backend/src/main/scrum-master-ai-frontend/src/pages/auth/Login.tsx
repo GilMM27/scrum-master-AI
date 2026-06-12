@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Alert, Avatar, Box, Button, CircularProgress, IconButton, InputAdornment, Link, Stack, TextField, Typography } from "@mui/material";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import { Alert, Avatar, Button, CircularProgress, IconButton, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
@@ -176,23 +175,6 @@ export default function LoginPage() {
           </Alert>
         )}
         {successMessage && <Alert severity="success">{successMessage}</Alert>}
-        <Box sx={{ textAlign: "center", pt: 0.5 }}>
-          <Link
-            component="button"
-            type="button"
-            underline="hover"
-            onClick={() => navigate("/forgot-password")}
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.75,
-              fontSize: "0.95rem",
-            }}
-          >
-            <AutoAwesomeRoundedIcon sx={{ fontSize: 18 }} />
-            ¿Olvidaste tu contraseña?
-          </Link>
-        </Box>
       </Stack>
     </AuthLayout>
   );
