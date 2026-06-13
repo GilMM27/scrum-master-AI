@@ -12,6 +12,7 @@ import ManagerSprint from "../pages/manager/ManagerSprint";
 import ManagerDashboard from "../pages/manager/ManagerDashboard";
 
 import AdminUsers from "../pages/admin/AdminUsers";
+import AdminProjects from "../pages/admin/AdminProjects";
 
 import ProtectedRoute from "./ProtectedRoute";
 import RoleGuard from "./RoleGuard";
@@ -54,6 +55,7 @@ const AppRoutes = () => {
             element={<Navigate to="/admin/users" replace />}
           />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/projects" element={<AdminProjects />} />
         </Route>
       </Route>
 

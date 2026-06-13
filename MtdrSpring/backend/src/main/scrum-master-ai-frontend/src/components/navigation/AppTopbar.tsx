@@ -3,7 +3,7 @@ import useAuth from "../../hooks/useAuth";
 import type { User } from "../../types/User.types";
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Chip, IconButton, Link, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { ChevronRightRounded, LogoutRounded, MenuRounded, PersonOutlineRounded, Telegram as Telegram } from "@mui/icons-material";
+import { ChevronRightRounded, LogoutRounded, MenuRounded, Telegram } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
 import StyledUserMenu from "../common/StyledUserMenu";

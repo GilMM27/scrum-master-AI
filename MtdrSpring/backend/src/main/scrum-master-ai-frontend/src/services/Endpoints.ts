@@ -10,11 +10,18 @@ export const API_ENDPOINTS = {
     updateAuthorization: (userId: string) =>
       `/api/users/${userId}/authorization`,
     createManagedUser: "/api/users",
+    developers: "/api/users/developers",
+    projectsByUser: (userId: string) => `/api/users/${userId}/projects`,
   },
   projects: {
     base: "/api/projects",
+    all: "/api/projects",
     mySelector: "/api/projects/my/selector",
     developers: (projectId: string) => `/api/projects/${projectId}/developers`,
+    addMember: (projectId: string, userId: string) =>
+      `/api/projects/${projectId}/members/${userId}`,
+    removeMember: (projectId: string, userId: string) =>
+      `/api/projects/${projectId}/members/${userId}`,
   },
   tasks: {
     byProject: (projectId: string) => `/api/tasks/project/${projectId}`,

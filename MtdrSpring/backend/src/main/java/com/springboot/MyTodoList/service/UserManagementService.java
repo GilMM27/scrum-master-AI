@@ -102,6 +102,13 @@ public class UserManagementService {
         return mapToUserDetailResponse(updatedUser);
     }
 
+    public List<UserSummaryResponse> getDevelopers() {
+        return usersRepository.findByUserRole(UserRole.DEVELOPER).stream()
+                .filter(user -> user.getAccountStatus() == AccountStatus.ACTIVE)
+                .map(this::mapToUserSummaryResponse)
+                .collect(Collectors.toList());
+    }
+
     private UserSummaryResponse mapToUserSummaryResponse(Users user) {
         return new UserSummaryResponse(
             user.getUserId(),

@@ -1,10 +1,5 @@
 import AreaChartRounded from "@mui/icons-material/AreaChartRounded";
-import {
-  GroupRounded,
-  TableChartRounded,
-  ViewKanbanRounded,
-  type SvgIconComponent,
-} from "@mui/icons-material";
+import { FolderSharedRounded,GroupRounded, TableChartRounded, ViewKanbanRounded, type SvgIconComponent } from "@mui/icons-material";
 import type { UserRole } from "../../types/Role.types";
 
 export interface NavigationItem {
@@ -32,6 +27,7 @@ export const NAVIGATION_BY_ROLE: Record<UserRole, NavigationItem[]> = {
   ],
   ADMIN: [
     { label: "Gestión de Usuarios", path: "/admin/users", icon: GroupRounded },
+    { label: "Gestión de Proyectos", path: "/admin/projects", icon: FolderSharedRounded },
     //{ label: 'Gestión de Tareas', path: '/admin/tasks', icon: TableChartRounded },
     //{ label: "Gestión de Sprints", path: '/admin/projects', icon: ViewKanbanRounded },
     //{ label: "KPIs", path: '/admin/kpis', icon: AreaChartRounded },
