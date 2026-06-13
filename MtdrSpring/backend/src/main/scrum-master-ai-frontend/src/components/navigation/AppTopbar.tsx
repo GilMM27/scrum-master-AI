@@ -3,11 +3,12 @@ import useAuth from "../../hooks/useAuth";
 import type { User } from "../../types/User.types";
 import { AppBar, Avatar, Box, Breadcrumbs, Button, Chip, IconButton, Link, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import { alpha } from "@mui/material/styles";
-import { ChevronRightRounded, LogoutRounded, MenuRounded, PersonOutlineRounded } from "@mui/icons-material";
+import { ChevronRightRounded, LogoutRounded, MenuRounded, PersonOutlineRounded, Telegram as Telegram } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { getBreadcrumbsFromPath } from "./navigation.utils";
 import StyledUserMenu from "../common/StyledUserMenu";
 import ProjectSelectorChip from "../common/ProjectSelectorChip";
+import TelegramChatbotDialog from "../common/TelegramChatbotDialog";
 
 interface AppTopbarProps {
   drawerWidth: number;
@@ -38,6 +39,7 @@ const AppTopbar = ({
   const location = useLocation();
 
   const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null);
+  const [telegramOpen, setTelegramOpen] = useState(false);
 
   const breadcrumbs = useMemo(
     () => getBreadcrumbsFromPath(location.pathname, user.role),
@@ -140,6 +142,23 @@ const AppTopbar = ({
             }}
           />
 
+          <Tooltip title="Telegram">
+            <IconButton
+              onClick={() => setTelegramOpen(true)}
+              sx={{
+                border: "1px solid",
+                borderColor: alpha("#2AABEE", 0.35),
+                bgcolor: alpha("#2AABEE", 0.08),
+                color: "#2AABEE",
+                "&:hover": {
+                  bgcolor: alpha("#2AABEE", 0.18),
+                },
+              }}
+            >
+              <Telegram fontSize="small" />
+            </IconButton>
+          </Tooltip>
+
           <Tooltip title="Cuenta">
             <IconButton
               onClick={openUserMenu}
@@ -165,6 +184,8 @@ const AppTopbar = ({
           </Tooltip>
         </Stack>
 
+        <TelegramChatbotDialog open={telegramOpen} onClose={() => setTelegramOpen(false)} />
+
         <StyledUserMenu
           anchorEl={userAnchorEl}
           open={Boolean(userAnchorEl)}
@@ -186,45 +207,9 @@ const AppTopbar = ({
               fullWidth
               variant="outlined"
               size="small"
-              color="info"
-              onClick={closeUserMenu}
-              startIcon={<PersonOutlineRounded />}
-              sx={{
-                borderRadius: 1.5,
-                borderColor: "info.main",
-                color: "info.main",
-                bgcolor: (theme) => alpha(theme.palette.info.main, 0.08),
-                "&:hover": {
-                  bgcolor: (theme) => alpha(theme.palette.info.main, 0.16),
-                  borderColor: "info.main",
-                },
-                "& .MuiButton-startIcon": {
-                  color: "info.main",
-                },
-              }}
-            >
-              Perfil
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              size="small"
               color="error"
               onClick={handleLogout}
               startIcon={<LogoutRounded />}
-              sx={{
-                borderRadius: 1.5,
-                borderColor: "error.main",
-                color: "error.main",
-                bgcolor: (theme) => alpha(theme.palette.error.main, 0.08),
-                "&:hover": {
-                  bgcolor: (theme) => alpha(theme.palette.error.main, 0.16),
-                  borderColor: "error.main",
-                },
-                "& .MuiButton-startIcon": {
-                  color: "error.main",
-                },
-              }}
             >
               Cerrar Sesión
             </Button>
