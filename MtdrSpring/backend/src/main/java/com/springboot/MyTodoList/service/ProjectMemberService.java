@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.service;
 
 import com.springboot.MyTodoList.dto.ProjectDeveloperResponse;
+import com.springboot.MyTodoList.dto.ProjectSummaryResponse;
 import com.springboot.MyTodoList.exception.ResourceNotFoundException;
 import com.springboot.MyTodoList.model.AccountStatus;
 import com.springboot.MyTodoList.model.ProjectMembers;
@@ -65,6 +66,17 @@ public class ProjectMemberService {
 
     public List<ProjectMembers> getUserProjects(UUID userId) {
         return projectMembersRepository.findByUserId(userId);
+    }
+
+    public List<ProjectSummaryResponse> getUserProjectSummaries(UUID userId) {
+        List<ProjectMembers> memberships = projectMembersRepository.findByUserId(userId);
+        List<UUID> projectIds = memberships.stream()
+                .map(ProjectMembers::getProjectId)
+                .collect(Collectors.toList());
+        return projectsRepository.findAllById(projectIds).stream()
+                .map(project -> new ProjectSummaryResponse(project.getProjectId(), project.getName()))
+                .sorted(java.util.Comparator.comparing(ProjectSummaryResponse::getName))
+                .collect(Collectors.toList());
     }
 
     public List<ProjectDeveloperResponse> getActiveDevelopersByProject(UUID projectId) {

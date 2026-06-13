@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type { CreateManagedUserRequest, ManagedUserRole,} from "../types/users.types";
+import type { CreateManagedUserRequest, ManagedUserRole } from "../types/users.types";
 import { Alert, alpha, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, InputAdornment, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { CheckCircleRounded, CloseRounded, RadioButtonUncheckedRounded, VisibilityOffRounded, VisibilityRounded } from "@mui/icons-material";
+import mexicanFlag from "../../../assets/images/mexican-flag.png";
 
 interface CreateUserDialogProps {
   open: boolean;
@@ -12,14 +13,16 @@ interface CreateUserDialogProps {
 
 const USERNAME_MIN = 3;
 const USERNAME_MAX = 20;
-const PHONE_REGEX = /^\+?[\d\s\-().]{7,20}$/;
+const PHONE_REGEX = /^\d{10}$/;
 
 const passwordRules: { label: string; test: (p: string) => boolean }[] = [
   { label: "Al menos 8 caracteres", test: (p) => p.length >= 8 },
   { label: "Al menos una letra mayúscula", test: (p) => /[A-Z]/.test(p) },
   { label: "Al menos una letra minúscula", test: (p) => /[a-z]/.test(p) },
   { label: "Al menos un número", test: (p) => /\d/.test(p) },
-  { label: "Al menos un carácter especial (!@#$…)", test: (p) => /[^A-Za-z0-9]/.test(p),
+  {
+    label: "Al menos un carácter especial (!@#$…)",
+    test: (p) => /[^A-Za-z0-9]/.test(p),
   },
 ];
 
@@ -95,9 +98,7 @@ const CreateUserDialog = ({
       return false;
     }
     if (!PHONE_REGEX.test(phone)) {
-      setErrorMsg(
-        "Ingresa un número de celular válido (ej. +52 999 123 4567).",
-      );
+      setErrorMsg("Ingresa un número de celular válido de 10 dígitos.");
       return false;
     }
 
@@ -112,7 +113,7 @@ const CreateUserDialog = ({
       ...form,
       username: form.username.trim(),
       email: form.email.trim(),
-      cellPhone: form.cellPhone.trim(),
+      cellPhone: "52" + form.cellPhone.trim(),
     });
   };
 
@@ -262,10 +263,45 @@ const CreateUserDialog = ({
             label="Número de Celular"
             fullWidth
             value={form.cellPhone}
-            onChange={(e) => handleChange("cellPhone", e.target.value)}
+            onChange={(e) =>
+              handleChange(
+                "cellPhone",
+                e.target.value.replace(/\D/g, "").slice(0, 10),
+              )
+            }
             disabled={loading}
-            placeholder="+52 999 123 4567"
-            helperText="Formato internacional admitido: +52 999 123 4567"
+            placeholder="5512345678"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Stack
+                      direction="row"
+                      sx={{ alignItems: "center", gap: 0.75 }}
+                    >
+                      <Box
+                        component="img"
+                        src={mexicanFlag}
+                        alt="MX"
+                        sx={{
+                          width: 20,
+                          height: 14,
+                          borderRadius: "2px",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "text.secondary", fontWeight: 600 }}
+                      >
+                        +52
+                      </Typography>
+                    </Stack>
+                  </InputAdornment>
+                ),
+              },
+              htmlInput: { maxLength: 10, inputMode: "numeric" },
+            }}
           />
           <TextField
             select
