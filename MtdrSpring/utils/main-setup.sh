@@ -292,12 +292,16 @@ fi
 
 # Get MTDR_DB OCID
 while ! state_done MTDR_DB_OCID; do
-  MTDR_DB_OCID=`oci db autonomous-database list --compartment-id "$(cat state/COMPARTMENT_OCID)" --query 'join('"' '"',data[?"display-name"=='"'MTDRDB'"'].id)' --raw-output`
-  if [[ "$MTDR_DB_OCID" =~ ocid1.autonomousdatabase* ]]; then
+  MTDR_DB_OCID=$(oci db autonomous-database list \
+    --compartment-id "$(cat state/COMPARTMENT_OCID)" \
+    --query "data[?\"db-name\"=='$(cat state/MTDR_DB_NAME)' && \"lifecycle-state\"=='AVAILABLE'] | sort_by(@, &\"time-created\") | [-1].id" \
+    --raw-output)
+
+  if [[ "$MTDR_DB_OCID" =~ ^ocid1\.autonomousdatabase ]]; then
     state_set MTDR_DB_OCID "$MTDR_DB_OCID"
   else
     echo "ERROR: Incorrect Order DB OCID: $MTDR_DB_OCID"
-    exit
+    sleep 5
   fi
 done
 
